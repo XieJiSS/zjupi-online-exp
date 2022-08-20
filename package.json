@@ -24,7 +24,7 @@
     "express": "5.0.0-alpha.8",
     "log4js": "^6.6.1",
     "mysql2": "2",
-    "sequelize": "6"
+    "sequelize": "6.6.2"
   },
   "devDependencies": {
     "@types/node": "^18.7.6"

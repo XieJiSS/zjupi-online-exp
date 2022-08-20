@@ -26,7 +26,7 @@ require("async-exit-hook")((done) => {
 });
 
 module.exports =
-  /** @type {{ _promise: Promise<Sequelize>, hasAuthed: () => boolean, getSequelizeInst: () => Sequelize }} */ ({
+  /** @type {{ _promise: Promise<Sequelize>, hasAuthed: () => boolean, getGlobalSequelizeInst: () => Sequelize }} */ ({
     _promise: new Promise((resolve, reject) => {
       const sequelize = new Sequelize("db", "root", process.env["DB_MYSQL_PSWD"], {
         host: "localhost",
@@ -52,7 +52,7 @@ module.exports =
     hasAuthed() {
       return _sequelize !== null;
     },
-    getSequelizeInst() {
+    getGlobalSequelizeInst() {
       return _sequelize;
     },
   });

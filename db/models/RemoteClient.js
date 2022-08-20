@@ -2,11 +2,11 @@
 
 const assert = require("assert");
 
-const { getSequelizeInst, hasAuthed } = require("../connect");
+const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
-const sequelize = getSequelizeInst();
+const sequelize = getGlobalSequelizeInst();
 
 const _RemoteClient = sequelize.define(
   "remote_client",
@@ -24,6 +24,11 @@ const _RemoteClient = sequelize.define(
       type: Sequelize.DATE,
       allowNull: false,
     },
+    nextPassword: {
+      type: Sequelize.STRING,
+      allowNull: true,
+      defaultValue: null,
+    },
     ip: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -40,7 +45,7 @@ const _RemoteClient = sequelize.define(
          */
         // @ts-ignore
         const lastActive = this.lastActive;
-        return lastActive === null ? false : Date.now() - lastActive < 1000 * 60;
+        return lastActive === null ? false : Date.now() - lastActive < 1000 * 60 * 3;
       },
       set(_) {
         throw new Error("Do not try to set the online attribute of the RemoteClient Model!");
@@ -52,19 +57,24 @@ const _RemoteClient = sequelize.define(
   }
 );
 
-const { unionTypeValue } = require("../../util/type-helper");
-
-const ModelTypeInterface = {
-  clientId: "clientId",
-  password: "password",
-  passwordExpireAt: 0,
-  ip: "ip",
-  lastActive: unionTypeValue(0, null),
-  online: true,
-};
+/**
+ * @typedef TCreationAttributes
+ * @prop {string} clientId
+ * @prop {string} password
+ * @prop {Date} passwordExpireAt
+ * @prop {string | null} [nextPassword]
+ * @prop {string} ip
+ * @prop {Date | null} lastActive
+ *
+ * @typedef TAdditionalModelAttributes
+ * @prop {boolean} online
+ *
+ * @typedef TModelAttributes
+ * @type {TCreationAttributes & TAdditionalModelAttributes}
+ */
 
 /**
- * @type {import("sequelize").ModelCtor<import("sequelize").Model<any, any> & typeof ModelTypeInterface>}
+ * @type {Sequelize.ModelCtor<Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes>}
  */
 // @ts-ignore
 const RemoteClient = _RemoteClient;

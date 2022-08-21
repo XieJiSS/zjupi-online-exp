@@ -7,7 +7,9 @@ assert(hasAuthed());
 
 const { RemoteClient, RemoteCommand } = require("../../models");
 const logger = require("../../../util/logger")("remote-control-api");
-logger.error = require("../log-error").hookErrorLogUtil(__filename, logger.error.bind(logger));
+const { hookLogUtil } = require("../admin-log");
+logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
+logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
 
 // default to 4 hours. This is ok because when shared link expires, the password will be
 // updated by the panel automatically.
@@ -86,6 +88,20 @@ async function setRemoteCommandStatus(clientId, commandId, status, reportedResul
 
 /**
  * @param {string} clientId
+ * @param {Directive["command"]} commandType
+ */
+async function invalidateRemoteCommandByCommandType(clientId, commandType) {
+  await RemoteCommand.update(
+    {
+      status: "failed",
+      reportedResult: "invalidated by upcoming command of same commandType",
+    },
+    { where: { clientId, command: commandType } }
+  );
+}
+
+/**
+ * @param {string} clientId
  * @param {string} password
  * @param {string} ip
  * @param {boolean} isActive
@@ -122,7 +138,7 @@ async function removeRemoteClientById(clientId) {
   const client = await getRemoteClientById(clientId);
   if (!client) return;
   if (client.online === true) {
-    logger.error(`WARNING: removing a client that is still online, clientId: ${clientId}`);
+    logger.warn(`removing a client that is still online, clientId: ${clientId}`);
   }
   await client.destroy();
 }
@@ -132,6 +148,10 @@ async function removeRemoteClientById(clientId) {
  * @param {string} password
  */
 async function updatePasswordById(clientId, password) {
+  const client = await getRemoteClientById(clientId);
+  if (client === null) {
+    return null;
+  }
   await RemoteClient.update(
     {
       password,
@@ -140,7 +160,7 @@ async function updatePasswordById(clientId, password) {
     },
     { where: { clientId } }
   );
-  return await RemoteClient.findByPk(clientId);
+  return await getRemoteClientById(clientId);
 }
 
 /**
@@ -178,6 +198,7 @@ module.exports = {
   getRemoteCommandsByClientId,
   getRemoteCommandsByClientIdAndStatus,
   setRemoteCommandStatus,
+  invalidateRemoteCommandByCommandType,
   createRemoteClient,
   getRemoteClients,
   getRemoteClientById,

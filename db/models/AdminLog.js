@@ -8,10 +8,10 @@ assert(hasAuthed);
 const Sequelize = require("sequelize");
 const sequelize = getGlobalSequelizeInst();
 
-const _ErrorLog = sequelize.define(
-  "error_log",
+const _AdminLog = sequelize.define(
+  "admin_log",
   {
-    errorId: {
+    logId: {
       type: Sequelize.INTEGER,
       primaryKey: true,
       autoIncrement: true,
@@ -22,7 +22,10 @@ const _ErrorLog = sequelize.define(
       allowNull: false,
       defaultValue: Sequelize.fn("now"),
     },
-    errorText: {
+    level: {
+      type: Sequelize.ENUM("info", "warn", "error"),
+    },
+    text: {
       type: Sequelize.STRING,
       allowNull: false,
     },
@@ -37,11 +40,12 @@ const _ErrorLog = sequelize.define(
 /**
  * @typedef TCreationAttributes
  * @prop {Date} [createdAt]
- * @prop {string} errorText
+ * @prop {string} text
  * @prop {string} source __filename
+ * @prop {"info" | "warn" | "error"} level
  *
  * @typedef TAdditionalModelAttributes
- * @prop {number} errorId
+ * @prop {number} logId
  *
  * @typedef TModelAttributes
  * @type {TCreationAttributes & TAdditionalModelAttributes}
@@ -51,6 +55,6 @@ const _ErrorLog = sequelize.define(
  * @type {Sequelize.ModelCtor<Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes>}
  */
 // @ts-ignore
-const ErrorLog = _ErrorLog;
+const AdminLog = _AdminLog;
 
-module.exports = ErrorLog;
+module.exports = AdminLog;

@@ -12,15 +12,17 @@ const express = require("express");
 const app = express();
 
 const logger = require("../util/logger")(serverName);
-logger.error = require("../db/api/log-error").hookErrorLogUtil(__filename, logger.error.bind(logger));
+const { hookLogUtil } = require("../db/api/admin-log");
+logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
+logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
 
 app.use(function logRequest(req, res, next) {
   const hash = (~~(Math.random() * 2147483648)).toString(16).padStart(8, "0");
   logger.info(`IN  ${hash}: ${req.method} ${req.url} ${req.headers["x-real-ip"]}`);
-  next(); // pass the control to the next middleware
   res.once("finish", () => {
-    logger.info(`OUT ${hash}: ${res.statusCode} ${res.getHeader("content-type")} ${res.getHeader("content-length")}B`);
+    logger.info(`OUT ${hash}:`, res.statusCode, res.getHeader("content-type"), res.getHeader("content-length"));
   });
+  next(); // pass the control to the next middleware
 });
 
 app.use(function verify(req, res, next) {
@@ -51,7 +53,7 @@ app.get("/api/remote-control/clients", async (req, res) => {
 
 app.get("/api/remote-control/getUpdate/:clientId", async (req, res) => {
   const clientId = req.params.clientId;
-  logger.info("getUpdate", clientId);
+  logger.info("getUpdate request received from client", clientId);
   const client = await sql.getRemoteClientById(clientId);
   if (client === null) {
     res.json({
@@ -68,6 +70,7 @@ app.get("/api/remote-control/getUpdate/:clientId", async (req, res) => {
      */
     let args = [];
     if (client.nextPassword) args = [client.nextPassword];
+    await sql.invalidateRemoteCommandByCommandType(clientId, "changePassword");
     const command = await sql.createRemoteCommand(
       clientId,
       {
@@ -183,7 +186,7 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
     return;
   }
   const { clientId, commandId, password } = req.body;
-  logger.info("updatePassword", clientId, commandId, password);
+  logger.info("updatePassword request from", clientId, commandId, password);
   const client = await sql.getRemoteClientById(clientId);
   if (typeof password !== "string" || !/^[a-zA-Z0-9]+$/.test(password) || password.length < 6) {
     res.json({
@@ -211,12 +214,20 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
   }
   if (typeof commandId === "number") {
     const command = await sql.getRemoteCommandById(clientId, commandId);
-    if (command === null || command.status !== "running") {
+    if (command === null) {
       logger.error(`Client ${clientId} tried to update password with invalid command ${commandId}, rejected`);
       res.json({
         success: false,
         message: "Invalid commandId",
       });
+      return;
+    } else if (command.status !== "running") {
+      logger.error(`Client ${clientId} tried to reuse obsolete command ${commandId} (is: ${command.status}), rejected`);
+      res.json({
+        success: false,
+        message: "Obsolete commandId",
+      });
+      return;
     } else {
       logger.info(`Client ${clientId} has updated password to ${password}`);
       await sql.updatePasswordById(clientId, password);
@@ -226,6 +237,7 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
       });
       await sql.setRemoteCommandStatus(clientId, commandId, "finished", "password updated successfully");
       await sql.setActiveById(clientId);
+      return;
     }
   } else {
     res.json({
@@ -240,7 +252,7 @@ if (process.env["AUTO_PRUNE_DEAD_RCLIENT"] === "yes") {
     const clients = await sql.getRemoteClients();
     for (const client of clients) {
       if (client.online === false) {
-        logger.error(`Client ${client.clientId} is probably dead. Removing it automatically...`);
+        logger.warn(`Client ${client.clientId} is probably dead. Removing it automatically...`);
         await sql.removeRemoteClientById(client.clientId);
         const runningCommands = await sql.getRemoteCommandsByClientIdAndStatus(client.clientId, "running");
         for (const cmd of runningCommands) {

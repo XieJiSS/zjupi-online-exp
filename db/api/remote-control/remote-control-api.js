@@ -1,7 +1,6 @@
 // @ts-check
 
 const assert = require("assert");
-
 const { hasAuthed } = require("../../connect");
 assert(hasAuthed());
 

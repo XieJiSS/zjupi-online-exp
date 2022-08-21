@@ -6,6 +6,7 @@ const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
+const logger = require("../../util/logger")("RemoteClientModel");
 const sequelize = getGlobalSequelizeInst();
 
 const _RemoteClient = sequelize.define(
@@ -41,14 +42,15 @@ const _RemoteClient = sequelize.define(
       type: Sequelize.VIRTUAL,
       get() {
         /**
-         * @type {number | null}
+         * @type {TModel}
          */
         // @ts-ignore
-        const lastActive = this.lastActive;
-        return lastActive === null ? false : Date.now() - lastActive < 1000 * 60 * 3;
+        const that = this;
+        return that.lastActive === null ? false : Date.now() - that.lastActive.getTime() < 1000 * 60 * 3;
       },
       set(_) {
-        throw new Error("Do not try to set the online attribute of the RemoteClient Model!");
+        logger.error("Do not try to set the online attribute of the RemoteClient Model!");
+        return false;
       },
     },
   },
@@ -71,10 +73,13 @@ const _RemoteClient = sequelize.define(
  *
  * @typedef TModelAttributes
  * @type {TCreationAttributes & TAdditionalModelAttributes}
+ *
+ * @typedef TModel
+ * @type {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes}
  */
 
 /**
- * @type {Sequelize.ModelCtor<Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes>}
+ * @type {Sequelize.ModelCtor<TModel>}
  */
 // @ts-ignore
 const RemoteClient = _RemoteClient;

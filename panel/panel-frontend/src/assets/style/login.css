@@ -1,0 +1,358 @@
+/* reset */
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,dl,dt,dd,ol,nav ul,nav li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td,article,aside,canvas,details,embed,figure,figcaption,footer,header,hgroup,menu,nav,output,ruby,section,summary,time,mark,audio,video {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: 100%;
+  font: inherit;
+  vertical-align: baseline;
+}
+article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section {
+  display: block;
+}
+ol, ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+a {
+  text-decoration: none;
+}
+code {
+  font-family: Consolas, Monaco, 'Lucida Console', 'Courier New', Courier, monospace;
+}
+.txt-rt {
+  text-align: right;
+} /* text align right */
+.txt-lt {
+  text-align: left;
+} /* text align left */
+.txt-center {
+  text-align: center;
+} /* text align center */
+.float-rt {
+  float: right;
+} /* float right */
+.float-lt {
+  float: left;
+} /* float left */
+.clear {
+  clear: both;
+} /* clear float */
+.pos-relative {
+  position: relative;
+} /* Position Relative */
+.pos-absolute {
+  position: absolute;
+} /* Position Absolute */
+.vertical-base {
+  vertical-align: baseline;
+} /* vertical align baseline */
+.vertical-top {
+  vertical-align: top;
+} /* vertical align top */
+nav.vertical ul li {
+  display: block;
+} /* vertical menu */
+nav.horizontal ul li {
+  display: inline-block;
+} /* horizontal menu */
+img {
+  max-width: 100%;
+}
+/*end reset*/
+/* -----start-body---- */
+body {
+  background: rgb(166, 179, 184);
+  font-family: 'Open Sans', sans-serif;
+}
+body a,
+form li,
+.submit input[type="submit"],
+.new p a,
+.new p.sign {
+  transition: 0.1s all;
+  -webkit-transition: 0.1s all;
+  -moz-transition: 0.1s all;
+  -o-transition: 0.1s all;
+}
+body h1 {
+  color: #fff;
+  text-align: center;
+  padding: 1em 0;
+  font-size: 2.9em;
+}
+.app {
+  transition: 0.2s opacity;
+  -webkit-transition: 0.2s opacity;
+  -moz-transition: 0.2s opacity;
+  -o-transition: 0.2s opacity;
+  opacity: 1;
+  position: relative;
+  margin: 0 auto;
+  text-align: center;
+  background-color: rgba(255, 255, 255, .2);
+  padding: 4em 4em 2em 4em;
+  border: none;
+  border-radius: 5px;
+  top: 20vh;
+}
+.app h2 {
+  color: #fff;
+  text-align: center;
+  padding: 0 0 2em 0;
+  font-size: 1.6em;
+  font-weight: 300;
+}
+.new {
+  padding-bottom: 2em;
+}
+form {
+  padding: 0% 1%;
+}
+/*-----*/
+i.fa {
+  color: gray;
+  padding: 0.8em 0.1em 0.8em 0.8em;
+  border: none;
+  outline: none;
+  line-height: 22px;
+}
+i.fa.fa-code {
+  padding: 0.8em 0 0.8em 0.6em;
+}
+.app input[type="text"] {
+  width: 81.2%;
+  padding: 0.8em 1em 0.8em 2em;
+  margin: -1.5em 0 0.5em -1.5em;
+  color: #283440;
+  font-size: 16px;
+  outline: none;
+  border: none;
+  font-family: 'Open Sans', sans-serif;
+  border-radius: 0.3em;
+}
+.app input::placeholder {
+  color: #9fa1a3;
+  font-weight: lighter;
+}
+.app input[type="password"] {
+  width: 81.2%;
+  padding: 0.8em 1em 0.8em 2em;
+  margin: 0.5em 0 0.5em -1.5em;
+  color: #283440;
+  font-size: 16px;
+  outline: none;
+  border: none;
+  font-family: 'Open Sans', sans-serif;
+  border-radius: 0.3em;
+}
+.app input[type="text"]#code {
+  margin: 10px 0 1em -1.6em;
+  padding: 0.8em 1em 0.8em 2em;
+}
+.app input[type="text"]#captcha {
+  margin-top: 10px;
+  padding: 12px 1em 0.8em 2em;
+  width: 40%;
+  border-radius: 0.3em 0 0 0.3em;
+}
+.captcha-img {
+  position: relative;
+  background-color: white;
+  border-radius: 0 0.3em 0.3em 0;
+  margin: 0;
+  border-left: 1px solid #ccc;
+}
+.submit {
+  margin: 3em 0 2em 0;
+}
+.error {
+  color: red;
+  background-color: white;
+  padding: 0 5px;
+}
+.app input[type="submit"], .app a.submit-btn {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 300;
+  color: #fff;
+  cursor: pointer;
+  outline: none;
+  padding: 12px 0;
+  width: 108px;
+  border: none;
+  background: rgba(0, 0, 0, .1);
+  margin: 0 10px;
+  border-radius: 0.3em;
+}
+.app input[type="submit"].submit-primitive, .app a.submit-btn.submit-primitive {
+  background: rgba(0, 0, 0, .2);
+}
+.app input[type="submit"]:hover, .app a.submit-btn:hover {
+  border: none;
+  background-color: rgba(0, 0, 0, .3);
+}
+.app input[type="submit"]:active, .app a.submit-btn:active {
+  border: none;
+  background-color: rgba(0, 0, 0, .4);
+}
+.new {
+  margin: 0 auto;
+}
+.new p.sign a {
+  color: white;
+  font-weight: 400;
+  font-size: 1em;
+  float: right;
+}
+.new p a:hover,
+.new p.sign a:hover {
+  text-decoration: underline;
+}
+/*-----start-responsive-design------*/
+@media (max-width: 1440px) {
+  .app {
+    width: 30%;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 80.2%;
+  }
+}
+@media (max-width: 1366px) {
+  .app {
+    width: 30%;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 79.7%;
+  }
+  body h1 {
+    font-size: 2.6em;
+  }
+}
+@media (max-width: 1280px) {
+  .app {
+    width: 35%;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 80.7%;
+  }
+}
+@media (max-width: 1024px) {
+  .app {
+    width: 47%;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 82.7%;
+  }
+}
+@media (max-width: 768px) {
+  body h1 {
+    font-size: 2.4em;
+  }
+  .app h2 {
+    padding: 0.6em 0 1.2em 0;
+    font-size: 1.6em;
+  }
+  .app {
+    width: 54%;
+    margin: 0 auto 0 15%;
+    padding: 2em 4em 4em 4em;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 79.7%;
+  }
+}
+@media (max-width: 640px) {
+  body h1 {
+    font-size: 2.1em;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 79.8%;
+  }
+  .app {
+    width: 65%;
+    margin: 0 auto 0 7%;
+  }
+}
+@media (max-width: 480px) {
+  .app {
+    width: 80%;
+    padding: 2em 1em 3.5em 1em;
+  }
+  .new p.sign a {
+    font-size: 0.85em;
+  }
+  form {
+    width: 82%;
+    margin: 0 auto;
+  }
+  .app h2 {
+    font-size: 1.4em;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 72.8%;
+  }
+}
+@media (max-width: 320px) {
+  .app {
+    width: 84%;
+    padding: 1.5em 1em 2.5em 1em;
+    margin: 0 auto 0 3%;
+  }
+  .app h2 {
+    margin-bottom: 0.5em;
+  }
+  body h1 {
+    font-size: 1.5em;
+  }
+  .app input[type="text"],
+  .app input[type="password"] {
+    width: 70%;
+    font-size: 16px;
+  }
+  .new p.sign a {
+    padding-top: 1px;
+    font-size: 0.83em;
+  }
+  .new {
+    margin: 1em 0 1em 0;
+  }
+  .submit {
+    margin: 1em 0 0.5em 0;
+  }
+  .app input[type="submit"] {
+    font-size: 18px;
+    padding: 11px 11px;
+  }
+  form {
+    width: 100%;
+    margin: 0 auto;
+  }
+}
+.icon {
+  position: relative;
+  z-index: 1;
+  left: 0;
+}

@@ -72,6 +72,8 @@ const _AccessLink = sequelize.define(
  *
  * @typedef TAdditionalModelAttributesWriteable
  * @prop {number} linkId
+ * @prop {Date} createdAt
+ * @prop {string | null} cameraId
  *
  * @typedef TAdditionalModelAttributesReadonly
  * @prop {boolean} isValid

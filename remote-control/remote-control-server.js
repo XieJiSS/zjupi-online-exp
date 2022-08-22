@@ -7,7 +7,6 @@ const assert = require("assert");
 const { hasAuthed } = require("../db/connect");
 assert(hasAuthed);
 
-const sql = require("../db/api/remote-control");
 const express = require("express");
 const app = express();
 
@@ -15,6 +14,8 @@ const logger = require("../util/logger")(serverName);
 const { hookLogUtil } = require("../db/api/admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
 logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
+
+const sql = require("../db/api/remote-control");
 
 app.use(function logRequest(req, res, next) {
   const hash = (~~(Math.random() * 2147483648)).toString(16).padStart(8, "0");
@@ -102,7 +103,7 @@ app.get("/api/remote-control/getUpdate/:clientId", async (req, res) => {
       update: null,
     });
   }
-  await sql.setActiveById(req.params.clientId);
+  await sql.setActiveByRemoteClientId(req.params.clientId);
 });
 
 app.post("/api/remote-control/rejectUpdate", async (req, res) => {
@@ -131,7 +132,7 @@ app.post("/api/remote-control/rejectUpdate", async (req, res) => {
     });
     return;
   }
-  await sql.setActiveById(clientId);
+  await sql.setActiveByRemoteClientId(clientId);
 });
 
 app.post("/api/remote-control/registerClient", async (req, res) => {
@@ -144,7 +145,7 @@ app.post("/api/remote-control/registerClient", async (req, res) => {
     return;
   }
   const { clientId, password } = req.body;
-  logger.info("registerClient", clientId, password);
+  logger.info("registerClient", clientId, password, ip);
   const oldClient = await sql.getRemoteClientById(clientId);
   if (oldClient !== null) {
     if (ip === oldClient.ip) {
@@ -161,7 +162,7 @@ app.post("/api/remote-control/registerClient", async (req, res) => {
     }
     return;
   }
-  const client = await sql.createRemoteClient(clientId, password, ip, true);
+  const client = await sql.createRemoteClient(clientId, password, ip);
   if (client !== null) {
     res.json({
       success: true,
@@ -173,7 +174,7 @@ app.post("/api/remote-control/registerClient", async (req, res) => {
       message: "Client registration failed",
     });
   }
-  await sql.setActiveById(clientId);
+  await sql.setActiveByRemoteClientId(clientId);
 });
 
 app.post("/api/remote-control/updatePassword", async (req, res) => {
@@ -230,13 +231,15 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
       return;
     } else {
       logger.info(`Client ${clientId} has updated password to ${password}`);
-      await sql.updatePasswordById(clientId, password);
+      await sql.updateRClientPasswordById(clientId, password);
       res.json({
         success: true,
         message: "Password changed",
       });
-      await sql.setRemoteCommandStatus(clientId, commandId, "finished", "password updated successfully");
-      await sql.setActiveById(clientId);
+      await Promise.all([
+        sql.setRemoteCommandStatus(clientId, commandId, "finished", "password updated successfully"),
+        sql.setActiveByRemoteClientId(clientId),
+      ]);
       return;
     }
   } else {
@@ -247,22 +250,22 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
   }
 });
 
-if (process.env["AUTO_PRUNE_DEAD_RCLIENT"] === "yes") {
-  async function autoPruneDeadRemoteClient() {
-    const clients = await sql.getRemoteClients();
-    for (const client of clients) {
-      if (client.online === false) {
-        logger.warn(`Client ${client.clientId} is probably dead. Removing it automatically...`);
-        await sql.removeRemoteClientById(client.clientId);
-        const runningCommands = await sql.getRemoteCommandsByClientIdAndStatus(client.clientId, "running");
-        for (const cmd of runningCommands) {
-          sql.setRemoteCommandStatus(client.clientId, cmd.commandId, "failed", "client is dead");
-        }
+async function autoPruneDeadRemoteClient() {
+  const clients = await sql.getRemoteClients();
+  for (const client of clients) {
+    if (!client.online) {
+      logger.warn(`Client ${client.clientId} is probably dead. Removing it automatically...`);
+      await sql.removeRemoteClientById(client.clientId);
+      const runningCommands = await sql.getRemoteCommandsByClientIdAndStatus(client.clientId, "running");
+      for (const cmd of runningCommands) {
+        sql.setRemoteCommandStatus(client.clientId, cmd.commandId, "failed", "client is dead");
       }
     }
   }
+}
+if (process.env["AUTO_PRUNE_DEAD_RCLIENT"] === "yes") {
   autoPruneDeadRemoteClient();
-  setInterval(autoPruneDeadRemoteClient, 1000 * 60 * 5);
+  setInterval(autoPruneDeadRemoteClient, 1000 * 60 * 3);
 }
 
 module.exports = {

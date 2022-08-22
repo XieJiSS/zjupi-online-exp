@@ -1,1 +1,1 @@
-module.exports = ["../remote-control"];
+module.exports = ["../remote-control", "../camera", "../panel"];

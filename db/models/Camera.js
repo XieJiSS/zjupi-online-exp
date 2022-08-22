@@ -6,29 +6,16 @@ const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
-const logger = require("../../util/logger")("RemoteClientModel");
 const sequelize = getGlobalSequelizeInst();
+const logger = require("../../util/logger")("CameraModel");
 
-const _RemoteClient = sequelize.define(
-  "remote_client",
+const _Camera = sequelize.define(
+  "camera",
   {
-    clientId: {
+    cameraId: {
       type: Sequelize.STRING,
       primaryKey: true,
       allowNull: false,
-    },
-    password: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-    passwordExpireAt: {
-      type: Sequelize.DATE,
-      allowNull: false,
-    },
-    nextPassword: {
-      type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: null,
     },
     ip: {
       type: Sequelize.STRING,
@@ -62,19 +49,18 @@ const _RemoteClient = sequelize.define(
 
 /**
  * @typedef TCreationAttributes
- * @prop {string} clientId
- * @prop {string} password
- * @prop {Date} passwordExpireAt
- * @prop {string | null} [nextPassword]
+ * @prop {string} cameraId
  * @prop {string} ip
  * @prop {Date} [lastActive]
  *
- * @typedef TAdditionalModelAttributes
- * @prop {boolean} online
+ * @typedef TAdditionalModelAttributesWriteable
  * @prop {Date} lastActive
  *
+ * @typedef TAdditionalModelAttributesReadonly
+ * @prop {boolean} online
+ *
  * @typedef TModelAttributes
- * @type {TCreationAttributes & TAdditionalModelAttributes}
+ * @type {TCreationAttributes & TAdditionalModelAttributesWriteable & Readonly<TAdditionalModelAttributesReadonly>}
  *
  * @typedef TModel
  * @type {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes}
@@ -84,6 +70,6 @@ const _RemoteClient = sequelize.define(
  * @type {Sequelize.ModelCtor<TModel>}
  */
 // @ts-ignore
-const RemoteClient = _RemoteClient;
+const Camera = _Camera;
 
-module.exports = RemoteClient;
+module.exports = Camera;

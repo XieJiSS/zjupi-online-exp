@@ -4,7 +4,7 @@ const assert = require("assert");
 const { hasAuthed } = require("../../connect");
 assert(hasAuthed());
 
-const { Student, RemoteClient } = require("../../models");
+const { Student, RemoteClient, Camera } = require("../../models");
 
 const accessLinkApi = require("./access-link-api");
 
@@ -39,14 +39,25 @@ async function getLinkObjByStudentPhone(phone) {
 }
 
 /**
+ * @param {number} linkId
+ */
+async function getStudentByLinkId(linkId) {
+  const link = await accessLinkApi.getLinkObjById(linkId);
+  if (!link) {
+    return null;
+  }
+  return await Student.findOne({ where: { linkId } });
+}
+
+/**
  * @param {number} studentId
  */
 async function getCameraByStudentId(studentId) {
   const link = await getLinkObjByStudentId(studentId);
-  if (!link) {
+  if (!link || !link.cameraId) {
     return null;
   }
-  // @TODO: implement CameraModel and camera-api
+  return await Camera.findOne({ where: { cameraId: link.cameraId } });
 }
 
 /**
@@ -54,10 +65,10 @@ async function getCameraByStudentId(studentId) {
  */
 async function getCameraByStudentPhone(phone) {
   const link = await getLinkObjByStudentPhone(phone);
-  if (!link) {
+  if (!link || !link.cameraId) {
     return null;
   }
-  // @TODO: implement CameraModel and camera-api
+  return await Camera.findOne({ where: { cameraId: link.cameraId } });
 }
 
 /**
@@ -85,6 +96,7 @@ async function getRemoteClientByStudentPhone(phone) {
 module.exports = {
   getLinkObjByStudentId,
   getLinkObjByStudentPhone,
+  getStudentByLinkId,
   getCameraByStudentId,
   getCameraByStudentPhone,
   getRemoteClientByStudentId,

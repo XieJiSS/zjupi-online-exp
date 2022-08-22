@@ -1,5 +1,8 @@
+// @ts-check
+
 const RemoteClient = require("./RemoteClient");
 const RemoteCommand = require("./RemoteCommand");
+const Camera = require("./Camera");
 const Admin = require("./Admin");
 const Student = require("./Student");
 const AccessLink = require("./AccessLink");
@@ -10,10 +13,11 @@ require("./constraints");
 module.exports = {
   RemoteClient,
   RemoteCommand,
+  Camera,
   Admin,
   Student,
   AccessLink,
   AdminLog,
   // Models in former arrays will be synced first. Sync order in the same array is not guaranteed.
-  topoSortedModels: [[RemoteClient, RemoteCommand, Admin, Student, AccessLink, AdminLog]],
+  topoSortedModels: [[RemoteClient, RemoteCommand, Camera, Admin, Student, AccessLink, AdminLog]],
 };

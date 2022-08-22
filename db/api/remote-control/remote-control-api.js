@@ -30,6 +30,7 @@ if (CLASS_DURATION < 1000 * 60) {
  */
 async function createRemoteCommand(clientId, directive, args) {
   if ((await getRemoteClientById(clientId)) === null) {
+    logger.warn(`createRemoteCommand: client not found, clientId: ${clientId}`);
     return null;
   }
   return await RemoteCommand.create({
@@ -103,10 +104,10 @@ async function invalidateRemoteCommandByCommandType(clientId, commandType) {
  * @param {string} clientId
  * @param {string} password
  * @param {string} ip
- * @param {boolean} isActive
  */
-async function createRemoteClient(clientId, password, ip, isActive) {
+async function createRemoteClient(clientId, password, ip) {
   if ((await getRemoteClientById(clientId)) !== null) {
+    logger.warn(`createRemoteClient: client already exists, clientId: ${clientId}`);
     return null;
   }
   await RemoteClient.create({
@@ -114,7 +115,6 @@ async function createRemoteClient(clientId, password, ip, isActive) {
     password,
     passwordExpireAt: new Date(Date.now() - 1),
     ip,
-    lastActive: isActive ? new Date() : null,
   });
   return await RemoteClient.findByPk(clientId);
 }
@@ -135,7 +135,10 @@ async function getRemoteClientById(clientId) {
  */
 async function removeRemoteClientById(clientId) {
   const client = await getRemoteClientById(clientId);
-  if (!client) return;
+  if (!client) {
+    logger.warn(`removeRemoteClientById: cannot remove because client doesn't exist, clientId: ${clientId}`);
+    return;
+  }
   if (client.online === true) {
     logger.warn(`removing a client that is still online, clientId: ${clientId}`);
   }
@@ -146,9 +149,10 @@ async function removeRemoteClientById(clientId) {
  * @param {string} clientId
  * @param {string} password
  */
-async function updatePasswordById(clientId, password) {
+async function updateRClientPasswordById(clientId, password) {
   const client = await getRemoteClientById(clientId);
   if (client === null) {
+    logger.warn(`updateRClientPasswordById: cannot update because client doesn't exist, clientId: ${clientId}`);
     return null;
   }
   await RemoteClient.update(
@@ -173,16 +177,15 @@ async function invalidatePasswordById(clientId) {
 /**
  * @param {string} clientId
  */
-async function setActiveById(clientId) {
+async function setActiveByRemoteClientId(clientId) {
   await RemoteClient.update({ lastActive: new Date() }, { where: { clientId } });
-  return await RemoteClient.findByPk(clientId);
 }
 
 /**
  * @param {string} clientId
  * @returns {Promise<boolean>}
  */
-async function isActive(clientId) {
+async function isRemoteClientActive(clientId) {
   const client = await RemoteClient.findByPk(clientId);
   if (client === null) {
     return false;
@@ -202,8 +205,8 @@ module.exports = {
   getRemoteClients,
   getRemoteClientById,
   removeRemoteClientById,
-  updatePasswordById,
+  updateRClientPasswordById,
   invalidatePasswordById,
-  setActiveById,
-  isActive,
+  setActiveByRemoteClientId,
+  isRemoteClientActive,
 };

@@ -2,13 +2,13 @@
 
 const assert = require("assert");
 
-const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
+const { getGlobalSequelizeInstance, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
-const sequelize = getGlobalSequelizeInst();
+const sequelize = getGlobalSequelizeInstance();
 
-const _AdminLog = sequelize.define(
+const AdminLog = sequelize.define(
   "admin_log",
   {
     logId: {
@@ -46,15 +46,11 @@ const _AdminLog = sequelize.define(
  *
  * @typedef TAdditionalModelAttributes
  * @prop {number} logId
+ * @prop {Date} createdAt
  *
- * @typedef TModelAttributes
- * @type {TCreationAttributes & TAdditionalModelAttributes}
+ * @typedef {TCreationAttributes & TAdditionalModelAttributes} TModelAttributes
+ *
+ * @typedef {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes} TModel
  */
 
-/**
- * @type {Sequelize.ModelCtor<Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes>}
- */
-// @ts-ignore
-const AdminLog = _AdminLog;
-
-module.exports = AdminLog;
+module.exports = /** @type {Sequelize.ModelCtor<TModel>} */ (AdminLog);

@@ -2,13 +2,13 @@
 
 const assert = require("assert");
 
-const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
+const { getGlobalSequelizeInstance, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
-const sequelize = getGlobalSequelizeInst();
+const sequelize = getGlobalSequelizeInstance();
 
-const _Admin = sequelize.define(
+const Admin = sequelize.define(
   "admin",
   {
     adminId: {
@@ -34,11 +34,6 @@ const _Admin = sequelize.define(
       allowNull: true,
       defaultValue: null,
     },
-    session: {
-      type: Sequelize.STRING,
-      allowNull: true,
-      defaultValue: null,
-    },
   },
   {
     timestamps: false,
@@ -51,19 +46,14 @@ const _Admin = sequelize.define(
  * @prop {string} hash
  * @prop {string} salt
  * @prop {string | null} [lastLoginIP]
- * @prop {string | null} [session]
  *
  * @typedef TAdditionalModelAttributes
  * @prop {number} adminId
+ * @prop {string | null} lastLoginIP
  *
- * @typedef TModelAttributes
- * @type {TCreationAttributes & TAdditionalModelAttributes}
+ * @typedef {TCreationAttributes & TAdditionalModelAttributes} TModelAttributes
+ *
+ * @typedef {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes} TModel
  */
 
-/**
- * @type {Sequelize.ModelCtor<Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes>}
- */
-// @ts-ignore
-const Admin = _Admin;
-
-module.exports = Admin;
+module.exports = /** @type {Sequelize.ModelCtor<TModel>} */ (Admin);

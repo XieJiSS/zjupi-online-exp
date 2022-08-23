@@ -2,14 +2,14 @@
 
 const assert = require("assert");
 
-const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
+const { getGlobalSequelizeInstance, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
-const sequelize = getGlobalSequelizeInst();
+const sequelize = getGlobalSequelizeInstance();
 const logger = require("../../util/logger")("CameraModel");
 
-const _Camera = sequelize.define(
+const Camera = sequelize.define(
   "camera",
   {
     cameraId: {
@@ -29,11 +29,7 @@ const _Camera = sequelize.define(
     online: {
       type: Sequelize.VIRTUAL,
       get() {
-        /**
-         * @type {TModel}
-         */
-        // @ts-ignore
-        const that = this;
+        const that = /** @type {TModel} */ (this);
         return that.lastActive === null ? false : Date.now() - that.lastActive.getTime() < 1000 * 60 * 3;
       },
       set(_) {
@@ -59,17 +55,9 @@ const _Camera = sequelize.define(
  * @typedef TAdditionalModelAttributesReadonly
  * @prop {boolean} online
  *
- * @typedef TModelAttributes
- * @type {TCreationAttributes & TAdditionalModelAttributesWriteable & Readonly<TAdditionalModelAttributesReadonly>}
+ * @typedef {TCreationAttributes & TAdditionalModelAttributesWriteable & Readonly<TAdditionalModelAttributesReadonly>} TModelAttributes
  *
- * @typedef TModel
- * @type {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes}
+ * @typedef {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes} TModel
  */
 
-/**
- * @type {Sequelize.ModelCtor<TModel>}
- */
-// @ts-ignore
-const Camera = _Camera;
-
-module.exports = Camera;
+module.exports = /** @type {Sequelize.ModelCtor<TModel>} */ (Camera);

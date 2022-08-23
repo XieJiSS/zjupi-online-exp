@@ -2,13 +2,13 @@
 
 const assert = require("assert");
 
-const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
+const { getGlobalSequelizeInstance, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
-const sequelize = getGlobalSequelizeInst();
+const sequelize = getGlobalSequelizeInstance();
 
-const _RemoteCommand = sequelize.define(
+const RemoteCommand = sequelize.define(
   "remote_command",
   {
     commandId: {
@@ -72,15 +72,14 @@ const _RemoteCommand = sequelize.define(
  *
  * @typedef TAdditionalModelAttributes
  * @prop {number} commandId
+ * @prop {Date} createdAt
+ * @prop {"running" | "finished" | "failed"} status
+ * @prop {string | null} reportedResult
+ * @prop {Date | null} reportedAt
  *
- * @typedef TModelAttributes
- * @type {TCreationAttributes & TAdditionalModelAttributes}
+ * @typedef {TCreationAttributes & TAdditionalModelAttributes} TModelAttributes
+ *
+ * @typedef {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes} TModel
  */
 
-/**
- * @type {Sequelize.ModelCtor<Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes>}
- */
-// @ts-ignore
-const RemoteCommand = _RemoteCommand;
-
-module.exports = RemoteCommand;
+module.exports = /** @type {Sequelize.ModelCtor<TModel>} */ (RemoteCommand);

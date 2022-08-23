@@ -2,13 +2,13 @@
 
 const assert = require("assert");
 
-const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
+const { getGlobalSequelizeInstance, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
-const sequelize = getGlobalSequelizeInst();
+const sequelize = getGlobalSequelizeInstance();
 
-const _Student = sequelize.define(
+const Student = sequelize.define(
   "student",
   {
     studentId: {
@@ -45,15 +45,11 @@ const _Student = sequelize.define(
  *
  * @typedef TAdditionalModelAttributes
  * @prop {number} studentId
+ * @prop {number | null} linkId
  *
- * @typedef TModelAttributes
- * @type {TCreationAttributes & TAdditionalModelAttributes}
+ * @typedef {TCreationAttributes & TAdditionalModelAttributes} TModelAttributes
+ *
+ * @typedef {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes} TModel
  */
 
-/**
- * @type {Sequelize.ModelCtor<Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes>}
- */
-// @ts-ignore
-const Student = _Student;
-
-module.exports = Student;
+module.exports = /** @type {Sequelize.ModelCtor<TModel>} */ (Student);

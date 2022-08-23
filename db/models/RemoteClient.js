@@ -2,14 +2,14 @@
 
 const assert = require("assert");
 
-const { getGlobalSequelizeInst, hasAuthed } = require("../connect");
+const { getGlobalSequelizeInstance, hasAuthed } = require("../connect");
 assert(hasAuthed);
 
 const Sequelize = require("sequelize");
 const logger = require("../../util/logger")("RemoteClientModel");
-const sequelize = getGlobalSequelizeInst();
+const sequelize = getGlobalSequelizeInstance();
 
-const _RemoteClient = sequelize.define(
+const RemoteClient = sequelize.define(
   "remote_client",
   {
     clientId: {
@@ -42,11 +42,7 @@ const _RemoteClient = sequelize.define(
     online: {
       type: Sequelize.VIRTUAL,
       get() {
-        /**
-         * @type {TModel}
-         */
-        // @ts-ignore
-        const that = this;
+        const that = /** @type {TModel} */ (this);
         return that.lastActive === null ? false : Date.now() - that.lastActive.getTime() < 1000 * 60 * 3;
       },
       set(_) {
@@ -72,18 +68,11 @@ const _RemoteClient = sequelize.define(
  * @typedef TAdditionalModelAttributes
  * @prop {boolean} online
  * @prop {Date} lastActive
+ * @prop {string | null} nextPassword
  *
- * @typedef TModelAttributes
- * @type {TCreationAttributes & TAdditionalModelAttributes}
+ * @typedef {TCreationAttributes & TAdditionalModelAttributes} TModelAttributes
  *
- * @typedef TModel
- * @type {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes}
+ * @typedef {Sequelize.Model<TModelAttributes, TCreationAttributes> & TModelAttributes} TModel
  */
 
-/**
- * @type {Sequelize.ModelCtor<TModel>}
- */
-// @ts-ignore
-const RemoteClient = _RemoteClient;
-
-module.exports = RemoteClient;
+module.exports = /** @type {Sequelize.ModelCtor<TModel>} */ (RemoteClient);

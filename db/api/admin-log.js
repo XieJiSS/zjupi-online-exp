@@ -26,6 +26,13 @@ async function getAllLogs() {
 }
 
 /**
+ * @param {Array<keyof import("../models/AdminLog").TModelAttributes>} attributes
+ */
+async function getAllLogsWithSpecificAttributes(attributes) {
+  return await AdminLog.findAll({ attributes });
+}
+
+/**
  * @param {"info" | "warn" | "error"} level
  * @param {string} source __filename
  * @param {(message: any, ...args: any[]) => void} oldLogger
@@ -52,5 +59,6 @@ function hookLogUtil(level, source, oldLogger) {
 module.exports = {
   createDBLog,
   getAllLogs,
+  getAllLogsWithSpecificAttributes,
   hookLogUtil,
 };

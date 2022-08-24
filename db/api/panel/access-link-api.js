@@ -7,8 +7,8 @@ assert(hasAuthed());
 const { Op } = require("sequelize");
 
 const { AccessLink } = require("../../models");
-const logger = require("../../../util/logger")("access-link-api");
 
+const logger = require("../../../util/logger")("access-link-api");
 const { hookLogUtil } = require("../admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
 logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
@@ -62,6 +62,13 @@ async function getAllLinks() {
   return await AccessLink.findAll();
 }
 
+/**
+ * @param {Array<keyof import("../../models/AccessLink").TModelAttributes>} attributes
+ */
+async function getAllLinksWithSpecificAttributes(attributes) {
+  return await AccessLink.findAll({ attributes });
+}
+
 async function getAllValidLinks() {
   return await AccessLink.findAll({
     where: {
@@ -69,6 +76,20 @@ async function getAllValidLinks() {
         [Op.gt]: new Date(),
       },
     },
+  });
+}
+
+/**
+ * @param {Array<keyof import("../../models/AccessLink").TModelAttributes>} attributes
+ */
+async function getAllValidLinksWithSpecificAttributes(attributes) {
+  return await AccessLink.findAll({
+    where: {
+      validateUntil: {
+        [Op.gt]: new Date(),
+      },
+    },
+    attributes,
   });
 }
 
@@ -105,7 +126,9 @@ module.exports = {
   getLinkObjByLink,
   getValidLink,
   getAllLinks,
+  getAllLinksWithSpecificAttributes,
   getAllValidLinks,
+  getAllValidLinksWithSpecificAttributes,
   invalidateLinkById,
   invalidateLinkByLink,
 };

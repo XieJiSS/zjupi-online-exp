@@ -44,8 +44,22 @@ async function getAllCameras() {
   return await Camera.findAll();
 }
 
+/**
+ * @param {Array<keyof import("../../models/Camera").TModelAttributes>} attributes
+ */
+async function getAllCamerasWithSpecificAttributes(attributes) {
+  return await Camera.findAll({ attributes });
+}
+
 async function getAllOnlineCameras() {
   return await Camera.findAll({ where: { online: true } });
+}
+
+/**
+ * @param {Array<keyof import("../../models/Camera").TModelAttributes>} attributes
+ */
+async function getAllOnlineCamerasWithSpecificAttributes(attributes) {
+  return await Camera.findAll({ where: { online: true }, attributes });
 }
 
 /**
@@ -72,7 +86,9 @@ module.exports = {
   createCamera,
   isCameraOnline,
   getAllCameras,
+  getAllCamerasWithSpecificAttributes,
   getAllOnlineCameras,
+  getAllOnlineCamerasWithSpecificAttributes,
   removeCamera,
   setActiveByCameraId,
 };

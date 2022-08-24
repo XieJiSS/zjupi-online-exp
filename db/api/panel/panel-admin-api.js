@@ -58,6 +58,7 @@ async function getAdminById(adminId) {
  * @param {string} password
  */
 async function createAdmin(username, password) {
+  logger.info("createAdmin: username", username);
   if ((await getAdminByUsername(username)) !== null) {
     logger.warn("admin username already exists:", username);
     return null;
@@ -68,26 +69,6 @@ async function createAdmin(username, password) {
     hash,
     salt,
   });
-}
-
-/**
- * @param {number} adminId
- * @param {string} session
- */
-async function updateAdminSession(adminId, session) {
-  return await Admin.update({ session }, { where: { adminId } });
-}
-
-/**
- * @param {number} adminId
- * @param {string} session
- */
-async function isValidAdminSession(adminId, session) {
-  const admin = await getAdminById(adminId);
-  if (admin === null) {
-    return false;
-  }
-  return admin.session === session;
 }
 
 /**
@@ -106,35 +87,23 @@ async function isValidAdminCredentials(username, password) {
 
 /**
  * @param {number} adminId
- */
-async function removeAdminSessionById(adminId) {
-  return await Admin.update({ session: null }, { where: { adminId } });
-}
-
-/**
- * @param {string} session
- */
-async function removeAdminSessionBySession(session) {
-  return await Admin.update({ session: null }, { where: { session } });
-}
-
-/**
- * @param {number} adminId
  * @param {string} password
  */
 async function changeAdminPassword(adminId, password) {
   const { hash, salt } = await _generateSaltHashPair(password);
-  return await Admin.update({ hash, salt, session: null }, { where: { adminId } });
+  const result = await Admin.update({ hash, salt }, { where: { adminId } });
+  if (result[0] > 0) {
+    logger.warn("changeAdminPassword: admin", adminId, "'s password has been changed");
+  } else {
+    logger.error("changeAdminPassword: admin", adminId, "not found");
+  }
+  return result[0] > 0;
 }
 
 module.exports = {
   getAdminById,
   getAdminByUsername,
   createAdmin,
-  updateAdminSession,
   isValidAdminCredentials,
-  isValidAdminSession,
-  removeAdminSessionById,
-  removeAdminSessionBySession,
   changeAdminPassword,
 };

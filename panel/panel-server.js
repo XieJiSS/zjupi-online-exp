@@ -92,8 +92,13 @@ app.get("/api/panel/access/:link", async (req, res) => {
  * @typedef AdminSession
  * @prop {string | null} username
  */
+/**
+ * @typedef AdminLoginInfo /api/panel/admin/login request interface
+ * @prop {string} username
+ * @prop {string} password
+ */
 app.post("/api/panel/admin/login", async (req, res) => {
-  const { username, password } = req.body;
+  const { username, password } = /** @type {AdminLoginInfo} */ (req.body);
   if (typeof username !== "string" || typeof password !== "string") {
     res.json({ success: false, message: "Missing necessary fields" });
     return;
@@ -106,7 +111,7 @@ app.post("/api/panel/admin/login", async (req, res) => {
   }
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   session.username = username;
-  await promisify(session.save)();
+  await promisify(session.save.bind(session))();
   res.json({ success: true, message: "" });
 });
 
@@ -119,7 +124,7 @@ app.post("/api/panel/admin/logout", async (req, res) => {
     return;
   }
   session.username = null;
-  await promisify(session.save)();
+  await promisify(session.save.bind(session))();
   res.json({ success: true, message: "" });
 });
 

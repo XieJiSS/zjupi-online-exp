@@ -1,0 +1,136 @@
+/* reset */
+article,aside,details,figcaption,figure,footer,header,hgroup,menu,nav,section {
+  display: block;
+}
+ol, ul {
+  list-style: none;
+  margin: 0px;
+  padding: 0px;
+}
+blockquote, q {
+  quotes: none;
+}
+blockquote:before,
+blockquote:after,
+q:before,
+q:after {
+  content: '';
+  content: none;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+a {
+  text-decoration: none;
+}
+code {
+  font-family: Consolas, Monaco, 'Lucida Console', 'Courier New', Courier, monospace;
+}
+.txt-rt {
+  text-align: right;
+} /* text align right */
+.txt-lt {
+  text-align: left;
+} /* text align left */
+.txt-center {
+  text-align: center;
+} /* text align center */
+.float-rt {
+  float: right;
+} /* float right */
+.float-lt {
+  float: left;
+} /* float left */
+.clear {
+  clear: both;
+} /* clear float */
+.pos-relative {
+  position: relative;
+} /* Position Relative */
+.pos-absolute {
+  position: absolute;
+} /* Position Absolute */
+.vertical-base {
+  vertical-align: baseline;
+} /* vertical align baseline */
+.vertical-top {
+  vertical-align: top;
+} /* vertical align top */
+nav.vertical ul li {
+  display: block;
+} /* vertical menu */
+nav.horizontal ul li {
+  display: inline-block;
+} /* horizontal menu */
+img {
+  max-width: 100%;
+}
+/*end reset*/
+/* -----start-body---- */
+body a,
+form li,
+.submit input[type="submit"],
+.new p a,
+.new p.sign {
+  transition: 0.1s all;
+  -webkit-transition: 0.1s all;
+  -moz-transition: 0.1s all;
+  -o-transition: 0.1s all;
+}
+body h1 {
+  color: #fff;
+  text-align: center;
+  padding: 1em 0;
+  font-size: 2.9em;
+}
+.new {
+  padding-bottom: 2em;
+}
+form {
+  padding: 0% 1%;
+}
+/*-----*/
+i.fa {
+  color: gray;
+  padding: 0.8em 0.1em 0.8em 0.8em;
+  border: none;
+  outline: none;
+  line-height: 22px;
+}
+i.fa.fa-code {
+  padding: 0.8em 0 0.8em 0.6em;
+}
+.captcha-img {
+  position: relative;
+  background-color: white;
+  border-radius: 0 0.3em 0.3em 0;
+  margin: 0;
+  border-left: 1px solid #ccc;
+}
+.submit {
+  margin: 3em 0 2em 0;
+}
+.error {
+  color: red;
+  background-color: white;
+  padding: 0 5px;
+}
+.new {
+  margin: 0 auto;
+}
+.new p.sign a {
+  color: white;
+  font-weight: 400;
+  font-size: 1em;
+  float: right;
+}
+.new p a:hover,
+.new p.sign a:hover {
+  text-decoration: underline;
+}
+.icon {
+  position: relative;
+  z-index: 1;
+  left: 0;
+}

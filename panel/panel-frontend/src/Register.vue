@@ -18,9 +18,8 @@ export default {
     }
   },
   methods: {
-    async submitLogin() {
-      console.log(this.passwordHash);
-      const { data } = await axios.post("/api/panel/admin/login", {
+    async submitRegister() {
+      const { data } = await axios.post("/api/panel/admin/register", {
         username: this.username,
         password: this.passwordHash,
       }).catch(err => {
@@ -31,7 +30,7 @@ export default {
         alert(data.message);
         return;
       }
-      this.$router.push("/admin");
+      this.$router.push("/login");
     },
     calculatePasswordHash(password) {
       const salt = "PI.ZJU_salt";
@@ -45,21 +44,19 @@ export default {
 </script>
 
 <template>
-  <div class="login-app">
-    <h2>Admin Login</h2>
-    <form>
-      <div>
-        <i class="fa fa-user icon" id="icon"></i><input type="text" v-model="username" id="username"
-          placeholder="username">
-      </div>
-      <div>
-        <i class="fa fa-lock icon"></i><input type="password" v-model="password" placeholder="password">
-      </div>
-      <div class="submit">
-        <input class="submit-primitive" type="submit" value="LOGIN" v-on:click.prevent="submitLogin">
-      </div>
-    </form>
-  </div>
+  <h2>Admin Register</h2>
+  <form>
+    <div>
+      <i class="fa fa-user icon" id="icon"></i><input type="text" v-model="username" id="username"
+        placeholder="username">
+    </div>
+    <div>
+      <i class="fa fa-lock icon"></i><input type="password" v-model="password" placeholder="password">
+    </div>
+    <div class="submit">
+      <input class="submit-primitive" type="submit" value="REGISTER" v-on:click.prevent="submitRegister">
+    </div>
+  </form>
 </template>
 
 <style scoped>

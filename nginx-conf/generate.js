@@ -32,7 +32,7 @@ server {
 }
 `.trimStart();
 
-if (process.env["MODE"] === "dev") {
+if (process.env["NODE_ENV"] === "development") {
   conf = "";
 }
 

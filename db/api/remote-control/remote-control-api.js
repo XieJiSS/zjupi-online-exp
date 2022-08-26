@@ -4,7 +4,13 @@ const assert = require("assert");
 const { hasAuthed } = require("../../connect");
 assert(hasAuthed());
 
-const { RemoteClient, RemoteCommand } = require("../../models");
+const { RemoteClient, RemoteCommand, AccessLink } = require("../../models");
+
+/**
+ * @template T
+ * @typedef {T extends import("sequelize").ModelCtor<infer I> ? I : never} TModelType
+ */
+
 const logger = require("../../../util/logger")("remote-control-api");
 const { hookLogUtil } = require("../admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
@@ -119,8 +125,22 @@ async function createRemoteClient(clientId, password, ip) {
   return await RemoteClient.findByPk(clientId);
 }
 
-async function getRemoteClients() {
+async function getAllRemoteClients() {
   return await RemoteClient.findAll();
+}
+
+/**
+ * @typedef {TModelType<typeof RemoteClient> & { link: TModelType<typeof AccessLink> }} TRemoteClientWithLink
+ */
+async function getAllRemoteClientsWithLinks() {
+  return /** @type {TRemoteClientWithLink[]} */ (
+    await RemoteClient.findAll({
+      include: {
+        model: AccessLink,
+        as: "link",
+      },
+    })
+  );
 }
 
 /**
@@ -149,10 +169,10 @@ async function removeRemoteClientById(clientId) {
  * @param {string} clientId
  * @param {string} password
  */
-async function updateRClientPasswordById(clientId, password) {
+async function setRemoteClientPasswordById(clientId, password) {
   const client = await getRemoteClientById(clientId);
   if (client === null) {
-    logger.warn(`updateRClientPasswordById: cannot update because client doesn't exist, clientId: ${clientId}`);
+    logger.warn(`setRemoteClientPasswordById: cannot update because client doesn't exist, clientId: ${clientId}`);
     return null;
   }
   await RemoteClient.update(
@@ -202,10 +222,11 @@ module.exports = {
   setRemoteCommandStatus,
   invalidateRemoteCommandByCommandType,
   createRemoteClient,
-  getRemoteClients,
+  getAllRemoteClients,
+  getAllRemoteClientsWithLinks,
   getRemoteClientById,
   removeRemoteClientById,
-  updateRClientPasswordById,
+  setRemoteClientPasswordById,
   invalidatePasswordById,
   setActiveByRemoteClientId,
   isRemoteClientActive,

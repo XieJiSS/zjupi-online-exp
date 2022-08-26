@@ -23,12 +23,16 @@ const AccessLink = sequelize.define(
       allowNull: false,
       defaultValue: Sequelize.fn("now"),
     },
-    link: {
+    linkPath: {
       type: Sequelize.STRING,
       allowNull: false,
       unique: true,
     },
-    validateUntil: {
+    validAfter: {
+      type: Sequelize.DATE,
+      allowNull: false,
+    },
+    validUntil: {
       type: Sequelize.DATE,
       allowNull: false,
     },
@@ -45,7 +49,7 @@ const AccessLink = sequelize.define(
       type: Sequelize.VIRTUAL,
       get() {
         const that = /** @type {TModel} */ (this);
-        return that.validateUntil.getTime() > Date.now();
+        return that.validUntil.getTime() > Date.now() && that.validAfter.getTime() < Date.now();
       },
       set(_) {
         logger.error("setter failed: isValid is a virtual field");
@@ -61,8 +65,9 @@ const AccessLink = sequelize.define(
 /**
  * @typedef TCreationAttributes
  * @prop {Date} [createdAt]
- * @prop {string} link
- * @prop {Date} validateUntil
+ * @prop {string} linkPath
+ * @prop {Date} validAfter
+ * @prop {Date} validUntil
  * @prop {string} clientId
  * @prop {string | null} [cameraId]
  *

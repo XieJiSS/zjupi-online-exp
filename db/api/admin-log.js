@@ -9,6 +9,19 @@ const { inspect } = require("util");
 const { AdminLog } = require("../models/models");
 
 /**
+ * @template T
+ * @typedef {T extends import("sequelize").ModelCtor<infer I> ? I : never} TModelType
+ */
+/**
+ * @template U
+ * @typedef {U extends import("sequelize").Model<infer I, infer _> ? I : never} TModelAttributesType
+ */
+/**
+ * @template V
+ * @typedef {keyof TModelAttributesType<TModelType<V>>} TModelKey
+ */
+
+/**
  * @param {string} text
  * @param {string} source __filename
  * @param {"info" | "warn" | "error"} level
@@ -26,7 +39,7 @@ async function getAllLogs() {
 }
 
 /**
- * @param {Array<keyof import("../models/AdminLog").TModelAttributes>} attributes
+ * @param {TModelKey<typeof AdminLog>[]} attributes
  */
 async function getAllLogsWithSpecificAttributes(attributes) {
   return await AdminLog.findAll({ attributes });

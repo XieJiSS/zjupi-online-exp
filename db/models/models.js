@@ -8,7 +8,7 @@ const Student = require("./Student");
 const AccessLink = require("./AccessLink");
 const AdminLog = require("./AdminLog");
 
-require("./constraints");
+require("../constraints");
 
 module.exports = {
   RemoteClient,
@@ -19,5 +19,7 @@ module.exports = {
   AccessLink,
   AdminLog,
   // Models in former arrays will be synced first. Sync order in the same array is not guaranteed.
-  topoSortedModels: [[RemoteClient, RemoteCommand, Camera, Admin, Student, AccessLink, AdminLog]],
+  // This is mainly used to avoid alter failures caused by associations between Models, as specified
+  // in ./constraints.js.
+  topoSortedModels: [[RemoteClient, RemoteCommand, Camera, Admin, Student, AdminLog], [AccessLink]],
 };

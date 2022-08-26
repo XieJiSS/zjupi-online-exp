@@ -6,6 +6,19 @@ assert(hasAuthed());
 
 const { Student, RemoteClient, Camera } = require("../../models");
 
+/**
+ * @template T
+ * @typedef {T extends import("sequelize").ModelCtor<infer I> ? I : never} TModelType
+ */
+/**
+ * @template U
+ * @typedef {U extends import("sequelize").Model<infer I, infer _> ? I : never} TModelAttributesType
+ */
+/**
+ * @template V
+ * @typedef {keyof TModelAttributesType<TModelType<V>>} TModelKey
+ */
+
 const logger = require("../../../util/logger")("panel-student-api");
 const { hookLogUtil } = require("../admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
@@ -16,7 +29,7 @@ const accessLinkApi = require("./access-link-api");
 /**
  * @param {number} studentId
  */
-async function getLinkObjByStudentId(studentId) {
+async function getLinkByStudentId(studentId) {
   const student = await Student.findOne({ where: { studentId } });
   if (!student) {
     return null;
@@ -25,13 +38,13 @@ async function getLinkObjByStudentId(studentId) {
   if (!linkId) {
     return null;
   }
-  return await accessLinkApi.getLinkObjById(linkId);
+  return await accessLinkApi.getLinkById(linkId);
 }
 
 /**
  * @param {string} phone
  */
-async function getLinkObjByStudentPhone(phone) {
+async function getLinkByStudentPhone(phone) {
   const student = await Student.findOne({ where: { phone } });
   if (!student) {
     return null;
@@ -40,7 +53,7 @@ async function getLinkObjByStudentPhone(phone) {
   if (!linkId) {
     return null;
   }
-  return await accessLinkApi.getLinkObjById(linkId);
+  return await accessLinkApi.getLinkById(linkId);
 }
 
 /**
@@ -60,13 +73,29 @@ async function createStudent(name, phone) {
  * @param {number} linkId
  */
 async function getStudentByLinkId(linkId) {
-  const link = await accessLinkApi.getLinkObjById(linkId);
+  const link = await accessLinkApi.getLinkById(linkId);
   if (!link) {
     return null;
   }
   return await Student.findOne({ where: { linkId } });
 }
 
+/**
+ * @param {number} linkId
+ * @param {TModelKey<typeof Student>[]} attributes
+ */
+async function getStudentByLinkIdWithSpecificAttributes(linkId, attributes) {
+  const link = await accessLinkApi.getLinkById(linkId);
+  if (!link) {
+    return null;
+  }
+  return await Student.findOne({ where: { linkId }, attributes });
+}
+
+/**
+ * @param {number} studentId
+ * @param {number} linkId
+ */
 async function setStudentLinkId(studentId, linkId) {
   const student = await Student.findOne({ where: { studentId } });
   if (!student) {
@@ -81,7 +110,7 @@ async function getAllStudents() {
 }
 
 /**
- * @param {Array<keyof import("../../models/Student").TModelAttributes>} attributes
+ * @param {TModelKey<typeof Student>[]} attributes
  */
 async function getAllStudentsWithSpecificAttributes(attributes) {
   return await Student.findAll({ attributes });
@@ -106,7 +135,7 @@ async function getStudentByNameAndPhone(name, phone) {
  * @param {number} studentId
  */
 async function getCameraByStudentId(studentId) {
-  const link = await getLinkObjByStudentId(studentId);
+  const link = await getLinkByStudentId(studentId);
   if (!link || !link.cameraId) {
     return null;
   }
@@ -117,7 +146,7 @@ async function getCameraByStudentId(studentId) {
  * @param {string} phone
  */
 async function getCameraByStudentPhone(phone) {
-  const link = await getLinkObjByStudentPhone(phone);
+  const link = await getLinkByStudentPhone(phone);
   if (!link || !link.cameraId) {
     return null;
   }
@@ -128,7 +157,7 @@ async function getCameraByStudentPhone(phone) {
  * @param {number} studentId
  */
 async function getRemoteClientByStudentId(studentId) {
-  const link = await getLinkObjByStudentId(studentId);
+  const link = await getLinkByStudentId(studentId);
   if (!link) {
     return null;
   }
@@ -139,7 +168,7 @@ async function getRemoteClientByStudentId(studentId) {
  * @param {string} phone
  */
 async function getRemoteClientByStudentPhone(phone) {
-  const link = await getLinkObjByStudentPhone(phone);
+  const link = await getLinkByStudentPhone(phone);
   if (!link) {
     return null;
   }
@@ -153,19 +182,20 @@ async function removeStudentById(studentId) {
   const student = await Student.findOne({ where: { studentId } });
   if (!student) {
     logger.warn(`removeStudentById: student ${studentId} not found`);
-    return null;
+    return;
   }
-  return await student.destroy();
+  await student.destroy();
 }
 
 module.exports = {
   createStudent,
-  getLinkObjByStudentId,
-  getLinkObjByStudentPhone,
+  getLinkByStudentId,
+  getLinkByStudentPhone,
   getAllStudents,
   getAllStudentsWithSpecificAttributes,
   getStudentById,
   getStudentByLinkId,
+  getStudentByLinkIdWithSpecificAttributes,
   getCameraByStudentId,
   getCameraByStudentPhone,
   getRemoteClientByStudentId,

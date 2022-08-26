@@ -39,6 +39,10 @@ async function _generateSaltHashPair(password) {
   return { hash, salt };
 }
 
+async function getAdminCount() {
+  return await Admin.count();
+}
+
 /**
  * @param {string} username
  */
@@ -101,6 +105,7 @@ async function changeAdminPassword(adminId, password) {
 }
 
 module.exports = {
+  getAdminCount,
   getAdminById,
   getAdminByUsername,
   createAdmin,

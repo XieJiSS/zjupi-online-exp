@@ -4,7 +4,20 @@ const assert = require("assert");
 const { hasAuthed } = require("../../connect");
 assert(hasAuthed());
 
-const { Camera } = require("../../models");
+const { Camera, AccessLink } = require("../../models");
+
+/**
+ * @template T
+ * @typedef {T extends import("sequelize").ModelCtor<infer I> ? I : never} TModelType
+ */
+/**
+ * @template U
+ * @typedef {U extends import("sequelize").Model<infer I, infer _> ? I : never} TModelAttributesType
+ */
+/**
+ * @typedef {keyof TModelAttributesType<TModelType<typeof Camera>>} TCameraKey
+ */
+
 const logger = require("../../../util/logger")("camera-api");
 const { hookLogUtil } = require("../admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
@@ -45,7 +58,7 @@ async function getAllCameras() {
 }
 
 /**
- * @param {Array<keyof import("../../models/Camera").TModelAttributes>} attributes
+ * @param {TCameraKey[]} attributes
  */
 async function getAllCamerasWithSpecificAttributes(attributes) {
   return await Camera.findAll({ attributes });
@@ -56,7 +69,7 @@ async function getAllOnlineCameras() {
 }
 
 /**
- * @param {Array<keyof import("../../models/Camera").TModelAttributes>} attributes
+ * @param {TCameraKey[]} attributes
  */
 async function getAllOnlineCamerasWithSpecificAttributes(attributes) {
   return await Camera.findAll({ where: { online: true }, attributes });
@@ -71,6 +84,7 @@ async function removeCamera(cameraId) {
     logger.warn(`removeCamera: cannot remove because camera ${cameraId} doesn't exist`);
     return;
   }
+  await AccessLink.update({ cameraId: null }, { where: { cameraId } });
   return await camera.destroy();
 }
 

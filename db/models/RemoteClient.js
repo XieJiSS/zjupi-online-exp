@@ -50,6 +50,22 @@ const RemoteClient = sequelize.define(
         return false;
       },
     },
+    isDead: {
+      type: Sequelize.VIRTUAL,
+      get() {
+        const that = /** @type {TModel} */ (this);
+        return that.online ? false : Date.now() - that.lastActive.getTime() >= 1000 * 60 * 30;
+      },
+      set(_) {
+        logger.error("Do not try to set the isDead attribute of the RemoteClient Model!");
+        return false;
+      },
+    },
+    linkId: {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      defaultValue: null,
+    },
   },
   {
     timestamps: false,
@@ -64,11 +80,14 @@ const RemoteClient = sequelize.define(
  * @prop {string | null} [nextPassword]
  * @prop {string} ip
  * @prop {Date} [lastActive]
+ * @prop {number | null} [linkId]
  *
  * @typedef TAdditionalModelAttributes
- * @prop {boolean} online
- * @prop {Date} lastActive
  * @prop {string | null} nextPassword
+ * @prop {Date} lastActive
+ * @prop {boolean} online
+ * @prop {boolean} isDead
+ * @prop {number | null} linkId
  *
  * @typedef {TCreationAttributes & TAdditionalModelAttributes} TModelAttributes
  *

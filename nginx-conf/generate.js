@@ -9,26 +9,26 @@ const logger = require("../util/logger")("conf-generator");
 
 const template = `
 upstream %name% {
-  server 127.0.0.1:%port%;
-  keepalive 64;
+  server 127.0.0.1:%port%
+  keepalive 64
 }
 
 server {
-  listen 127.0.0.1:80;
-  server_name %subdomain%.%domain%;
+  listen 127.0.0.1:80
+  server_name %subdomain%.%domain%
   location / {
-    proxy_pass http://%name%;
-    proxy_set_header Host $host;
-    proxy_set_header X-Real-IP $remote_addr;
+    proxy_pass http://%name%
+    proxy_set_header Host $host
+    proxy_set_header X-Real-IP $remote_addr
   }
 }
 `.trimStart();
 
 let conf = `
 server {
-  listen 80 default_server;
-  server_name _;
-  return 301 https://$host$request_uri;
+  listen 80 default_server
+  server_name _
+  return 301 https://$host$request_uri
 }
 `.trimStart();
 

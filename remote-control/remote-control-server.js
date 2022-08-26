@@ -39,7 +39,7 @@ app.use(express.json());
 
 app.get("/api/remote-control/clients", async (req, res) => {
   logger.info("Listing all remote clients...");
-  const clients = await sql.getRemoteClients();
+  const clients = await sql.getAllRemoteClients();
   // filter out password from results
   /**
    * @type {{ clientId: string, ip: string, lastActive: number | null }[]}
@@ -231,7 +231,7 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
       return;
     } else {
       logger.info(`Client ${clientId} has updated password to ${password}`);
-      await sql.updateRClientPasswordById(clientId, password);
+      await sql.setRemoteClientPasswordById(clientId, password);
       res.json({
         success: true,
         message: "Password changed",
@@ -251,9 +251,9 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
 });
 
 async function autoPruneDeadRemoteClient() {
-  const clients = await sql.getRemoteClients();
+  const clients = await sql.getAllRemoteClients();
   for (const client of clients) {
-    if (!client.online) {
+    if (client.isDead) {
       logger.warn(`Client ${client.clientId} is probably dead. Removing it automatically...`);
       await sql.removeRemoteClientById(client.clientId);
       const runningCommands = await sql.getRemoteCommandsByClientIdAndStatus(client.clientId, "running");

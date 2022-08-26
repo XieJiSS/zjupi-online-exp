@@ -4,6 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
+    "dev": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -19,9 +20,11 @@
   "homepage": "https://github.com/XieJiSS/zju-eng-dep-online-exp#readme",
   "dependencies": {
     "async-exit-hook": "^2.0.1",
+    "connect-session-sequelize": "^7.1.4",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",
     "express": "5.0.0-alpha.8",
+    "express-session": "^1.17.3",
     "log4js": "^6.6.1",
     "mysql2": "2",
     "sequelize": "6.6.2"

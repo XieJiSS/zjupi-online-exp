@@ -15,7 +15,7 @@ const { hookLogUtil } = require("../db/api/admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
 logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
 
-const sql = require("../db/api/camera");
+const sql = require("../db/api/camera/camera-api");
 
 app.use(function logRequest(req, res, next) {
   const hash = (~~(Math.random() * 2147483648)).toString(16).padStart(8, "0");
@@ -48,7 +48,7 @@ app.post("/api/camera/registerCamera", async (req, res) => {
   }
   const { cameraId } = req.body;
   logger.info("registerCamera", cameraId, ip);
-  const oldCamera = await sql.getCameraByCameraId(cameraId);
+  const oldCamera = await sql.getCameraById(cameraId);
   if (oldCamera !== null) {
     if (ip === oldCamera.ip) {
       res.json({

@@ -6,7 +6,7 @@ const { hasAuthed } = require("./connect");
 assert(hasAuthed());
 
 async function syncDB() {
-  const models = require("./models");
+  const models = require("./models/all-models");
   for (const sameLevelModels of models.topoSortedModels) {
     const syncPromises = [];
     for (const model of sameLevelModels) {

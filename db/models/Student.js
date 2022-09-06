@@ -29,7 +29,6 @@ const Student = sequelize.define(
     linkId: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      defaultValue: null,
     },
   },
   {

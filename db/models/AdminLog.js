@@ -20,7 +20,7 @@ const AdminLog = sequelize.define(
     createdAt: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn("now"),
+      defaultValue: () => new Date(),
     },
     level: {
       type: Sequelize.ENUM("info", "warn", "error"),

@@ -32,7 +32,6 @@ const Admin = sequelize.define(
     lastLoginIP: {
       type: Sequelize.STRING,
       allowNull: true,
-      defaultValue: null,
     },
   },
   {

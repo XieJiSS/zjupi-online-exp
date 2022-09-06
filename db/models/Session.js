@@ -40,8 +40,8 @@ const Session = sequelize.define(
 /**
  * @typedef TCreationAttributes
  * @prop {string} sid
- * @prop {Date} expires
- * @prop {string} data
+ * @prop {Date | null} expires
+ * @prop {string | null} data
  *
  * @typedef {{}} TAdditionalModelAttributes
  *

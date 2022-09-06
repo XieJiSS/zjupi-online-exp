@@ -8,7 +8,7 @@ const crypto = require("crypto");
 const { promisify } = require("util");
 const pbkdf2 = promisify(crypto.pbkdf2);
 
-const { Admin } = require("../../models");
+const { Admin } = require("../../models/all-models");
 const logger = require("../../../util/logger")("panel-admin-api");
 
 const { hookLogUtil } = require("../admin-log");

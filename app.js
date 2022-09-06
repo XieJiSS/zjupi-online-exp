@@ -9,8 +9,10 @@ const logger = require("./util/logger")("main");
 async function main() {
   await require("./db/init")();
 
-  const servers = require("./servers");
+  const servers = require("./servers/all-servers");
   for (const server of servers) {
+    // @TODO: spawn servers in separate processes
+    // @TODO: implement clusters
     server.app.listen(server.port, () => {
       logger.info(`Server ${server.name} listening on port ${server.port}`);
     });

@@ -6,7 +6,7 @@ const { hasAuthed } = require("../connect");
 assert(hasAuthed());
 
 const { inspect } = require("util");
-const { AdminLog } = require("../models/models");
+const { AdminLog } = require("../models/all-models");
 
 /**
  * @template T
@@ -41,7 +41,7 @@ async function getAllLogs() {
 /**
  * @param {TModelKey<typeof AdminLog>[]} attributes
  */
-async function getAllLogsWithSpecificAttributes(attributes) {
+async function getAllLogsAttrsOnly(attributes) {
   return await AdminLog.findAll({ attributes });
 }
 
@@ -72,6 +72,6 @@ function hookLogUtil(level, source, oldLogger) {
 module.exports = {
   createDBLog,
   getAllLogs,
-  getAllLogsWithSpecificAttributes,
+  getAllLogsAttrsOnly,
   hookLogUtil,
 };

@@ -15,7 +15,7 @@ const { hookLogUtil } = require("../db/api/admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
 logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
 
-const sql = require("../db/api/remote-control");
+const sql = require("../db/api/remote-control/remote-control-api");
 
 app.use(function logRequest(req, res, next) {
   const hash = (~~(Math.random() * 2147483648)).toString(16).padStart(8, "0");
@@ -54,7 +54,7 @@ app.get("/api/remote-control/clients", async (req, res) => {
 
 app.get("/api/remote-control/getUpdate/:clientId", async (req, res) => {
   const clientId = req.params.clientId;
-  logger.info("getUpdate request received from client", clientId);
+  logger.debug("getUpdate request received from client", clientId);
   const client = await sql.getRemoteClientById(clientId);
   if (client === null) {
     res.json({

@@ -4,7 +4,7 @@ const assert = require("assert");
 const { hasAuthed } = require("../../connect");
 assert(hasAuthed());
 
-const { Camera, AccessLink } = require("../../models");
+const { Camera, AccessLink } = require("../../models/all-models");
 
 /**
  * @template T
@@ -15,7 +15,8 @@ const { Camera, AccessLink } = require("../../models");
  * @typedef {U extends import("sequelize").Model<infer I, infer _> ? I : never} TModelAttributesType
  */
 /**
- * @typedef {keyof TModelAttributesType<TModelType<typeof Camera>>} TCameraKey
+ * @template V
+ * @typedef {keyof TModelAttributesType<TModelType<V>>} TModelKey
  */
 
 const logger = require("../../../util/logger")("camera-api");
@@ -26,8 +27,16 @@ logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
 /**
  * @param {string} cameraId
  */
-async function getCameraByCameraId(cameraId) {
+async function getCameraById(cameraId) {
   return await Camera.findOne({ where: { cameraId } });
+}
+
+/**
+ * @param {string} cameraId
+ * @param {TModelKey<typeof Camera>[]} attributes
+ */
+async function getCameraByIdAttrsOnly(cameraId, attributes) {
+  return await Camera.findOne({ where: { cameraId }, attributes });
 }
 
 /**
@@ -35,13 +44,14 @@ async function getCameraByCameraId(cameraId) {
  * @param {string} ip
  */
 async function createCamera(cameraId, ip) {
-  if ((await getCameraByCameraId(cameraId)) !== null) {
+  if ((await getCameraById(cameraId)) !== null) {
     logger.warn(`createCamera: camera ${cameraId} already exists`);
     return null;
   }
   return await Camera.create({
     cameraId,
     ip,
+    lastActive: new Date(),
   });
 }
 
@@ -49,7 +59,7 @@ async function createCamera(cameraId, ip) {
  * @param {string} cameraId
  */
 async function isCameraOnline(cameraId) {
-  const camera = await getCameraByCameraId(cameraId);
+  const camera = await getCameraById(cameraId);
   return camera !== null && camera.online;
 }
 
@@ -58,9 +68,9 @@ async function getAllCameras() {
 }
 
 /**
- * @param {TCameraKey[]} attributes
+ * @param {TModelKey<typeof Camera>[]} attributes
  */
-async function getAllCamerasWithSpecificAttributes(attributes) {
+async function getAllCamerasAttrsOnly(attributes) {
   return await Camera.findAll({ attributes });
 }
 
@@ -69,9 +79,9 @@ async function getAllOnlineCameras() {
 }
 
 /**
- * @param {TCameraKey[]} attributes
+ * @param {TModelKey<typeof Camera>[]} attributes
  */
-async function getAllOnlineCamerasWithSpecificAttributes(attributes) {
+async function getAllOnlineCamerasAttrsOnly(attributes) {
   return await Camera.findAll({ where: { online: true }, attributes });
 }
 
@@ -79,7 +89,7 @@ async function getAllOnlineCamerasWithSpecificAttributes(attributes) {
  * @param {string} cameraId
  */
 async function removeCamera(cameraId) {
-  const camera = await getCameraByCameraId(cameraId);
+  const camera = await getCameraById(cameraId);
   if (camera === null) {
     logger.warn(`removeCamera: cannot remove because camera ${cameraId} doesn't exist`);
     return;
@@ -96,13 +106,14 @@ async function setActiveByCameraId(cameraId) {
 }
 
 module.exports = {
-  getCameraByCameraId,
+  getCameraById,
+  getCameraByIdAttrsOnly,
   createCamera,
   isCameraOnline,
   getAllCameras,
-  getAllCamerasWithSpecificAttributes,
+  getAllCamerasAttrsOnly,
   getAllOnlineCameras,
-  getAllOnlineCamerasWithSpecificAttributes,
+  getAllOnlineCamerasAttrsOnly,
   removeCamera,
   setActiveByCameraId,
 };

@@ -19,9 +19,24 @@ const { hookLogUtil } = require("../db/api/admin-log");
 logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
 logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
 
-const sql = require("../db/api");
+const sql = require("../db/api/all-apis");
 
 const CLASS_DURATION = (Number(process.env["CLASS_DURATION_MINUTES"]) || 240) * 60 * 1000;
+
+/**
+ * @template T
+ * @typedef {T extends (...args: any) => Promise<infer I> ? I : never} AsyncReturnType
+ */
+/**
+ * @template U
+ * @typedef {U extends Array<infer I> ? I : never} ArrayInnerType
+ */
+/**
+ * @typedef {ArrayInnerType<Parameters<typeof sql.getRemoteClientByIdAttrsOnly>[1]>} RClientAttributes
+ * @typedef {ArrayInnerType<Parameters<typeof sql.getStudentByIdAttrsOnly>[1]>} StudentAttributes
+ * @typedef {ArrayInnerType<Parameters<typeof sql.getCameraByIdAttrsOnly>[1]>} CameraAttributes
+ * @typedef {ArrayInnerType<Parameters<typeof sql.getLinkByIdAttrsOnly>[1]>} LinkAttributes
+ */
 
 app.use(function logRequest(req, res, next) {
   const hash = (~~(Math.random() * 2147483648)).toString(16).padStart(8, "0");
@@ -65,7 +80,7 @@ app.get("/api/panel/access/:link", async (req, res) => {
   const cameraId = linkObj.cameraId;
   const [client, camera] = await Promise.all([
     sql.getRemoteClientById(clientId),
-    cameraId ? sql.getCameraByCameraId(cameraId) : null,
+    cameraId ? sql.getCameraById(cameraId) : null,
   ]);
   const student = await sql.getStudentByLinkId(linkObj.linkId);
   res.json({
@@ -128,6 +143,15 @@ app.post("/api/panel/admin/logout", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
+app.get("/api/panel/admin/isAdmin", async (req, res) => {
+  const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
+  if (!session.username) {
+    res.json({ success: true, message: "", data: { isAdmin: false } });
+    return;
+  }
+  res.json({ success: true, message: "", data: { isAdmin: true } });
+});
+
 if (process.env["NODE_ENV"] === "development") {
   app.post("/api/panel/admin/register", async (req, res) => {
     if ((await sql.getAdminCount()) > 0) {
@@ -149,13 +173,19 @@ if (process.env["NODE_ENV"] === "development") {
   });
 }
 
-app.get("/api/panel/admin/students/all", async (req, res) => {
+/**
+ * @typedef {AsyncReturnType<typeof sql.getStudentById>} StudentResponseData
+ */
+app.get("/api/panel/admin/students", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
-  const students = await sql.getAllStudentsWithSpecificAttributes(["studentId", "name", "phone"]);
+  /**
+   * @type {StudentResponseData[]}
+   */
+  const students = await sql.getAllStudentsAttrsOnly(["studentId", "name", "phone"]);
   res.json({
     success: true,
     message: "",
@@ -163,7 +193,7 @@ app.get("/api/panel/admin/students/all", async (req, res) => {
   });
 });
 
-app.get("/api/panel/admin/students/:id", async (req, res) => {
+app.get("/api/panel/admin/student/:id", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -176,6 +206,9 @@ app.get("/api/panel/admin/students/:id", async (req, res) => {
     res.json({ success: false, message: "Invalid student id" });
     return;
   }
+  /**
+   * @type {StudentResponseData}
+   */
   const student = await sql.getStudentById(studentId);
   if (!student) {
     res.json({ success: false, message: "Student not found" });
@@ -193,11 +226,11 @@ app.get("/api/panel/admin/students/:id", async (req, res) => {
 });
 
 /**
- * @typedef AddStudentInfo /api/panel/admin/students/add{One,Multi} request interface
+ * @typedef AddStudentInfo /api/panel/admin/student/add{One,Multi} request interface
  * @prop {string} name
  * @prop {string} phone
  */
-app.post("/api/panel/admin/students/addOne", async (req, res) => {
+app.post("/api/panel/admin/student/addOne", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -217,7 +250,7 @@ app.post("/api/panel/admin/students/addOne", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-app.post("/api/panel/admin/students/addMulti", async (req, res) => {
+app.post("/api/panel/admin/student/addMulti", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -242,10 +275,10 @@ app.post("/api/panel/admin/students/addMulti", async (req, res) => {
 });
 
 /**
- * @typedef DeleteStudentInfo /api/panel/admin/students/delete{One,Multi} request interface
+ * @typedef DeleteStudentInfo /api/panel/admin/student/delete{One,Multi} request interface
  * @prop {number} studentId
  */
-app.post("/api/panel/admin/students/deleteOne", async (req, res) => {
+app.post("/api/panel/admin/student/deleteOne", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -267,7 +300,7 @@ app.post("/api/panel/admin/students/deleteOne", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-app.post("/api/panel/admin/students/deleteMulti", async (req, res) => {
+app.post("/api/panel/admin/student/deleteMulti", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -286,26 +319,19 @@ app.post("/api/panel/admin/students/deleteMulti", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-app.get("/api/panel/admin/links/all", async (req, res) => {
+/**
+ * @typedef {AsyncReturnType<typeof sql.getLinkById>} LinkResponseData
+ */
+app.get("/api/panel/admin/links", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
-  const remoteClients = await sql.getAllRemoteClientsWithLinks();
-  const links = await Promise.all(
-    remoteClients
-      .map(({ link }) => link)
-      .map(async ({ linkId, linkPath, isValid, validUntil, cameraId, clientId }) => ({
-        linkId,
-        linkPath,
-        isValid,
-        validUntil,
-        cameraId,
-        clientId,
-        student: await sql.getStudentByLinkIdWithSpecificAttributes(linkId, ["studentId", "name", "phone"]),
-      }))
-  );
+  /**
+   * @type {LinkResponseData[]}
+   */
+  const links = await sql.getAllValidLinks();
   res.json({
     success: true,
     message: "",
@@ -313,7 +339,7 @@ app.get("/api/panel/admin/links/all", async (req, res) => {
   });
 });
 
-app.get("/api/panel/admin/links/:id", async (req, res) => {
+app.get("/api/panel/admin/link/:id", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -325,29 +351,28 @@ app.get("/api/panel/admin/links/:id", async (req, res) => {
     res.json({ success: false, message: "Invalid link id" });
     return;
   }
+  /**
+   * @type {LinkResponseData}
+   */
   const link = await sql.getLinkById(linkId);
   if (!link) {
     res.json({ success: false, message: "Link not found" });
     return;
   }
-  const student = await sql.getStudentByLinkIdWithSpecificAttributes(linkId, ["studentId", "name", "phone"]);
   res.json({
     success: true,
     message: "",
-    data: {
-      ...link,
-      student,
-    },
+    data: link,
   });
 });
 
 /**
- * @typedef AddLinkInfo /api/panel/admin/links/add{One,Multi} request Interface
+ * @typedef AddLinkInfo /api/panel/admin/link/add{One,Multi} request Interface
  * @prop {string} clientId
  * @prop {number} validAfterTimeStamp
  * @prop {number} validUntilTimeStamp
  */
-app.post("/api/panel/admin/links/addOne", async (req, res) => {
+app.post("/api/panel/admin/link/addOne", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -374,7 +399,7 @@ app.post("/api/panel/admin/links/addOne", async (req, res) => {
   res.json({ success: true, message: "", data: link });
 });
 
-app.post("/api/panel/admin/links/addMulti", async (req, res) => {
+app.post("/api/panel/admin/link/addMulti", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -409,14 +434,14 @@ app.post("/api/panel/admin/links/addMulti", async (req, res) => {
 });
 
 /**
- * @typedef EditLinkInfo /api/panel/admin/links/edit{One,Multi} request interface
+ * @typedef EditLinkInfo /api/panel/admin/link/edit{One,Multi} request interface
  * @prop {number} linkId
  * @prop {boolean} shouldRevalidate
  * @prop {boolean} shouldInvalidate
  * @prop {number} [validAfterTimeStamp]
  * @prop {number} [validUntilTimeStamp]
  */
-app.post("/api/panel/admin/links/editOne", async (req, res) => {
+app.post("/api/panel/admin/link/editOne", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -465,7 +490,7 @@ app.post("/api/panel/admin/links/editOne", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-app.post("/api/panel/admin/links/editMulti", async (req, res) => {
+app.post("/api/panel/admin/link/editMulti", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -513,11 +538,11 @@ app.post("/api/panel/admin/links/editMulti", async (req, res) => {
 });
 
 /**
- * @typedef AssignLinkToStudentInfo /api/panel/admin/links/assignToStudent{One,Multi} request interface
+ * @typedef AssignLinkToStudentInfo /api/panel/admin/link/assignToStudent{One,Multi} request interface
  * @prop {number} linkId
- * @prop {string} studentId
+ * @prop {number} studentId
  */
-app.post("/api/panel/admin/links/assignToStudentOne", async (req, res) => {
+app.post("/api/panel/admin/link/assignToStudentOne", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -532,13 +557,14 @@ app.post("/api/panel/admin/links/assignToStudentOne", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-app.post("/api/panel/admin/links/assignToStudentMulti", async (req, res) => {
+app.post("/api/panel/admin/link/assignToStudentMulti", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
   const linkAssignInfos = /** @type {AssignLinkToStudentInfo[]} */ (req.body);
+  logger.info("assigning links to students", linkAssignInfos);
   const assignPromises = [];
   for (const { linkId, studentId } of linkAssignInfos) {
     if (typeof linkId !== "number" || !Number.isSafeInteger(linkId) || typeof studentId !== "number") {
@@ -546,15 +572,20 @@ app.post("/api/panel/admin/links/assignToStudentMulti", async (req, res) => {
     }
     assignPromises.push(sql.assignLinkToStudent(linkId, studentId));
   }
-  await Promise.all(assignPromises);
-  res.json({ success: true, message: "" });
+  try {
+    await Promise.all(assignPromises);
+    res.json({ success: true, message: "" });
+  } catch (e) {
+    logger.error("Error while assigning links to students:", e.message);
+    res.json({ success: false, message: e.message });
+  }
 });
 
 /**
- * @typedef DeleteLinkInfo /api/panel/admin/links/delete{One,Multi} request interface
+ * @typedef DeleteLinkInfo /api/panel/admin/link/delete{One,Multi} request interface
  * @prop {number} linkId
  */
-app.post("/api/panel/admin/links/deleteOne", async (req, res) => {
+app.post("/api/panel/admin/link/deleteOne", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -569,13 +600,17 @@ app.post("/api/panel/admin/links/deleteOne", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-app.post("/api/panel/admin/links/deleteMulti", async (req, res) => {
+app.post("/api/panel/admin/link/deleteMulti", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
   const deleteInfos = /** @type {DeleteLinkInfo[]} */ (req.body);
+  logger.info(
+    "deleting multiple links:",
+    deleteInfos.map(({ linkId }) => linkId)
+  );
   const deletePromises = [];
   for (const { linkId } of deleteInfos) {
     if (typeof linkId !== "number" || !Number.isSafeInteger(linkId)) {
@@ -587,7 +622,19 @@ app.post("/api/panel/admin/links/deleteMulti", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-app.get("/api/panel/admin/rclients/:id", async (req, res) => {
+/**
+ * @typedef RClientResponseData
+ * @prop {AsyncReturnType<typeof sql.getRemoteClientById>} rclient
+ * @prop {AsyncReturnType<typeof sql.getLinkById>} link
+ * @prop {AsyncReturnType<typeof sql.getStudentById>} student
+ * @prop {AsyncReturnType<typeof sql.getCameraById>} camera
+ *
+ * @typedef RClientResponse /api/panel/admin/rclient/:id response interface
+ * @prop {boolean} success
+ * @prop {string} message
+ * @prop {RClientResponseData} [data]
+ */
+app.get("/api/panel/admin/rclient/:id", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -602,33 +649,36 @@ app.get("/api/panel/admin/rclients/:id", async (req, res) => {
   }
   const link = rclient.linkId ? await sql.getLinkById(rclient.linkId) : null;
   const student = link ? await sql.getStudentByLinkId(link.linkId) : null;
-  const camera = link && link.cameraId ? await sql.getCameraByCameraId(link.cameraId) : null;
+  const camera = link && link.cameraId ? await sql.getCameraById(link.cameraId) : null;
+  /**
+   * @type {RClientResponseData}
+   */
+  const rclientWithAdditionalData = { rclient, link, student, camera };
   res.json({
     success: true,
     message: "",
-    data: {
-      remoteClient: rclient,
-      link,
-      student,
-      camera,
-    },
+    data: rclientWithAdditionalData,
   });
 });
 
-app.get("/api/panel/admin/rclients/all", async (req, res) => {
+app.get("/api/panel/admin/rclients", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
-  const rclients = await sql.getAllRemoteClientsWithLinks();
-  const rclientsWithStudentsAndCameras = await Promise.all(
+  const rclients = await sql.getAllRemoteClients();
+  /**
+   * @type {RClientResponseData[]}
+   */
+  const rclientsWithAdditionalData = await Promise.all(
     rclients.map(async (rclient) => {
-      const link = rclient.link;
+      const link = rclient.linkId ? await sql.getLinkById(rclient.linkId) : null;
       const student = link ? await sql.getStudentByLinkId(link.linkId) : null;
-      const camera = link && link.cameraId ? await sql.getCameraByCameraId(link.cameraId) : null;
+      const camera = link && link.cameraId ? await sql.getCameraById(link.cameraId) : null;
       return {
-        ...rclient,
+        rclient,
+        link,
         student,
         camera,
       };
@@ -637,11 +687,71 @@ app.get("/api/panel/admin/rclients/all", async (req, res) => {
   res.json({
     success: true,
     message: "",
-    data: rclientsWithStudentsAndCameras,
+    data: rclientsWithAdditionalData,
+  });
+});
+
+/**
+ * @typedef {AsyncReturnType<typeof sql.getCameraById>} CameraResponseData
+ */
+app.get("/api/panel/admin/cameras", async (req, res) => {
+  const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
+  if (!session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  /**
+   * @type {CameraResponseData[]}
+   */
+  const cameras = await sql.getAllCameras();
+  res.json({
+    success: true,
+    message: "",
+    data: cameras,
+  });
+});
+
+app.get("/api/panel/admin/camera/:id", async (req, res) => {
+  const session = /** @type {AdminSession & Express.Request["session"]} */ (req.session);
+  if (!session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  const { id } = req.params;
+  logger.info("getCamera request received from client for camera", id);
+  /**
+   * @type {CameraResponseData}
+   */
+  const camera = await sql.getCameraById(id);
+  if (!camera) {
+    res.json({ success: false, message: "No such camera" });
+    return;
+  }
+  res.json({
+    success: true,
+    message: "",
+    data: camera,
   });
 });
 
 app.use(express.static(path.join(__dirname, "panel-frontend", "dist")));
+
+// note that outdated means validUntil < now
+async function removeOutdatedLinksFromRClients() {
+  const rclients = await sql.getAllRemoteClients();
+  for (const rclient of rclients) {
+    if (!rclient.linkId) {
+      continue;
+    }
+    const link = await sql.getLinkById(rclient.linkId);
+    if (link && link.validUntil < new Date()) {
+      await sql.removeLinkFromRemoteClient(link.linkId);
+      logger.info("removed outdated link", link.linkId, "from rclient", rclient.clientId);
+    }
+  }
+}
+
+setInterval(removeOutdatedLinksFromRClients, 1000 * 60 * 5);
 
 module.exports = {
   app,

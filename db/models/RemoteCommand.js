@@ -20,12 +20,11 @@ const RemoteCommand = sequelize.define(
     createdAt: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn("now"),
+      defaultValue: () => new Date(),
     },
     status: {
       type: Sequelize.ENUM("running", "finished", "failed"),
       allowNull: false,
-      defaultValue: "running",
     },
     command: {
       type: Sequelize.STRING,
@@ -42,12 +41,10 @@ const RemoteCommand = sequelize.define(
     reportedResult: {
       type: Sequelize.STRING,
       allowNull: true,
-      defaultValue: null,
     },
     reportedAt: {
       type: Sequelize.DATE,
       allowNull: true,
-      defaultValue: null,
     },
     clientId: {
       type: Sequelize.STRING,
@@ -62,7 +59,7 @@ const RemoteCommand = sequelize.define(
 /**
  * @typedef TCreationAttributes
  * @prop {Date} [createdAt]
- * @prop {"running" | "finished" | "failed"} [status]
+ * @prop {"running" | "finished" | "failed"} status
  * @prop {string} command
  * @prop {string} args JSON of string[]
  * @prop {string} displayText
@@ -73,7 +70,6 @@ const RemoteCommand = sequelize.define(
  * @typedef TAdditionalModelAttributes
  * @prop {number} commandId
  * @prop {Date} createdAt
- * @prop {"running" | "finished" | "failed"} status
  * @prop {string | null} reportedResult
  * @prop {Date | null} reportedAt
  *

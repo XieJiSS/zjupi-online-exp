@@ -28,7 +28,6 @@ const RemoteClient = sequelize.define(
     nextPassword: {
       type: Sequelize.STRING,
       allowNull: true,
-      defaultValue: null,
     },
     ip: {
       type: Sequelize.STRING,
@@ -37,13 +36,12 @@ const RemoteClient = sequelize.define(
     lastActive: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn("now"),
     },
     online: {
       type: Sequelize.VIRTUAL,
       get() {
         const that = /** @type {TModel} */ (this);
-        return that.lastActive === null ? false : Date.now() - that.lastActive.getTime() < 1000 * 60 * 3;
+        return Date.now() - (that.lastActive?.getTime() ?? 0) < 1000 * 60 * 3;
       },
       set(_) {
         logger.error("Do not try to set the online attribute of the RemoteClient Model!");
@@ -54,7 +52,7 @@ const RemoteClient = sequelize.define(
       type: Sequelize.VIRTUAL,
       get() {
         const that = /** @type {TModel} */ (this);
-        return that.online ? false : Date.now() - that.lastActive.getTime() >= 1000 * 60 * 30;
+        return that.online ? false : Date.now() - (that.lastActive?.getTime() ?? 0) >= 1000 * 60 * 30;
       },
       set(_) {
         logger.error("Do not try to set the isDead attribute of the RemoteClient Model!");
@@ -64,7 +62,6 @@ const RemoteClient = sequelize.define(
     linkId: {
       type: Sequelize.INTEGER,
       allowNull: true,
-      defaultValue: null,
     },
   },
   {
@@ -79,12 +76,11 @@ const RemoteClient = sequelize.define(
  * @prop {Date} passwordExpireAt
  * @prop {string | null} [nextPassword]
  * @prop {string} ip
- * @prop {Date} [lastActive]
+ * @prop {Date} lastActive
  * @prop {number | null} [linkId]
  *
  * @typedef TAdditionalModelAttributes
  * @prop {string | null} nextPassword
- * @prop {Date} lastActive
  * @prop {boolean} online
  * @prop {boolean} isDead
  * @prop {number | null} linkId

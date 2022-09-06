@@ -21,7 +21,6 @@ const AccessLink = sequelize.define(
     createdAt: {
       type: Sequelize.DATE,
       allowNull: false,
-      defaultValue: Sequelize.fn("now"),
     },
     linkPath: {
       type: Sequelize.STRING,
@@ -38,18 +37,25 @@ const AccessLink = sequelize.define(
     },
     clientId: {
       type: Sequelize.STRING,
-      allowNull: false,
+      // when removing an access link, the clientId will be set to null for a very short time
     },
     cameraId: {
       type: Sequelize.STRING, // name-like id
       allowNull: true,
-      defaultValue: null,
     },
     isValid: {
       type: Sequelize.VIRTUAL,
       get() {
         const that = /** @type {TModel} */ (this);
-        return that.validUntil.getTime() > Date.now() && that.validAfter.getTime() < Date.now();
+        const validUntil = that.getDataValue("validUntil");
+        const validAfter = that.getDataValue("validAfter");
+        if (!validUntil || !validAfter) {
+          // https://github.com/sequelize/sequelize/issues/13284
+          // in getters, properties might not yet exist, so we have to check
+          logger.info("isValid getter: validUntil or validAfter not yet set");
+          return false;
+        }
+        return validUntil.getTime() > Date.now() && validAfter.getTime() < Date.now();
       },
       set(_) {
         logger.error("setter failed: isValid is a virtual field");
@@ -64,7 +70,7 @@ const AccessLink = sequelize.define(
 
 /**
  * @typedef TCreationAttributes
- * @prop {Date} [createdAt]
+ * @prop {Date} createdAt
  * @prop {string} linkPath
  * @prop {Date} validAfter
  * @prop {Date} validUntil
@@ -73,7 +79,6 @@ const AccessLink = sequelize.define(
  *
  * @typedef TAdditionalModelAttributesWriteable
  * @prop {number} linkId
- * @prop {Date} createdAt
  * @prop {string | null} cameraId
  *
  * @typedef TAdditionalModelAttributesReadonly

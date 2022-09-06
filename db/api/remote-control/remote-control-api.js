@@ -4,11 +4,19 @@ const assert = require("assert");
 const { hasAuthed } = require("../../connect");
 assert(hasAuthed());
 
-const { RemoteClient, RemoteCommand, AccessLink } = require("../../models");
+const { RemoteClient, RemoteCommand, AccessLink } = require("../../models/all-models");
 
 /**
  * @template T
  * @typedef {T extends import("sequelize").ModelCtor<infer I> ? I : never} TModelType
+ */
+/**
+ * @template U
+ * @typedef {U extends import("sequelize").Model<infer I, infer _> ? I : never} TModelAttributesType
+ */
+/**
+ * @template V
+ * @typedef {keyof TModelAttributesType<TModelType<V>>} TModelKey
  */
 
 const logger = require("../../../util/logger")("remote-control-api");
@@ -44,6 +52,7 @@ async function createRemoteCommand(clientId, directive, args) {
     displayText: directive.displayText,
     args: JSON.stringify(args),
     clientId,
+    status: "running",
   });
 }
 
@@ -119,6 +128,7 @@ async function createRemoteClient(clientId, password, ip) {
   await RemoteClient.create({
     clientId,
     password,
+    lastActive: new Date(),
     passwordExpireAt: new Date(Date.now() - 1),
     ip,
   });
@@ -148,6 +158,14 @@ async function getAllRemoteClientsWithLinks() {
  */
 async function getRemoteClientById(clientId) {
   return await RemoteClient.findByPk(clientId);
+}
+
+/**
+ * @param {string} clientId
+ * @param {TModelKey<typeof RemoteClient>[]} attributes
+ */
+async function getRemoteClientByIdAttrsOnly(clientId, attributes) {
+  return await RemoteClient.findByPk(clientId, { attributes });
 }
 
 /**
@@ -225,6 +243,7 @@ module.exports = {
   getAllRemoteClients,
   getAllRemoteClientsWithLinks,
   getRemoteClientById,
+  getRemoteClientByIdAttrsOnly,
   removeRemoteClientById,
   setRemoteClientPasswordById,
   invalidatePasswordById,

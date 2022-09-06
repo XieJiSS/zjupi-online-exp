@@ -6,7 +6,7 @@ assert(hasAuthed());
 
 const { Op } = require("sequelize");
 
-const { AccessLink, RemoteClient, Student } = require("../../models");
+const { AccessLink, RemoteClient, Student } = require("../../models/all-models");
 
 /**
  * @template T
@@ -27,8 +27,8 @@ logger.error = hookLogUtil("error", __filename, logger.error.bind(logger));
 logger.warn = hookLogUtil("warn", __filename, logger.warn.bind(logger));
 
 function generateLinkPath() {
-  const charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789_-";
-  const length = 12;
+  const charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  const length = 8;
   let result = "";
   while (result.length < length) {
     result += charset[Math.floor(Math.random() * charset.length)];
@@ -71,6 +71,7 @@ async function createAccessLink(clientId, options) {
     validAfter,
     validUntil,
     clientId,
+    createdAt: new Date(),
   });
   await RemoteClient.update({ linkId: link.linkId }, { where: { clientId } });
   return link;
@@ -84,6 +85,7 @@ async function removeAccessLink(linkId) {
   if (!link) {
     return null;
   }
+  logger.info(`Removing access link ${linkId} from database...`);
   await Promise.all([removeLinkFromRemoteClient(linkId), removeLinkFromStudent(linkId)]);
   return (await AccessLink.destroy({ where: { linkId } }))[0] > 0;
 }
@@ -145,6 +147,7 @@ async function assignLinkToStudent(linkId, studentId) {
   await removeLinkFromStudent(linkId);
   const student = await Student.findOne({ where: { studentId } });
   if (!student) {
+    logger.error(`assignLinkToStudent: student ${studentId} not found`);
     return false;
   }
   // since Link does not hold a reference to Student, there's no need to update the link instance
@@ -167,6 +170,14 @@ async function getLinkById(linkId) {
 }
 
 /**
+ * @param {number} linkId
+ * @param {TModelKey<typeof AccessLink>[]} attributes
+ */
+async function getLinkByIdAttrsOnly(linkId, attributes) {
+  return await AccessLink.findOne({ where: { linkId }, attributes });
+}
+
+/**
  * @param {string} linkPath
  */
 async function getLinkByLinkPath(linkPath) {
@@ -180,7 +191,7 @@ async function getAllLinks() {
 /**
  * @param {TModelKey<typeof AccessLink>[]} attributes
  */
-async function getAllLinksWithSpecificAttributes(attributes) {
+async function getAllLinksAttrsOnly(attributes) {
   return await AccessLink.findAll({ attributes });
 }
 
@@ -200,7 +211,7 @@ async function getAllValidLinks() {
 /**
  * @param {TModelKey<typeof AccessLink>[]} attributes
  */
-async function getAllValidLinksWithSpecificAttributes(attributes) {
+async function getAllValidLinksAttrsOnly(attributes) {
   return await AccessLink.findAll({
     where: {
       validUntil: {
@@ -272,12 +283,13 @@ module.exports = {
   assignLinkToRemoteClient,
   removeLinkFromRemoteClient,
   getLinkById,
+  getLinkByIdAttrsOnly,
   getLinkByLinkPath,
   getLinkIfValidByLinkPath,
   getAllLinks,
-  getAllLinksWithSpecificAttributes,
+  getAllLinksAttrsOnly,
   getAllValidLinks,
-  getAllValidLinksWithSpecificAttributes,
+  getAllValidLinksAttrsOnly,
   invalidateLinkById,
   invalidateLinkByLinkPath,
   revalidateLinkById,

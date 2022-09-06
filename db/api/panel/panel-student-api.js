@@ -4,7 +4,7 @@ const assert = require("assert");
 const { hasAuthed } = require("../../connect");
 assert(hasAuthed());
 
-const { Student, RemoteClient, Camera } = require("../../models");
+const { Student, RemoteClient, Camera } = require("../../models/all-models");
 
 /**
  * @template T
@@ -84,7 +84,7 @@ async function getStudentByLinkId(linkId) {
  * @param {number} linkId
  * @param {TModelKey<typeof Student>[]} attributes
  */
-async function getStudentByLinkIdWithSpecificAttributes(linkId, attributes) {
+async function getStudentByLinkIdAttrsOnly(linkId, attributes) {
   const link = await accessLinkApi.getLinkById(linkId);
   if (!link) {
     return null;
@@ -112,7 +112,7 @@ async function getAllStudents() {
 /**
  * @param {TModelKey<typeof Student>[]} attributes
  */
-async function getAllStudentsWithSpecificAttributes(attributes) {
+async function getAllStudentsAttrsOnly(attributes) {
   return await Student.findAll({ attributes });
 }
 
@@ -121,6 +121,13 @@ async function getAllStudentsWithSpecificAttributes(attributes) {
  */
 async function getStudentById(studentId) {
   return await Student.findOne({ where: { studentId } });
+}
+
+/**
+ * @param {TModelKey<typeof Student>[]} attributes
+ */
+async function getStudentByIdAttrsOnly(studentId, attributes) {
+  return await Student.findOne({ where: { studentId }, attributes });
 }
 
 /**
@@ -192,10 +199,11 @@ module.exports = {
   getLinkByStudentId,
   getLinkByStudentPhone,
   getAllStudents,
-  getAllStudentsWithSpecificAttributes,
+  getAllStudentsAttrsOnly,
   getStudentById,
+  getStudentByIdAttrsOnly,
   getStudentByLinkId,
-  getStudentByLinkIdWithSpecificAttributes,
+  getStudentByLinkIdAttrsOnly,
   getCameraByStudentId,
   getCameraByStudentPhone,
   getRemoteClientByStudentId,

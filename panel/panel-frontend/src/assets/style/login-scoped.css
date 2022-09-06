@@ -68,7 +68,10 @@ img {
 }
 /*end reset*/
 /* -----start-body---- */
-body a,
+.login-app {
+  background: rgb(166, 179, 184);
+}
+.login-app a,
 form li,
 .submit input[type="submit"],
 .new p a,
@@ -78,7 +81,7 @@ form li,
   -moz-transition: 0.1s all;
   -o-transition: 0.1s all;
 }
-body h1 {
+.login-app h1 {
   color: #fff;
   text-align: center;
   padding: 1em 0;
@@ -133,4 +136,258 @@ i.fa.fa-code {
   position: relative;
   z-index: 1;
   left: 0;
+}
+.login-app input[type="submit"],
+.login-app a.submit-btn {
+  display: inline-block;
+  font-size: 20px;
+  font-weight: 300;
+  color: #fff;
+  cursor: pointer;
+  outline: none;
+  padding: 12px 15px;
+  min-width: 108px;
+  border: none;
+  background: rgba(0, 0, 0, .2);
+  margin: 0 10px;
+  border-radius: 0.3em;
+}
+
+.login-app input[type="submit"].submit-primitive,
+.login-app a.submit-btn.submit-primitive {
+  background: rgba(0, 0, 0, .2);
+}
+
+.login-app input[type="submit"]:hover,
+.login-app a.submit-btn:hover {
+  border: none;
+  background-color: rgba(0, 0, 0, .3);
+}
+
+.login-app input[type="submit"]:active,
+.login-app a.submit-btn:active {
+  border: none;
+  background-color: rgba(0, 0, 0, .4);
+}
+
+.login-app {
+  transition: 0.2s opacity;
+  -webkit-transition: 0.2s opacity;
+  -moz-transition: 0.2s opacity;
+  -o-transition: 0.2s opacity;
+  opacity: 1;
+  position: relative;
+  margin: 0 auto;
+  text-align: center;
+  background: rgba(0, 0, 0, .12);
+  padding: 3em 2em 2em 2em;
+  border: none;
+  border-radius: 5px;
+  top: 20vh;
+}
+
+.login-app h2 {
+  color: #fff;
+  text-align: center;
+  padding: 0 0 2em 0;
+  font-size: 1.6em;
+  font-weight: 300;
+}
+
+.login-app input[type="text"] {
+  width: 81.2%;
+  padding: 0.8em 1em 0.8em 2em;
+  margin: -1.5em 0 0.5em -1.5em;
+  color: #283440;
+  font-size: 16px;
+  outline: none;
+  border: none;
+  font-family: 'Open Sans', sans-serif;
+  border-radius: 0.3em;
+}
+
+.login-app input::placeholder {
+  color: #9fa1a3;
+  font-weight: lighter;
+}
+
+.login-app input[type="password"] {
+  width: 81.2%;
+  padding: 0.8em 1em 0.8em 2em;
+  margin: 0.5em 0 0.5em -1.5em;
+  color: #283440;
+  font-size: 16px;
+  outline: none;
+  border: none;
+  font-family: 'Open Sans', sans-serif;
+  border-radius: 0.3em;
+}
+
+.login-app input[type="text"]#code {
+  margin: 10px 0 1em -1.6em;
+  padding: 0.8em 1em 0.8em 2em;
+}
+
+.login-app input[type="text"]#captcha {
+  margin-top: 10px;
+  padding: 12px 1em 0.8em 2em;
+  width: 40%;
+  border-radius: 0.3em 0 0 0.3em;
+}
+
+/*-----start-responsive-design------*/
+@media (max-width: 1440px) {
+  .login-app {
+    width: 30%;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 80.2%;
+  }
+}
+
+@media (max-width: 1366px) {
+  .login-app {
+    width: 30%;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 79.7%;
+  }
+
+  body h1 {
+    font-size: 2.6em;
+  }
+}
+
+@media (max-width: 1280px) {
+  .login-app {
+    width: 35%;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 80.7%;
+  }
+}
+
+@media (max-width: 1024px) {
+  .login-app {
+    width: 47%;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 82.7%;
+  }
+}
+
+@media (max-width: 768px) {
+  .app h1 {
+    font-size: 2.4em;
+  }
+
+  .login-app h2 {
+    padding: 0.6em 0 1.2em 0;
+    font-size: 1.6em;
+  }
+
+  .login-app {
+    width: 54%;
+    margin: 0 auto 0 15%;
+    padding: 2em 4em 4em 4em;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 79.7%;
+  }
+}
+
+@media (max-width: 640px) {
+  .app h1 {
+    font-size: 2.1em;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 79.8%;
+  }
+
+  .login-app {
+    width: 65%;
+    margin: 0 auto 0 7%;
+  }
+}
+
+@media (max-width: 480px) {
+  .login-app {
+    width: 80%;
+    padding: 2em 1em 3.5em 1em;
+  }
+
+  .new p.sign a {
+    font-size: 0.85em;
+  }
+
+  form {
+    width: 82%;
+    margin: 0 auto;
+  }
+
+  .login-app h2 {
+    font-size: 1.4em;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 72.8%;
+  }
+}
+
+@media (max-width: 320px) {
+  .login-app {
+    width: 84%;
+    padding: 1.5em 1em 2.5em 1em;
+    margin: 0 auto 0 3%;
+  }
+
+  .login-app h2 {
+    margin-bottom: 0.5em;
+  }
+
+  .app h1 {
+    font-size: 1.5em;
+  }
+
+  .login-app input[type="text"],
+  .login-app input[type="password"] {
+    width: 70%;
+    font-size: 16px;
+  }
+
+  .new p.sign a {
+    padding-top: 1px;
+    font-size: 0.83em;
+  }
+
+  .new {
+    margin: 1em 0 1em 0;
+  }
+
+  .submit {
+    margin: 1em 0 0.5em 0;
+  }
+
+  .login-app input[type="submit"] {
+    font-size: 18px;
+    padding: 11px 11px;
+  }
+
+  form {
+    width: 100%;
+    margin: 0 auto;
+  }
 }

@@ -19,7 +19,6 @@ export default {
   },
   methods: {
     async submitLogin() {
-      console.log(this.passwordHash);
       const { data } = await axios.post("/api/panel/admin/login", {
         username: this.username,
         password: this.passwordHash,
@@ -31,7 +30,7 @@ export default {
         alert(data.message);
         return;
       }
-      this.$router.push("/admin");
+      await this.$router.push("/admin");
     },
     calculatePasswordHash(password) {
       const salt = "PI.ZJU_salt";

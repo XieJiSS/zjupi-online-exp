@@ -2,6 +2,9 @@
 
 import { createApp } from "vue";
 import { createRouter, createWebHashHistory } from "vue-router";
+import VueSimpleAlert from "vue3-simple-alert-next";
+
+import type { RouteRecordRaw } from "vue-router";
 
 import App from "./App.vue";
 import Access from "./Access.vue";
@@ -11,7 +14,7 @@ import Register from "./Register.vue";
 
 import "./assets/style/font-awesome.css";
 
-const routes = [
+const routes: RouteRecordRaw[] = [
   { path: "/access/:code", component: Access },
   { path: "/admin", component: Admin },
   { path: "/login", component: Login },
@@ -21,9 +24,16 @@ const routes = [
 
 const router = createRouter({
   history: createWebHashHistory(),
-  // @ts-ignore
   routes,
 });
 
-// @ts-ignore
-createApp(App).use(router).mount(".app");
+createApp(App).use(router).use(VueSimpleAlert).mount(".app");
+
+declare module "@vue/runtime-core" {
+  interface ComponentCustomProperties {
+    $alert: typeof VueSimpleAlert.alert;
+    $confirm: typeof VueSimpleAlert.confirm;
+    $prompt: typeof VueSimpleAlert.prompt;
+    $fire: typeof VueSimpleAlert.fire;
+  }
+}

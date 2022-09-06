@@ -30,7 +30,7 @@ export default {
         alert(data.message);
         return;
       }
-      this.$router.push("/login");
+      await this.$router.push("/login");
     },
     calculatePasswordHash(password) {
       const salt = "PI.ZJU_salt";

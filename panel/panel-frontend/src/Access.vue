@@ -1,9 +1,8 @@
-<script>
-// @ts-check
+<script lang="ts">
+import { defineComponent } from "vue";
+import axios from "axios";
 
-import axios from 'axios'
-
-export default {
+export default defineComponent({
   async beforeRouteUpdate(newRoutes) {
     this.ready = false
     const { remoteClient, camera, student } = await this.fetchStudentData(newRoutes.params.code)
@@ -56,7 +55,7 @@ export default {
       }
     },
   },
-}
+});
 </script>
 
 <template>

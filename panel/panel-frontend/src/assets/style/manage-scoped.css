@@ -1,56 +1,3 @@
-
-:root {
-  --blue: #009efb;
-  --indigo: #6610f2;
-  --purple: #7460ee;
-  --pink: #e83e8c;
-  --red: #f62d51;
-  --orange: #fb9678;
-  --yellow: #ffbc34;
-  --green: #36bea6;
-  --teal: #20c997;
-  --cyan: #01c0c8;
-  --white: #fff;
-  --gray: #6c757d;
-  --gray-dark: #343a40;
-  --blue: #009efb;
-  --indigo: #6610f2;
-  --purple: #7460ee;
-  --pink: #e83e8c;
-  --red: #f62d51;
-  --orange: #fb9678;
-  --yellow: #ffbc34;
-  --green: #36bea6;
-  --teal: #20c997;
-  --cyan: #01c0c8;
-  --white: #fff;
-  --gray: #6c757d;
-  --primary: #7460ee;
-  --secondary: #f8f9fa;
-  --success: #36bea6;
-  --info: #009efb;
-  --warning: #ffbc34;
-  --danger: #f62d51;
-  --light: #f8f9fa;
-  --dark: #343a40;
-  --cyan: #01c0c8;
-  --purple: #7460ee;
-  --breakpoint-xs: 0;
-  --breakpoint-sm: 576px;
-  --breakpoint-md: 768px;
-  --breakpoint-lg: 992px;
-  --breakpoint-xl: 1600px;
-  --font-family-sans-serif: "Rubik", sans-serif;
-  --font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-html {
-  font-family: sans-serif;
-  line-height: 1.15;
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
-  -ms-overflow-style: scrollbar;
-  -webkit-tap-highlight-color: transparent;
-}
 * {
   outline: none;
 }
@@ -60,18 +7,6 @@ html {
 }
 code {
   font-family: Consolas, Monaco, 'Lucida Console', 'Courier New', Courier, monospace;
-}
-body {
-  margin: 0;
-  overflow-x: hidden;
-  color: #6c757d;
-  margin: 0;
-  font-family: "Open Sans", sans-serif;
-  font-size: 0.875rem;
-  font-weight: 400;
-  line-height: 1.5;
-  text-align: left;
-  background-color: #edf1f5;
 }
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
@@ -96,6 +31,10 @@ h5, .h5 {
   font-size: 16px; }
 h6, .h6 {
   font-size: 14px; }
+.admin-app {
+  color: #6c757d;
+  font-size: 0.875rem;
+}
 .card {
   position: relative;
   display: -webkit-box;
@@ -111,11 +50,6 @@ h6, .h6 {
   background-clip: border-box;
   border: 0px solid transparent;
   border-radius: 0px;
-  opacity: 0;
-  transition: 0.1s opacity;
-  -webkit-transition: 0.1s opacity;
-  -moz-transition: 0.1s opacity;
-  -o-transition: 0.1s opacity;
 }
 .card-body {
   -webkit-box-flex: 1;
@@ -320,7 +254,9 @@ i.fa.fa-remove {
 .card-tab-item {
   display: block;
   width: 160px;
-  padding: 8px 0 8px 14px;
+  padding: 8px 0;
+  margin: 0 auto;
+  text-align: center;
   cursor: pointer;
   user-select: none;
   transition: background-color 0.3s;

@@ -135,6 +135,31 @@ app.post("/api/remote-control/rejectUpdate", async (req, res) => {
   await sql.setActiveByRemoteClientId(clientId);
 });
 
+app.get("/api/remote-control/getRandomAvailableClientId", async (req, res) => {
+  const ip = req.headers["x-real-ip"] ?? "";
+  if (!ip || typeof ip !== "string" || ip.includes(", ")) {
+    res.json({
+      success: false,
+      message: "Cannot determine IP",
+    });
+    return;
+  }
+  const clients = await sql.getAllRemoteClients();
+  const existingClientIds = clients.map((client) => client.clientId);
+  let clientId;
+  do {
+    clientId = sql.generateRandomClientId();
+  } while (existingClientIds.includes(clientId));
+  logger.info("Generated random client ID", clientId, "for ip", ip);
+  res.json({
+    success: true,
+    message: "",
+    data: {
+      clientId,
+    },
+  });
+});
+
 app.post("/api/remote-control/registerClient", async (req, res) => {
   const ip = req.headers["x-real-ip"] ?? "";
   if (!ip || typeof ip !== "string" || ip.includes(", ")) {

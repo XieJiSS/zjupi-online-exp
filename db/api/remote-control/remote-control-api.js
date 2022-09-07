@@ -37,6 +37,11 @@ if (CLASS_DURATION < 1000 * 60) {
  * @prop {string} displayText
  */
 
+function generateRandomClientId() {
+  // 100000000 - 199999999
+  return Math.floor(Math.random() * 100000000 + 100000000).toString();
+}
+
 /**
  * @param {string} clientId
  * @param {Directive} directive
@@ -232,6 +237,7 @@ async function isRemoteClientActive(clientId) {
 }
 
 module.exports = {
+  generateRandomClientId,
   createRemoteCommand,
   getRemoteCommands,
   getRemoteCommandById,

@@ -44,19 +44,21 @@ export default {
 </script>
 
 <template>
-  <h2>Admin Register</h2>
-  <form>
-    <div>
-      <i class="fa fa-user icon" id="icon"></i><input type="text" v-model="username" id="username"
-        placeholder="username">
-    </div>
-    <div>
-      <i class="fa fa-lock icon"></i><input type="password" v-model="password" placeholder="password">
-    </div>
-    <div class="submit">
-      <input class="submit-primitive" type="submit" value="REGISTER" v-on:click.prevent="submitRegister">
-    </div>
-  </form>
+  <div class="login-app">
+    <h2>Admin Register</h2>
+    <form>
+      <div>
+        <i class="fa fa-user icon" id="icon"></i><input type="text" v-model="username" id="username"
+          placeholder="username">
+      </div>
+      <div>
+        <i class="fa fa-lock icon"></i><input type="password" v-model="password" placeholder="password">
+      </div>
+      <div class="submit">
+        <input class="submit-primitive" type="submit" value="REGISTER" v-on:click.prevent="submitRegister">
+      </div>
+    </form>
+  </div>
 </template>
 
 <style scoped>

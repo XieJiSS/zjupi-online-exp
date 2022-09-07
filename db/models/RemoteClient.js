@@ -41,7 +41,7 @@ const RemoteClient = sequelize.define(
       type: Sequelize.VIRTUAL,
       get() {
         const that = /** @type {TModel} */ (this);
-        return Date.now() - (that.lastActive?.getTime() ?? 0) < 1000 * 60 * 3;
+        return Date.now() - (that.lastActive?.getTime() ?? 0) < 1000 * 45;
       },
       set(_) {
         logger.error("Do not try to set the online attribute of the RemoteClient Model!");

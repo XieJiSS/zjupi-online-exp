@@ -136,7 +136,7 @@ async function _removeLinkFromRemoteClient(linkId) {
   if (!link) {
     return false;
   }
-  await RemoteClient.update({ linkId: null }, { where: { linkId } });
+  return (await RemoteClient.update({ linkId: null }, { where: { linkId } }))[0] > 0;
 }
 
 /**

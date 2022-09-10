@@ -13,6 +13,7 @@ export type TModelKey<V> = keyof TModelAttributesType<TModelType<V>>;
  * @prop {string} command
  * @prop {string} displayText
  */
+export function generateRandomClientId(): string;
 /**
  * @param {string} clientId
  * @param {Directive} directive

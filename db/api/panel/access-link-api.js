@@ -86,7 +86,7 @@ async function removeAccessLink(linkId) {
     return null;
   }
   logger.info(`Removing access link ${linkId} from database...`);
-  await Promise.all([removeLinkFromRemoteClient(linkId), removeLinkFromStudent(linkId)]);
+  await Promise.all([_removeLinkFromRemoteClient(linkId), removeLinkFromStudent(linkId)]);
   return (await AccessLink.destroy({ where: { linkId } }))[0] > 0;
 }
 
@@ -129,14 +129,14 @@ async function assignLinkToRemoteClient(linkId, clientId) {
 
 /**
  * @param {number} linkId
+ * @description remove the link from the remote client that it is assigned to. For internal use only.
  */
-async function removeLinkFromRemoteClient(linkId) {
+async function _removeLinkFromRemoteClient(linkId) {
   const link = await getLinkById(linkId);
   if (!link) {
     return false;
   }
-  await link.update({ clientId: null });
-  return (await RemoteClient.update({ linkId: null }, { where: { linkId } }))[0] > 0;
+  await RemoteClient.update({ linkId: null }, { where: { linkId } });
 }
 
 /**
@@ -281,7 +281,6 @@ module.exports = {
   assignLinkToStudent,
   removeLinkFromStudent,
   assignLinkToRemoteClient,
-  removeLinkFromRemoteClient,
   getLinkById,
   getLinkByIdAttrsOnly,
   getLinkByLinkPath,

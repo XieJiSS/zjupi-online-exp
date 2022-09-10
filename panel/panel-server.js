@@ -745,8 +745,8 @@ async function removeOutdatedLinksFromRClients() {
     }
     const link = await sql.getLinkById(rclient.linkId);
     if (link && link.validUntil < new Date()) {
-      await sql.removeLinkFromRemoteClient(link.linkId);
-      logger.info("removed outdated link", link.linkId, "from rclient", rclient.clientId);
+      logger.info("removing outdated link", link.linkId, "on rclient", rclient.clientId, "from database");
+      await sql.removeAccessLink(link.linkId);
     }
   }
 }

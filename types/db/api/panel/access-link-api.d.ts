@@ -46,10 +46,6 @@ export function assignLinkToRemoteClient(linkId: number, clientId: string): Prom
 /**
  * @param {number} linkId
  */
-export function removeLinkFromRemoteClient(linkId: number): Promise<boolean>;
-/**
- * @param {number} linkId
- */
 export function getLinkById(linkId: number): Promise<import("../../models/AccessLink").TModel>;
 /**
  * @param {number} linkId

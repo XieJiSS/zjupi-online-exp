@@ -1,4 +1,5 @@
 declare const _exports: {
+    generateRandomClientId: typeof RemoteControlAPI.generateRandomClientId;
     createRemoteCommand: typeof RemoteControlAPI.createRemoteCommand;
     getRemoteCommands: typeof RemoteControlAPI.getRemoteCommands;
     getRemoteCommandById: typeof RemoteControlAPI.getRemoteCommandById;
@@ -44,7 +45,6 @@ declare const _exports: {
     assignLinkToStudent: typeof import("./panel/access-link-api").assignLinkToStudent;
     removeLinkFromStudent: typeof import("./panel/access-link-api").removeLinkFromStudent;
     assignLinkToRemoteClient: typeof import("./panel/access-link-api").assignLinkToRemoteClient;
-    removeLinkFromRemoteClient: typeof import("./panel/access-link-api").removeLinkFromRemoteClient;
     getLinkById: typeof import("./panel/access-link-api").getLinkById;
     getLinkByIdAttrsOnly: typeof import("./panel/access-link-api").getLinkByIdAttrsOnly;
     getLinkByLinkPath: typeof import("./panel/access-link-api").getLinkByLinkPath;

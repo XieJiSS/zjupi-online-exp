@@ -27,7 +27,6 @@ declare const _exports: {
     assignLinkToStudent: typeof AccessLinkAPI.assignLinkToStudent;
     removeLinkFromStudent: typeof AccessLinkAPI.removeLinkFromStudent;
     assignLinkToRemoteClient: typeof AccessLinkAPI.assignLinkToRemoteClient;
-    removeLinkFromRemoteClient: typeof AccessLinkAPI.removeLinkFromRemoteClient;
     getLinkById: typeof AccessLinkAPI.getLinkById;
     getLinkByIdAttrsOnly: typeof AccessLinkAPI.getLinkByIdAttrsOnly;
     getLinkByLinkPath: typeof AccessLinkAPI.getLinkByLinkPath;

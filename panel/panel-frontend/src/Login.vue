@@ -1,5 +1,4 @@
-<script>
-// @ts-check
+<script lang="ts">
 
 import pbkdf2 from "crypto-js/pbkdf2";
 import axios from "axios";

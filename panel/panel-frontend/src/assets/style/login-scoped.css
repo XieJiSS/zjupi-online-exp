@@ -71,6 +71,18 @@ img {
 .login-app {
   background: rgb(166, 179, 184);
 }
+/* for PC */
+@media screen and (min-width: 768px) {
+  .login-app {
+    width: 400px;
+  }
+}
+/* for mobile */
+@media screen and (max-width: 768px) {
+  .login-app {
+    width: 300px;
+  }
+}
 .login-app a,
 form li,
 .submit input[type="submit"],

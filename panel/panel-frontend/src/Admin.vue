@@ -6,7 +6,7 @@ import type {
   AddStudentInfo, AddLinkInfo, DeleteLinkInfo, AssignLinkToStudentInfo,
   RClientResponseData, StudentResponseData, LinkResponseData, CameraResponseData,
   RClientAttributes, StudentAttributes, LinkAttributes, CameraAttributes,
-} from "../../../types/panel/panel-server";
+} from "../../../dts/panel/panel-server";
 
 interface ResponseBase {
   success: boolean;

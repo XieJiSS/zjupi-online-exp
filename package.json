@@ -6,7 +6,8 @@
   "scripts": {
     "dev": "node app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "types": "npx -p typescript tsc --declaration --allowJs --emitDeclarationOnly --outDir types"
+    "dts": "npx -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
+    "build": "npx -p typescript tsc"
   },
   "repository": {
     "type": "git",

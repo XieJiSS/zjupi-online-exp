@@ -1,8 +1,8 @@
 "use strict";
 
-import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel } from "db/models/all-models";
-import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "types/type-helper";
-import type { AccessLinkValidTimeOptions } from "db/api/panel/access-link-api";
+import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel } from "../db/models/all-models";
+import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
+import type { AccessLinkValidTimeOptions } from "../db/api/panel/access-link-api";
 
 import path from "path";
 import assert from "assert";

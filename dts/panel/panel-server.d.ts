@@ -1,5 +1,5 @@
-import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel } from "db/models/all-models";
-import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "types/type-helper";
+import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel } from "../db/models/all-models";
+import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
     remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip">;

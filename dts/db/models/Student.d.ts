@@ -9,7 +9,7 @@ export interface StudentAdditionalModelAttributes {
     studentId: number;
     linkId: number | null;
 }
-export declare type StudentModelAttributes = StudentCreationAttributes & StudentAdditionalModelAttributes;
-export declare type StudentModel = Sequelize.Model<StudentModelAttributes, StudentCreationAttributes> & StudentModelAttributes;
-export declare type StudentModelCtor = Sequelize.ModelCtor<StudentModel>;
+export type StudentModelAttributes = StudentCreationAttributes & StudentAdditionalModelAttributes;
+export type StudentModel = Sequelize.Model<StudentModelAttributes, StudentCreationAttributes> & StudentModelAttributes;
+export type StudentModelCtor = Sequelize.ModelCtor<StudentModel>;
 export default Student;

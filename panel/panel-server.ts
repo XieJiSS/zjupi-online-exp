@@ -1,18 +1,8 @@
 "use strict";
 
-import type {
-  RemoteClientModelCtor,
-  StudentModelCtor,
-  CameraModelCtor,
-  AccessLinkModelCtor,
-} from "db/models/all-models";
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TExtractModel } from "types/type-helper";
+import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel } from "db/models/all-models";
+import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "types/type-helper";
 import type { AccessLinkValidTimeOptions } from "db/api/panel/access-link-api";
-
-export type RClientAttributes = TExtractModelKeyUnion<RemoteClientModelCtor>;
-export type StudentAttributes = TExtractModelKeyUnion<StudentModelCtor>;
-export type CameraAttributes = TExtractModelKeyUnion<CameraModelCtor>;
-export type LinkAttributes = TExtractModelKeyUnion<AccessLinkModelCtor>;
 
 import path from "path";
 import assert from "assert";
@@ -61,9 +51,9 @@ app.use(
 
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
-  remoteClient: TModelAttrsOnly<RemoteClientModelCtor, "clientId" | "password" | "ip">;
-  student: TModelAttrsOnly<StudentModelCtor, "name">;
-  camera: TModelAttrsOnly<CameraModelCtor, "cameraId" | "ip">;
+  remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip">;
+  student: TPartialModel<StudentModel, "name">;
+  camera: TPartialModel<CameraModel, "cameraId" | "ip">;
 }
 app.get("/api/panel/access/:link", async (req, res) => {
   const link = req.params.link;
@@ -168,7 +158,7 @@ if (process.env["NODE_ENV"] === "development") {
 }
 
 /** /api/panel/admin/student{s,/:id} */
-type PanelAdminStudentRespData = TModelAttrsOnly<StudentModelCtor, "name" | "studentId" | "phone">;
+export type PanelAdminStudentRespData = TPartialModel<StudentModel, "name" | "studentId" | "phone">;
 app.get("/api/panel/admin/students", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ req.session;
   if (!session.username) {
@@ -246,7 +236,7 @@ app.post("/api/panel/admin/student/addMulti", async (req, res) => {
 
   const studentInfoArr: PanelAdminStudentAddReqBody[] = req.body;
 
-  const createStudentPromises: Promise<TExtractModel<StudentModelCtor> | null>[] = [];
+  const createStudentPromises: Promise<StudentModel | null>[] = [];
   for (const { name, phone } of studentInfoArr) {
     if (typeof name !== "string" || typeof phone !== "string") {
       createStudentPromises.push(null);
@@ -306,13 +296,12 @@ app.post("/api/panel/admin/student/deleteMulti", async (req, res) => {
   res.json({ success: true, message: "" });
 });
 
-type PanelAdminLinksRespData = TExtractModel<AccessLinkModelCtor>[];
 app.get("/api/panel/admin/links", async (req, res) => {
   if (!req.session.username) {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
-  const data: PanelAdminLinksRespData = await sql.getAllValidLinks();
+  const data: PanelAdminLinkRespData[] = await sql.getAllValidLinks();
   res.json({
     success: true,
     message: "",
@@ -320,7 +309,8 @@ app.get("/api/panel/admin/links", async (req, res) => {
   });
 });
 
-type PanelAdminLinkRespData = TExtractModel<AccessLinkModelCtor>;
+/** /api/panel/admin/link{s,/:id} resp data */
+export type PanelAdminLinkRespData = AccessLinkModel;
 app.get("/api/panel/admin/link/:id", async (req, res) => {
   if (!req.session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -351,7 +341,7 @@ export interface PanelAdminLinkAddReqBody {
   validUntilTimeStamp: number;
 }
 /** /api/panel/admin/link/add{One,Multi} response data */
-type PanelAdminLinkAddRespData = TExtractModel<AccessLinkModelCtor>;
+export type PanelAdminLinkAddRespData = AccessLinkModel;
 app.post("/api/panel/admin/link/addOne", async (req, res) => {
   if (!req.session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -384,7 +374,7 @@ app.post("/api/panel/admin/link/addMulti", async (req, res) => {
     return;
   }
   const addLinkInfos: PanelAdminLinkAddReqBody[] = req.body;
-  const addLinkPromises: Promise<TExtractModel<AccessLinkModelCtor>>[] = [];
+  const addLinkPromises: Promise<AccessLinkModel>[] = [];
   for (let { clientId, validAfterTimeStamp, validUntilTimeStamp } of addLinkInfos) {
     if (typeof clientId !== "string") {
       addLinkPromises.push(null);
@@ -601,10 +591,10 @@ app.post("/api/panel/admin/link/deleteMulti", async (req, res) => {
 
 /** /api/panel/admin/rclient/:id */
 export interface PanelAdminRClientRespData {
-  rclient: TExtractModel<RemoteClientModelCtor>;
-  link: TExtractModel<AccessLinkModelCtor>;
-  student: TExtractModel<StudentModelCtor>;
-  camera: TExtractModel<CameraModelCtor>;
+  rclient: RemoteClientModel;
+  link: AccessLinkModel;
+  student: StudentModel;
+  camera: CameraModel;
 }
 app.get("/api/panel/admin/rclient/:id", async (req, res) => {
   if (!req.session.username) {
@@ -657,7 +647,7 @@ app.get("/api/panel/admin/rclients", async (req, res) => {
 });
 
 /** /api/panel/admin/camera{s,/:id} */
-type PanelAdminCameraRespData = TExtractModel<CameraModelCtor>;
+export type PanelAdminCameraRespData = CameraModel;
 app.get("/api/panel/admin/cameras", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ req.session;
   if (!session.username) {
@@ -709,6 +699,16 @@ async function removeOutdatedLinksFromRClients() {
 }
 
 setInterval(removeOutdatedLinksFromRClients, 1000 * 60 * 5);
+
+// for front-end type checks
+export type RemoteClientAttrs = TExtractAttrsFromModel<RemoteClientModel>;
+export type RemoteClientInterface = TExtractInterfaceFromModel<RemoteClientModel>;
+export type StudentAttrs = TExtractAttrsFromModel<StudentModel>;
+export type StudentInterface = TExtractInterfaceFromModel<StudentModel>;
+export type CameraAttrs = TExtractAttrsFromModel<CameraModel>;
+export type CameraInterface = TExtractInterfaceFromModel<CameraModel>;
+export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
+export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
 
 export default {
   app,

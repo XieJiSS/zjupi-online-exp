@@ -1,22 +1,16 @@
-import type { CameraModelCtor } from "db/models/all-models";
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TModelListAttrsOnly, TMarkPartialAttrs } from "types/type-helper";
+import type { CameraModel } from "db/models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr, TMarkPartialAttrs } from "types/type-helper";
 import type { CameraReportErrorReqBody } from "camera/camera-server";
-declare function getCameraById(cameraId: string): Promise<import("../../models/Camera").CameraModel>;
-declare function getCameraByIdAttrsOnly<T extends TExtractModelKeyUnion<CameraModelCtor>>(cameraId: string, attributes: Readonly<T[]>): Promise<TModelAttrsOnly<CameraModelCtor, T>>;
-declare function createCamera(cameraId: string, ip: string): Promise<import("../../models/Camera").CameraModel>;
+declare function getCameraById(cameraId: string): Promise<CameraModel>;
+declare function getCameraByIdAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(cameraId: string, attributes: Readonly<T[]>): Promise<TPartialModel<CameraModel, T>>;
+declare function createCamera(cameraId: string, ip: string): Promise<CameraModel>;
 declare function isCameraOnline(cameraId: string): Promise<boolean>;
-declare function getAllCameras(): Promise<import("../../models/Camera").CameraModel[]>;
-declare function getAllCamerasAttrsOnly<T extends TExtractModelKeyUnion<CameraModelCtor>>(attributes: Readonly<T[]>): Promise<TModelListAttrsOnly<CameraModelCtor, T>>;
-declare function getAllOnlineCameras(): Promise<import("../../models/Camera").CameraModel[]>;
-declare function getAllOnlineCamerasAttrsOnly<T extends TExtractModelKeyUnion<CameraModelCtor>>(attributes: Readonly<T[]>): Promise<TModelListAttrsOnly<CameraModelCtor, T>>;
+declare function getAllCameras(): Promise<CameraModel[]>;
+declare function getAllCamerasAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(attributes: Readonly<T[]>): Promise<TPartialModelArr<CameraModel, T>>;
+declare function getAllOnlineCameras(): Promise<CameraModel[]>;
+declare function getAllOnlineCamerasAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(attributes: Readonly<T[]>): Promise<TPartialModelArr<CameraModel, T>>;
 declare function appendCameraErrorReport(cameraId: string, error: TMarkPartialAttrs<CameraReportErrorReqBody, "cameraId">): Promise<void>;
-/**
- * @param {string} cameraId
- */
 declare function removeCamera(cameraId: string): Promise<void>;
-/**
- * @param {string} cameraId
- */
 declare function setActiveByCameraId(cameraId: string): Promise<void>;
 declare const _default: {
     getCameraById: typeof getCameraById;

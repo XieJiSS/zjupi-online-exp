@@ -27,25 +27,19 @@ export type TArrayInnerTypeConstraintHelper<A, T, O> = A extends [infer I, ...in
   : never;
 export type TArrayInnerTypeConstraint<A, T> = TArrayInnerTypeConstraintHelper<A, T, A>;
 
-export type TExtractModel<T extends ModelCtor<any>> = T extends ModelCtor<infer I> ? I : never;
-export type TExtractModelDefs<T extends ModelCtor<any>> = T extends ModelCtor<infer M>
-  ? M extends Model<infer I, infer _>
-    ? I
-    : never
-  : never;
-export type TExtractModelKeyUnion<T extends ModelCtor<any>> = keyof TExtractModelDefs<T>;
+export type TExtractModelFromCtor<T extends ModelCtor<any>> = T extends ModelCtor<infer I> ? I : never;
+export type TExtractInterfaceFromModel<T extends Model<any>> = T extends Model<infer I, infer _> ? I : never;
+export type TExtractAttrsFromModel<T extends Model<any>> = keyof TExtractInterfaceFromModel<T>;
 
 // for limiting accessible attributes
 
-export type TModelAttrsOnly<T extends ModelCtor<any>, U extends TExtractModelKeyUnion<T>> = TPickAttrs<
-  TExtractModel<T>,
-  U
-> &
-  Omit<TExtractModel<T>, TExtractModelKeyUnion<T>>;
-export type TModelListAttrsOnly<T extends ModelCtor<any>, U extends TExtractModelKeyUnion<T>> = TModelAttrsOnly<T, U>[];
-export type TModelAttrsOnlyAsync<T extends ModelCtor<any>, U extends TExtractModelKeyUnion<T>> = (
+export type TPartialModel<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPickAttrs<T, U> &
+  Omit<T, TExtractAttrsFromModel<T>>;
+export type TPartialModelArr<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPartialModel<T, U>[];
+
+export type AsyncPartialModelPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (
   attributes: U[]
-) => Promise<TModelAttrsOnly<T, U>>;
-export type TModelListAttrsOnlyAsync<T extends ModelCtor<any>, U extends TExtractModelKeyUnion<T>> = (
+) => Promise<TPartialModel<T, U>>;
+export type AsyncPartialModelArrPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (
   attributes: U[]
-) => Promise<TModelAttrsOnly<T, U>[]>;
+) => Promise<TPartialModel<T, U>[]>;

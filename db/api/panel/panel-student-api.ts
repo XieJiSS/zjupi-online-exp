@@ -2,7 +2,7 @@ import assert from "assert";
 import { hasAuthed } from "db/connect";
 assert(hasAuthed());
 
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TModelListAttrsOnly } from "types/type-helper";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
 
 import getLogger from "util/logger";
 import { getPersistentLoggerUtil } from "db/api/db-log-api";
@@ -11,7 +11,7 @@ logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(lo
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
 import { Student, RemoteClient, Camera } from "db/models/all-models";
-import { StudentModelCtor } from "db/models/all-models";
+import { StudentModel } from "db/models/all-models";
 import accessLinkApi from "./access-link-api";
 
 async function getLinkByStudentId(studentId: number) {
@@ -55,10 +55,10 @@ async function getStudentByLinkId(linkId: number) {
   return await Student.findOne({ where: { linkId } });
 }
 
-async function getStudentByLinkIdAttrsOnly<T extends TExtractModelKeyUnion<StudentModelCtor>>(
+async function getStudentByLinkIdAttrsOnly<T extends TExtractAttrsFromModel<StudentModel>>(
   linkId: number,
   attributes: Readonly<T[]>
-): Promise<TModelAttrsOnly<StudentModelCtor, T>> {
+): Promise<TPartialModel<StudentModel, T>> {
   const link = await accessLinkApi.getLinkById(linkId);
   if (!link) {
     return null;
@@ -66,7 +66,7 @@ async function getStudentByLinkIdAttrsOnly<T extends TExtractModelKeyUnion<Stude
   return (await Student.findOne({
     where: { linkId },
     attributes: attributes as T[],
-  })) as TModelAttrsOnly<StudentModelCtor, T>;
+  })) as TPartialModel<StudentModel, T>;
 }
 
 async function setStudentLinkId(studentId: number, linkId: number) {
@@ -82,26 +82,26 @@ async function getAllStudents() {
   return await Student.findAll();
 }
 
-async function getAllStudentsAttrsOnly<T extends TExtractModelKeyUnion<StudentModelCtor>>(
+async function getAllStudentsAttrsOnly<T extends TExtractAttrsFromModel<StudentModel>>(
   attributes: Readonly<T[]>
-): Promise<TModelListAttrsOnly<StudentModelCtor, T>> {
+): Promise<TPartialModelArr<StudentModel, T>> {
   return (await Student.findAll({
     attributes: attributes as T[],
-  })) as TModelListAttrsOnly<StudentModelCtor, T>;
+  })) as TPartialModelArr<StudentModel, T>;
 }
 
 async function getStudentById(studentId: number) {
   return await Student.findOne({ where: { studentId } });
 }
 
-async function getStudentByIdAttrsOnly<T extends TExtractModelKeyUnion<StudentModelCtor>>(
+async function getStudentByIdAttrsOnly<T extends TExtractAttrsFromModel<StudentModel>>(
   studentId: number,
   attributes: Readonly<T[]>
-): Promise<TModelAttrsOnly<StudentModelCtor, T>> {
+): Promise<TPartialModel<StudentModel, T>> {
   return (await Student.findOne({
     where: { studentId },
     attributes: attributes as T[],
-  })) as TModelAttrsOnly<StudentModelCtor, T>;
+  })) as TPartialModel<StudentModel, T>;
 }
 
 async function getStudentByNameAndPhone(name: string, phone: string) {

@@ -1,10 +1,10 @@
-import type { DBLogModelCtor } from "db/models/all-models";
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TModelListAttrsOnly } from "types/type-helper";
-export declare function createDBLog(level: "info" | "warn" | "error", text: string, sourceFile: string): Promise<import("../models/DBLog").DBLogModel>;
-declare function getAllLogs(): Promise<import("../models/DBLog").DBLogModel[]>;
-declare function getAllLogsAttrsOnly<T extends TExtractModelKeyUnion<DBLogModelCtor>>(attributes: Readonly<T[]>): Promise<TModelListAttrsOnly<DBLogModelCtor, T>>;
-declare function getLogById(logId: number): Promise<import("../models/DBLog").DBLogModel>;
-declare function getLogByIdAttrsOnly<T extends TExtractModelKeyUnion<DBLogModelCtor>>(logId: number, attributes: Readonly<T[]>): Promise<TModelAttrsOnly<DBLogModelCtor, T>>;
+import type { DBLogModel } from "db/models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
+export declare function createDBLog(level: "info" | "warn" | "error", text: string, sourceFile: string): Promise<DBLogModel>;
+declare function getAllLogs(): Promise<DBLogModel[]>;
+declare function getAllLogsAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel>>(attributes: Readonly<T[]>): Promise<TPartialModelArr<DBLogModel, T>>;
+declare function getLogById(logId: number): Promise<DBLogModel>;
+declare function getLogByIdAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel>>(logId: number, attributes: Readonly<T[]>): Promise<TPartialModel<DBLogModel, T>>;
 /**
  * @param level DB log level
  * @param sourceFile should be __filename

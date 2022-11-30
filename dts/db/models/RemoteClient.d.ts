@@ -15,7 +15,7 @@ export interface RemoteClientAdditionalModelAttributes {
     isDead: boolean;
     linkId: number | null;
 }
-export declare type RemoteClientModelAttributes = RemoteClientCreationAttributes & RemoteClientAdditionalModelAttributes;
-export declare type RemoteClientModel = Sequelize.Model<RemoteClientModelAttributes, RemoteClientCreationAttributes> & RemoteClientModelAttributes;
-export declare type RemoteClientModelCtor = Sequelize.ModelCtor<RemoteClientModel>;
+export type RemoteClientModelAttributes = RemoteClientCreationAttributes & RemoteClientAdditionalModelAttributes;
+export type RemoteClientModel = Sequelize.Model<RemoteClientModelAttributes, RemoteClientCreationAttributes> & RemoteClientModelAttributes;
+export type RemoteClientModelCtor = Sequelize.ModelCtor<RemoteClientModel>;
 export default RemoteClient;

@@ -16,7 +16,7 @@ export interface RemoteCommandAdditionalModelAttributes {
     reportedResult: string | null;
     reportedAt: Date | null;
 }
-export declare type RemoteCommandModelAttributes = RemoteCommandCreationAttributes & RemoteCommandAdditionalModelAttributes;
-export declare type RemoteCommandModel = Sequelize.Model<RemoteCommandModelAttributes, RemoteCommandCreationAttributes> & RemoteCommandModelAttributes;
-export declare type RemoteCommandModelCtor = Sequelize.ModelCtor<RemoteCommandModel>;
+export type RemoteCommandModelAttributes = RemoteCommandCreationAttributes & RemoteCommandAdditionalModelAttributes;
+export type RemoteCommandModel = Sequelize.Model<RemoteCommandModelAttributes, RemoteCommandCreationAttributes> & RemoteCommandModelAttributes;
+export type RemoteCommandModelCtor = Sequelize.ModelCtor<RemoteCommandModel>;
 export default RemoteCommand;

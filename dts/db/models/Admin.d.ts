@@ -10,7 +10,7 @@ export interface AdminAdditionalModelAttributes {
     adminId: number;
     lastLoginIP: string | null;
 }
-export declare type AdminModelAttributes = AdminCreationAttributes & AdminAdditionalModelAttributes;
-export declare type AdminModel = Sequelize.Model<AdminModelAttributes, AdminCreationAttributes> & AdminModelAttributes;
-export declare type AdminModelCtor = Sequelize.ModelCtor<AdminModel>;
+export type AdminModelAttributes = AdminCreationAttributes & AdminAdditionalModelAttributes;
+export type AdminModel = Sequelize.Model<AdminModelAttributes, AdminCreationAttributes> & AdminModelAttributes;
+export type AdminModelCtor = Sequelize.ModelCtor<AdminModel>;
 export default Admin;

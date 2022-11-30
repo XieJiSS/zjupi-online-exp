@@ -7,9 +7,9 @@ assert(hasAuthed());
 
 import { inspect } from "util";
 import { DBLog } from "db/models/all-models";
-import type { DBLogModelCtor } from "db/models/all-models";
+import type { DBLogModel } from "db/models/all-models";
 
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TModelListAttrsOnly } from "types/type-helper";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
 
 export async function createDBLog(level: "info" | "warn" | "error", text: string, sourceFile: string) {
   return await DBLog.create({
@@ -23,26 +23,26 @@ async function getAllLogs() {
   return await DBLog.findAll();
 }
 
-async function getAllLogsAttrsOnly<T extends TExtractModelKeyUnion<DBLogModelCtor>>(
+async function getAllLogsAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel>>(
   attributes: Readonly<T[]>
-): Promise<TModelListAttrsOnly<DBLogModelCtor, T>> {
+): Promise<TPartialModelArr<DBLogModel, T>> {
   return (await DBLog.findAll({
     attributes: attributes as T[],
-  })) as TModelListAttrsOnly<DBLogModelCtor, T>;
+  })) as TPartialModelArr<DBLogModel, T>;
 }
 
 async function getLogById(logId: number) {
   return await DBLog.findOne({ where: { logId } });
 }
 
-async function getLogByIdAttrsOnly<T extends TExtractModelKeyUnion<DBLogModelCtor>>(
+async function getLogByIdAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel>>(
   logId: number,
   attributes: Readonly<T[]>
-): Promise<TModelAttrsOnly<DBLogModelCtor, T>> {
+): Promise<TPartialModel<DBLogModel, T>> {
   return (await DBLog.findOne({
     where: { logId },
     attributes: attributes as T[],
-  })) as TModelAttrsOnly<DBLogModelCtor, T>;
+  })) as TPartialModel<DBLogModel, T>;
 }
 
 /**

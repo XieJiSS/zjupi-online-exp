@@ -3,8 +3,8 @@ import { hasAuthed } from "db/connect";
 assert(hasAuthed());
 
 import { Camera, AccessLink } from "db/models/all-models";
-import type { CameraModelCtor } from "db/models/all-models";
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TModelListAttrsOnly, TMarkPartialAttrs } from "types/type-helper";
+import type { CameraModel } from "db/models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr, TMarkPartialAttrs } from "types/type-helper";
 import type { CameraReportErrorReqBody } from "camera/camera-server";
 
 import getLogger from "util/logger";
@@ -17,14 +17,14 @@ async function getCameraById(cameraId: string) {
   return await Camera.findOne({ where: { cameraId } });
 }
 
-async function getCameraByIdAttrsOnly<T extends TExtractModelKeyUnion<CameraModelCtor>>(
+async function getCameraByIdAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(
   cameraId: string,
   attributes: Readonly<T[]>
-): Promise<TModelAttrsOnly<CameraModelCtor, T>> {
+): Promise<TPartialModel<CameraModel, T>> {
   return (await Camera.findOne({
     where: { cameraId },
     attributes: attributes as T[],
-  })) as TModelAttrsOnly<CameraModelCtor, T>;
+  })) as TPartialModel<CameraModel, T>;
 }
 
 async function createCamera(cameraId: string, ip: string) {
@@ -48,25 +48,25 @@ async function getAllCameras() {
   return await Camera.findAll();
 }
 
-async function getAllCamerasAttrsOnly<T extends TExtractModelKeyUnion<CameraModelCtor>>(
+async function getAllCamerasAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(
   attributes: Readonly<T[]>
-): Promise<TModelListAttrsOnly<CameraModelCtor, T>> {
+): Promise<TPartialModelArr<CameraModel, T>> {
   return (await Camera.findAll({
     attributes: attributes as T[],
-  })) as TModelListAttrsOnly<CameraModelCtor, T>;
+  })) as TPartialModelArr<CameraModel, T>;
 }
 
 async function getAllOnlineCameras() {
   return await Camera.findAll({ where: { online: true } });
 }
 
-async function getAllOnlineCamerasAttrsOnly<T extends TExtractModelKeyUnion<CameraModelCtor>>(
+async function getAllOnlineCamerasAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(
   attributes: Readonly<T[]>
-): Promise<TModelListAttrsOnly<CameraModelCtor, T>> {
+): Promise<TPartialModelArr<CameraModel, T>> {
   return (await Camera.findAll({
     where: { online: true },
     attributes: attributes as T[],
-  })) as TModelListAttrsOnly<CameraModelCtor, T>;
+  })) as TPartialModelArr<CameraModel, T>;
 }
 
 async function appendCameraErrorReport(
@@ -88,9 +88,6 @@ async function appendCameraErrorReport(
   await camera.update({ reportedErrors: errors });
 }
 
-/**
- * @param {string} cameraId
- */
 async function removeCamera(cameraId: string) {
   const camera = await getCameraById(cameraId);
   if (camera === null) {
@@ -101,9 +98,6 @@ async function removeCamera(cameraId: string) {
   return await camera.destroy();
 }
 
-/**
- * @param {string} cameraId
- */
 async function setActiveByCameraId(cameraId: string) {
   await Camera.update({ lastActive: new Date() }, { where: { cameraId } });
 }

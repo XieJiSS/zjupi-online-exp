@@ -10,7 +10,7 @@ export interface DBLogAdditionalModelAttributes {
     logId: number;
     createdAt: Date;
 }
-export declare type DBLogModelAttributes = DBLogCreationAttributes & DBLogAdditionalModelAttributes;
-export declare type DBLogModel = Sequelize.Model<DBLogModelAttributes, DBLogCreationAttributes> & DBLogModelAttributes;
-export declare type DBLogModelCtor = Sequelize.ModelCtor<DBLogModel>;
+export type DBLogModelAttributes = DBLogCreationAttributes & DBLogAdditionalModelAttributes;
+export type DBLogModel = Sequelize.Model<DBLogModelAttributes, DBLogCreationAttributes> & DBLogModelAttributes;
+export type DBLogModelCtor = Sequelize.ModelCtor<DBLogModel>;
 export default DBLog;

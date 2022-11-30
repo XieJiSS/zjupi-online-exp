@@ -22,7 +22,7 @@ async function _getPBKDF2Hash(password: string, salt: string) {
   return (await pbkdf2(password, salt, iterations, keyLen, "sha512")).toString("base64");
 }
 
-interface SaltHashPair {
+export interface SaltHashPair {
   hash: string;
   salt: string;
 }

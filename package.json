@@ -6,8 +6,8 @@
   "scripts": {
     "start": "npm run build && node build/app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dts": "npx -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
-    "build": "npx -p typescript tsc"
+    "dts": "yarn -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
+    "build": "yarn -p typescript tsc"
   },
   "repository": {
     "type": "git",
@@ -32,9 +32,10 @@
     "sequelize": "6.6.2"
   },
   "devDependencies": {
-    "@types/express": "^4.17.13",
+    "@types/express": "^4.17.14",
     "@types/express-session": "^1.17.5",
-    "@types/node": "^18.7.14",
-    "@types/validator": "^13.7.6"
+    "@types/node": "^18.11.9",
+    "@types/validator": "^13.7.6",
+    "typescript": "^4.9.3"
   }
 }

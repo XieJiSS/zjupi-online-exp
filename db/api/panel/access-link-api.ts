@@ -2,7 +2,7 @@ import assert from "assert";
 import { hasAuthed } from "db/connect";
 assert(hasAuthed());
 
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TModelListAttrsOnly } from "types/type-helper";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
 
 import getLogger from "util/logger";
 import { getPersistentLoggerUtil } from "db/api/db-log-api";
@@ -12,7 +12,7 @@ logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logge
 
 import { Op } from "sequelize";
 import { AccessLink, RemoteClient, Student } from "db/models/all-models";
-import type { AccessLinkModelCtor } from "db/models/all-models";
+import type { AccessLinkModel } from "db/models/all-models";
 
 function generateLinkPath() {
   const charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -129,14 +129,14 @@ async function getLinkById(linkId: number) {
   return await AccessLink.findOne({ where: { linkId } });
 }
 
-async function getLinkByIdAttrsOnly<T extends TExtractModelKeyUnion<AccessLinkModelCtor>>(
+async function getLinkByIdAttrsOnly<T extends TExtractAttrsFromModel<AccessLinkModel>>(
   linkId: number,
   attributes: Readonly<T[]>
-): Promise<TModelAttrsOnly<AccessLinkModelCtor, T>> {
+): Promise<TPartialModel<AccessLinkModel, T>> {
   return (await AccessLink.findOne({
     where: { linkId },
     attributes: attributes as T[],
-  })) as TModelAttrsOnly<AccessLinkModelCtor, T>;
+  })) as TPartialModel<AccessLinkModel, T>;
 }
 
 async function getLinkByLinkPath(linkPath: string) {
@@ -147,12 +147,12 @@ async function getAllLinks() {
   return await AccessLink.findAll();
 }
 
-async function getAllLinksAttrsOnly<T extends TExtractModelKeyUnion<AccessLinkModelCtor>>(
+async function getAllLinksAttrsOnly<T extends TExtractAttrsFromModel<AccessLinkModel>>(
   attributes: Readonly<T[]>
-): Promise<TModelListAttrsOnly<AccessLinkModelCtor, T>> {
+): Promise<TPartialModelArr<AccessLinkModel, T>> {
   return (await AccessLink.findAll({
     attributes: attributes as T[],
-  })) as TModelListAttrsOnly<AccessLinkModelCtor, T>;
+  })) as TPartialModelArr<AccessLinkModel, T>;
 }
 
 async function getAllValidLinks() {
@@ -168,9 +168,9 @@ async function getAllValidLinks() {
   });
 }
 
-async function getAllValidLinksAttrsOnly<T extends TExtractModelKeyUnion<AccessLinkModelCtor>>(
+async function getAllValidLinksAttrsOnly<T extends TExtractAttrsFromModel<AccessLinkModel>>(
   attributes: Readonly<T[]>
-): Promise<TModelListAttrsOnly<AccessLinkModelCtor, T>> {
+): Promise<TPartialModelArr<AccessLinkModel, T>> {
   return (await AccessLink.findAll({
     where: {
       validUntil: {
@@ -181,7 +181,7 @@ async function getAllValidLinksAttrsOnly<T extends TExtractModelKeyUnion<AccessL
       },
     },
     attributes: attributes as T[],
-  })) as TModelListAttrsOnly<AccessLinkModelCtor, T>;
+  })) as TPartialModelArr<AccessLinkModel, T>;
 }
 
 async function getLinkIfValidByLinkPath(linkPath: string) {

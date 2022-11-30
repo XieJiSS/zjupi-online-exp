@@ -5,8 +5,8 @@ import { hasAuthed } from "db/connect";
 assert(hasAuthed());
 
 import { RemoteClient, RemoteCommand, AccessLink } from "db/models/all-models";
-import type { RemoteClientModelCtor, RemoteCommandModelCtor, AccessLinkModelCtor } from "db/models/all-models";
-import type { TExtractModelKeyUnion, TModelAttrsOnly, TModelListAttrsOnly, TExtractModel } from "types/type-helper";
+import type { RemoteClientModel, RemoteCommandModel, AccessLinkModel } from "db/models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
 
 const logger = require("util/logger")("remote-control-api");
 import { getPersistentLoggerUtil } from "db/api/db-log-api";
@@ -56,10 +56,6 @@ async function getRemoteCommandsByClientIdAndStatus(clientId: string, status: "r
   return await RemoteCommand.findAll({ where: { clientId, status } });
 }
 
-/**
- * @param {string} clientId
- * @param {number} commandId
- */
 async function getRemoteCommandById(clientId: string, commandId: number) {
   return await RemoteCommand.findOne({ where: { clientId, commandId } });
 }
@@ -115,15 +111,15 @@ async function getAllRemoteClients() {
   return await RemoteClient.findAll();
 }
 
-async function getAllRemoteClientsAttrsOnly<T extends TExtractModelKeyUnion<RemoteClientModelCtor>>(
+async function getAllRemoteClientsAttrsOnly<T extends TExtractAttrsFromModel<RemoteClientModel>>(
   attributes: Readonly<T[]>
-): Promise<TModelListAttrsOnly<RemoteClientModelCtor, T>> {
+): Promise<TPartialModelArr<RemoteClientModel, T>> {
   return (await RemoteClient.findAll({
     attributes: attributes as T[],
-  })) as TModelListAttrsOnly<RemoteClientModelCtor, T>;
+  })) as TPartialModelArr<RemoteClientModel, T>;
 }
 
-type TRemoteClientWithLink = TExtractModel<RemoteClientModelCtor> & { link: TExtractModel<AccessLinkModelCtor> };
+type TRemoteClientWithLink = RemoteClientModel & { link: AccessLinkModel };
 
 async function getAllRemoteClientsWithLinks() {
   return (await RemoteClient.findAll({
@@ -138,13 +134,13 @@ async function getRemoteClientById(clientId: string) {
   return await RemoteClient.findByPk(clientId);
 }
 
-async function getRemoteClientByIdAttrsOnly<T extends TExtractModelKeyUnion<RemoteClientModelCtor>>(
+async function getRemoteClientByIdAttrsOnly<T extends TExtractAttrsFromModel<RemoteClientModel>>(
   clientId: string,
   attributes: Readonly<T[]>
-): Promise<TModelAttrsOnly<RemoteClientModelCtor, T>> {
+): Promise<TPartialModel<RemoteClientModel, T>> {
   return (await RemoteClient.findByPk(clientId, {
     attributes: attributes as T[],
-  })) as TModelAttrsOnly<RemoteClientModelCtor, T>;
+  })) as TPartialModel<RemoteClientModel, T>;
 }
 
 async function removeRemoteClientById(clientId: string) {

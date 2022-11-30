@@ -5,7 +5,7 @@
     // 采用的模块系统
     "module": "UMD",
     // 以严格模式解析
-    "strict": false,
+    "strict": true,
     "jsx": "preserve",
     // 从 tslib 导入外部帮助库: 比如__extends，__rest等
     "importHelpers": true,
@@ -24,6 +24,7 @@
     "sourceMap": true,
     // 为 this 提供 type check
     "noImplicitThis": true,
+    "noImplicitAny": true,
     "isolatedModules": true,
     "maxNodeModuleJsDepth": 3,
     // 解析非相对模块名的基准目录 
@@ -39,9 +40,10 @@
     // 编译过程中需要引入的库文件的列表
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "typeRoots": [
-      "./types",
-      "./node_modules/vue/types",
-      "./src"
+      "types",
+      "../../dts/",
+      "node_modules/vue/types",
+      "src"
     ],
   },
   // ts 管理的文件
@@ -50,6 +52,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "types/**/*.d.ts",
+    "../../dts/**/*.d.ts",
   ],
   // ts 排除的文件
   "exclude": ["node_modules"]

@@ -12,7 +12,17 @@ export default defineComponent({
       return
     }
     this.ready = false
-    const { remoteClient, camera, student } = await this.fetchLinkData(newRoutes.params.code)
+    const linkData = await this.fetchLinkData(newRoutes.params.code);
+    if (!linkData) {
+      this.$alert("Failed to fetch link data", "Error", "error", {
+        confirmButtonText: "OK",
+        onAfterClose: () => {
+          this.$router.push({ name: "panel" })
+        },
+      })
+      return;
+    }
+    const { remoteClient, camera, student } = linkData;
     this.remoteClient = remoteClient
     this.camera = camera
     this.student = student
@@ -40,7 +50,17 @@ export default defineComponent({
       console.error("mounted: param `code` is not a string")
       return
     }
-    const { remoteClient, camera, student } = await this.fetchLinkData(this.$route.params.code)
+    const linkData = await this.fetchLinkData(this.$route.params.code);
+    if (!linkData) {
+      this.$alert("Failed to fetch link data", "Error", "error", {
+        confirmButtonText: "OK",
+        onAfterClose: () => {
+          this.$router.push({ name: "panel" })
+        },
+      })
+      return;
+    }
+    const { remoteClient, camera, student } = linkData;
     this.remoteClient = remoteClient
     this.camera = camera
     this.student = student

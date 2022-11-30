@@ -37,3 +37,8 @@ declare module "@vue/runtime-core" {
     $fire: typeof VueSimpleAlert.fire;
   }
 }
+
+const x: import("../../../dts/panel/panel-server").RemoteClientInterface = {
+  clientId: 0,
+  aha: "x",
+};

@@ -1,5 +1,8 @@
-export type AxiosResp<T> = {
+import type { AxiosResponse } from "axios";
+
+export interface AxiosRespBase {
   success: boolean;
   message: string;
-  data: T;
-};
+}
+
+export type AxiosResp<T> = AxiosRespBase & AxiosResponse<T>;

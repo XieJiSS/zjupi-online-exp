@@ -1,50 +1,37 @@
 <script lang="ts">
 import { defineComponent } from "vue";
 import axios from "axios";
-import type { AxiosResponse } from "axios";
 import type {
-  AddStudentInfo, AddLinkInfo, DeleteLinkInfo, AssignLinkToStudentInfo,
-  RClientResponseData, StudentResponseData, LinkResponseData, CameraResponseData,
-  RClientAttributes, StudentAttributes, LinkAttributes, CameraAttributes,
+  PanelAdminRClientRespData, PanelAccessRespData, PanelAdminLinkEditReqBody, PanelAdminStudentDeleteReqBody, PanelAdminStudentAddReqBody,
+  PanelAdminLinkAddReqBody, PanelAdminLinkDeleteReqBody,
+  RemoteClientAttrs, StudentAttrs, AccessLinkAttrs, CameraAttrs,
+  PanelAdminLinkAssignToStudentReqBody,
+  RemoteClientInterface, StudentInterface, AccessLinkInterface, CameraInterface, PanelAdminStudentRespData, PanelAdminLinkRespData, PanelAdminCameraRespData, PanelAdminLinkAddRespData,
 } from "../../../dts/panel/panel-server";
+import type { AxiosResp } from "types/type-helper";
 
-interface ResponseBase {
-  success: boolean;
-  message: string;
-}
-
-type AxiosResponseType<T> = ResponseBase & AxiosResponse<T>;
-
-type VueAppTab = "rclients" | "students" | "logs";
-type VueAppRClients = RClientResponseData[];
-type VueAppStudents = StudentResponseData[];
-type VueAppLinks = LinkResponseData[];
-type VueAppCameras = CameraResponseData[];
-type VueAppRClientAttr = RClientAttributes;
-type VueAppStudentAttr = StudentAttributes;
-type VueAppLinkAttr = LinkAttributes;
-type VueAppCameraAttr = CameraAttributes;
+type AdminTab = "rclients" | "students" | "logs";
 
 interface VueAppData {
-  tab: VueAppTab;
+  tab: AdminTab;
   displayKeymap: {
-    rclient: Partial<Record<VueAppRClientAttr, string>>;
-    link: Partial<Record<VueAppLinkAttr, string>>;
-    camera: Partial<Record<VueAppCameraAttr, string>>;
-    student: Partial<Record<VueAppStudentAttr, string>>;
+    rclient: Partial<Record<RemoteClientAttrs, string>>;
+    link: Partial<Record<AccessLinkAttrs, string>>;
+    camera: Partial<Record<CameraAttrs, string>>;
+    student: Partial<Record<StudentAttrs, string>>;
   };
-  rclients: VueAppRClients;
+  rclients: Partial<RemoteClientInterface>[];
   rclientSearchCond: string;
-  students: VueAppStudents;
-  links: VueAppLinks;
-  cameras: VueAppCameras;
+  students: Partial<StudentInterface>[];
+  links: Partial<AccessLinkInterface>[];
+  cameras: Partial<CameraInterface>[];
   selectedStatus: boolean[];
 }
 
 export default defineComponent({
-  data(): VueAppData {
+  data() {
     return {
-      tab: "rclients",
+      tab: "rclients" as VueAppData["tab"],
       displayKeymap: {
         rclient: {
           clientId: "上位机ID",
@@ -66,18 +53,18 @@ export default defineComponent({
           cameraId: "摄像头标识符",
           ip: "摄像头 IP",
         },
-      },
-      rclients: [],  // union selected - combination of (RemoteClient, AccessLink, Camera, Student)
-      rclientSearchCond: "",
-      students: [],
-      links: [],
-      cameras: [],
+      } as VueAppData["displayKeymap"],
+      rclients: [] as VueAppData["rclients"],  // union selected - combination of (RemoteClient, AccessLink, Camera, Student)
+      rclientSearchCond: "" as VueAppData["rclientSearchCond"],
+      students: [] as VueAppData["students"],
+      links: [] as VueAppData["links"],
+      cameras: [] as VueAppData["cameras"],
       // logs: [], // @TODO:
-      selectedStatus: [],
+      selectedStatus: [] as VueAppData["selectedStatus"],
     };
   },
   methods: {
-    async axiosGet(url: string, params: Record<string, any> = {}): Promise<AxiosResponseType<any>> {
+    async axiosGet<T>(url: string, params: Record<string, any> = {}): Promise<AxiosResp<T>> {
       const { data } = await axios
         .get(url, {
           params,
@@ -92,7 +79,7 @@ export default defineComponent({
       }
       return data;
     },
-    async axiosPost(url: string, body: Record<string, any> = {}): Promise<AxiosResponseType<any>> {
+    async axiosPost<T>(url: string, body: Record<string, any> = {}): Promise<AxiosResp<T>> {
       const { data } = await axios.post(url, body).catch((err) => {
         console.error(err);
         return { data: { success: false, message: err.toString() } };
@@ -104,28 +91,28 @@ export default defineComponent({
       return data;
     },
     async loadAllStudents() {
-      const resp: AxiosResponseType<VueAppStudents> = await this.axiosGet("/api/panel/admin/students");
+      const resp: AxiosResp<PanelAdminStudentRespData[]> = await this.axiosGet("/api/panel/admin/students");
       if (!resp.data) {
         return;
       }
       this.students = resp.data;
     },
     async loadAllLinks() {
-      const resp: AxiosResponseType<VueAppLinks> = await this.axiosGet("/api/panel/admin/links");
+      const resp: AxiosResp<PanelAdminLinkRespData[]> = await this.axiosGet("/api/panel/admin/links");
       if (!resp.data) {
         return;
       }
       this.links = resp.data;
     },
     async loadAllCameras() {
-      const resp: AxiosResponseType<VueAppCameras> = await this.axiosGet("/api/panel/admin/cameras");
+      const resp: AxiosResp<PanelAdminCameraRespData[]> = await this.axiosGet("/api/panel/admin/cameras");
       if (!resp.data) {
         return;
       }
       this.cameras = resp.data;
     },
     async loadAllRClients() {
-      const resp: AxiosResponseType<VueAppRClients> = await this.axiosGet("/api/panel/admin/rclients");
+      const resp: AxiosResp<PanelAdminRClientRespData[]> = await this.axiosGet("/api/panel/admin/rclients");
       if (!resp.data) {
         return;
       }
@@ -137,7 +124,7 @@ export default defineComponent({
         await this.$alert("刷新成功", "提示", "info");
       }
     },
-    toggleTab(tab: VueAppTab) {
+    toggleTab(tab: AdminTab) {
       const selectedStatus = JSON.parse(localStorage?.getItem(tab + "_selectedStatus") ?? "[]");
       if (selectedStatus.length > 0) {
         let targetDataLength = 0;
@@ -184,8 +171,8 @@ export default defineComponent({
         await this.$alert("格式错误：不能为空值");
         return;
       }
-      const body: AddStudentInfo = { name, phone };
-      const resp: AxiosResponseType<void> = await this.axiosPost("/api/panel/admin/student/addOne", body);
+      const body: PanelAdminStudentAddReqBody = { name, phone };
+      const resp: AxiosResp<void> = await this.axiosPost("/api/panel/admin/student/addOne", body);
       if (!resp.success) {
         await this.$alert("Failed: " + resp.message);
         return;
@@ -217,7 +204,7 @@ export default defineComponent({
           return;
         }
         const lines = text.trim().split("\n");
-        const students: AddStudentInfo[] = [];
+        const students: PanelAdminStudentAddReqBody[] = [];
         for (let i = 0; i < lines.length; i++) {
           const line = lines[i];
           if (!line.trim()) continue;
@@ -238,7 +225,7 @@ export default defineComponent({
           }
           students.push({ name, phone });
         }
-        const resp: AxiosResponseType<void> = await this.axiosPost("/api/panel/admin/student/addMulti", students);
+        const resp: AxiosResp<void> = await this.axiosPost("/api/panel/admin/student/addMulti", students);
         if (!resp.success) {
           await this.$alert("Failed: " + resp.message);
           return;
@@ -303,6 +290,7 @@ export default defineComponent({
           } else if (!time) {
             return "时间不能为空";
           }
+          return null;
         },
       })).value as string[];
       const [endDate, endTime] = (await this.$fire({
@@ -332,9 +320,10 @@ export default defineComponent({
           } else if (!time) {
             return "时间不能为空";
           }
+          return null;
         },
       })).value as string[];
-      const links: AddLinkInfo[] = [];
+      const links: PanelAdminLinkAddReqBody[] = [];
       const validAfter = new Date(startDate + " " + startTime);
       const validUntil = new Date(endDate + " " + endTime);
       if (validAfter >= validUntil) {
@@ -350,15 +339,15 @@ export default defineComponent({
           });
         }
       }
-      const resp: AxiosResponseType<VueAppLinks> = await this.axiosPost("/api/panel/admin/link/addMulti", links);
+      const resp: AxiosResp<PanelAdminLinkAddRespData[]> = await this.axiosPost("/api/panel/admin/link/addMulti", links);
       if (!resp.success) {
         await this.$alert("Failed: " + resp.message);
         return;
       }
       await Promise.all([this.loadAllLinks(), this.loadAllRClients()]);
     },
-    async removeLinksForSelected() {
-      const links: DeleteLinkInfo[] = [];
+    async deleteLinksForSelected() {
+      const links: PanelAdminLinkDeleteReqBody[] = [];
       for (let i = 0; i < this.selectedStatus.length; i++) {
         if (this.selectedStatus[i]) {
           const link = this.rclients[i].link;
@@ -368,7 +357,7 @@ export default defineComponent({
           links.push({ linkId: link.linkId });
         }
       }
-      const resp: AxiosResponseType<void> = await this.axiosPost("/api/panel/admin/link/deleteMulti", links);
+      const resp: AxiosResp<void> = await this.axiosPost("/api/panel/admin/link/deleteMulti", links);
       if (!resp.success) {
         await this.$alert("Failed: " + resp.message);
         return;
@@ -391,7 +380,7 @@ export default defineComponent({
         }
       }
       const pendingStudentIds: number[] = [];
-      const assignInfos: AssignLinkToStudentInfo[] = [];
+      const assignInfos: PanelAdminLinkAssignToStudentReqBody[] = [];
       for (let i = 0; i < this.selectedStatus.length; i++) {
         if (this.selectedStatus[i]) {
           let html = `<input type="list" id="swal-input1" class="swal2-input" onfocus="this.showPicker()" list="student-list">`;
@@ -434,7 +423,7 @@ export default defineComponent({
           });
         }
       }
-      const resp: AxiosResponseType<void> = await this.axiosPost("/api/panel/admin/link/assignToStudentMulti", assignInfos);
+      const resp: AxiosResp<void> = await this.axiosPost("/api/panel/admin/link/assignToStudentMulti", assignInfos);
       if (!resp.success) {
         await this.$alert("Failed: " + resp.message);
         return;
@@ -443,7 +432,7 @@ export default defineComponent({
     },
     async removeStudentsForSelected() {
       // 无法直接清除分配，通过删除访问码方式实现
-      await this.removeLinksForSelected();
+      await this.deleteLinksForSelected();
     },
     getRClientDisplayKey(key: string) {
       const [type, name] = key.split("#");
@@ -459,9 +448,9 @@ export default defineComponent({
         return key;
       }
     },
-    getRClientDisplayValue(rclientObj: RClientResponseData, key: string) {
+    getRClientDisplayValue(rclientObj: PanelAdminRClientRespData, key: string) {
       const [type, name] = key.split("#");
-      let ret: any = "N/A";
+      let ret: string | boolean = "N/A";
       if (type === "rclient") {
         ret = rclientObj?.rclient?.[name];
       } else if (type === "link") {
@@ -473,7 +462,7 @@ export default defineComponent({
       }
       ret = ret ?? "N/A";
       // is Date
-      if (/^\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(ret)) {
+      if (typeof ret === "string" && /^\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(ret)) {
         ret = new Date(ret).toLocaleString();
       } else if (ret === true) {
         ret = "是";
@@ -517,8 +506,9 @@ export default defineComponent({
   },
   computed: {
     displayRClients() {
-      return this.rclients.filter(({ rclient }) => {
+      return this.rclients.filter(({ rclient }: Partial<RemoteClientInterface>) => {
         if (this.rclientSearchCond === "") return true;
+        const x: RemoteClientInterface = {};
         return rclient?.clientId?.toLowerCase().includes(this.rclientSearchCond.toLowerCase());
       });
     },
@@ -533,7 +523,7 @@ export default defineComponent({
     },
   },
   async mounted() {
-    this.tab = localStorage?.getItem("tab") as VueAppTab || "rclients";
+    this.tab = localStorage?.getItem("tab") as AdminTab || "rclients";
     await this.loadAll();
   },
 });
@@ -568,7 +558,7 @@ export default defineComponent({
               v-if="displayRClients.length < rclients.length">显示全部</a>
             <a href="javascript:void(0);" class="btn" v-on:click="generateLinksForSelected"
               v-if="selectedStatus.filter(s => s).length > 0">生成访问码</a>
-            <a href="javascript:void(0);" class="btn" v-on:click="removeLinksForSelected"
+            <a href="javascript:void(0);" class="btn" v-on:click="deleteLinksForSelected"
               v-if="selectedStatus.filter(s => s).length > 0">删除访问码</a>
             <a href="javascript:void(0);" class="btn" v-on:click="assignStudentsForSelected"
               v-if="selectedStatus.filter(s => s).length > 0">分配学生</a>

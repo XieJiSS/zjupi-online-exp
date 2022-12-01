@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import cp from "child_process";
 import path from "path";

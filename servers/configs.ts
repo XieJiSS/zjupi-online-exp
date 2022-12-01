@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import serverLists from "./lists";
 

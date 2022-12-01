@@ -1,4 +1,5 @@
-// @ts-check
+/** @format */
+
 "use strict";
 
 import { port, name as serverName, subdomain } from "./config";

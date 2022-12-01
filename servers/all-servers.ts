@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import type { Express } from "express";
 import serverLists from "./lists";

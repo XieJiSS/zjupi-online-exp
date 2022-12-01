@@ -1,6 +1,14 @@
+/** @format */
+
 "use strict";
 
-import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel } from "../db/models/all-models";
+import type {
+  RemoteClientModel,
+  StudentModel,
+  CameraModel,
+  AccessLinkModel,
+  DBLogModel,
+} from "../db/models/all-models";
 import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
 import type { AccessLinkValidTimeOptions } from "../db/api/panel/access-link-api";
 
@@ -52,8 +60,8 @@ app.use(
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
   remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip">;
-  student: TPartialModel<StudentModel, "name">;
-  camera: TPartialModel<CameraModel, "cameraId" | "ip">;
+  student: TPartialModel<StudentModel, "name"> | null;
+  camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
 }
 app.get("/api/panel/access/:link", async (req, res) => {
   const link = req.params.link;
@@ -158,14 +166,14 @@ if (process.env["NODE_ENV"] === "development") {
 }
 
 /** /api/panel/admin/student{s,/:id} */
-export type PanelAdminStudentRespData = TPartialModel<StudentModel, "name" | "studentId" | "phone">;
+export type PanelAdminStudentRespData = TPartialModel<StudentModel, "name" | "studentId" | "phone" | "linkId">;
 app.get("/api/panel/admin/students", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ req.session;
   if (!session.username) {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
-  const data: PanelAdminStudentRespData[] = await sql.getAllStudentsAttrsOnly(["studentId", "name", "phone"]);
+  const data: PanelAdminStudentRespData[] = await sql.getAllStudentsAttrsOnly(["studentId", "name", "phone", "linkId"]);
   res.json({
     success: true,
     message: "",
@@ -187,12 +195,16 @@ app.get("/api/panel/admin/student/:id", async (req, res) => {
     return;
   }
 
-  const data: PanelAdminStudentRespData = await sql.getStudentByIdAttrsOnly(studentId, ["studentId", "name", "phone"]);
+  const data: PanelAdminStudentRespData | null = await sql.getStudentByIdAttrsOnly(studentId, [
+    "studentId",
+    "name",
+    "phone",
+    "linkId",
+  ]);
   if (!data) {
     res.json({ success: false, message: "Student not found" });
     return;
   }
-
   res.json({
     success: true,
     message: "",
@@ -221,7 +233,7 @@ app.post("/api/panel/admin/student/addOne", async (req, res) => {
 
   const student = await sql.createStudent(name, phone);
   if (!student) {
-    res.json({ success: false, message: "Student already exists" });
+    res.json({ success: false, message: "Student with identical name and phone already exists" });
     return;
   }
 
@@ -239,14 +251,14 @@ app.post("/api/panel/admin/student/addMulti", async (req, res) => {
   const createStudentPromises: Promise<StudentModel | null>[] = [];
   for (const { name, phone } of studentInfoArr) {
     if (typeof name !== "string" || typeof phone !== "string") {
-      createStudentPromises.push(null);
+      createStudentPromises.push(Promise.resolve(null));
       continue;
     }
     logger.info("add student request received from client for student", name, phone);
     createStudentPromises.push(sql.createStudent(name, phone));
   }
 
-  await Promise.all(createStudentPromises);
+  await Promise.all(createStudentPromises); // @TODO: return this to front-end?
   res.json({
     success: true,
     message: "",
@@ -283,8 +295,8 @@ app.post("/api/panel/admin/student/deleteMulti", async (req, res) => {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
-  const deletestudentInfoArr = /** @type {DeleteStudentInfo[]} */ req.body;
-  const deleteStudentPromises = [];
+  const deletestudentInfoArr: PanelAdminStudentDeleteReqBody[] = req.body;
+  const deleteStudentPromises: Promise<void>[] = [];
   for (const { studentId: id } of deletestudentInfoArr) {
     if (!Number.isSafeInteger(id)) {
       continue;
@@ -322,7 +334,7 @@ app.get("/api/panel/admin/link/:id", async (req, res) => {
     res.json({ success: false, message: "Invalid link id" });
     return;
   }
-  const data: PanelAdminLinkRespData = await sql.getLinkById(linkId);
+  const data: PanelAdminLinkRespData | null = await sql.getLinkById(linkId);
   if (!data) {
     res.json({ success: false, message: "Link not found" });
     return;
@@ -340,8 +352,6 @@ export interface PanelAdminLinkAddReqBody {
   validAfterTimeStamp: number;
   validUntilTimeStamp: number;
 }
-/** /api/panel/admin/link/add{One,Multi} response data */
-export type PanelAdminLinkAddRespData = AccessLinkModel;
 app.post("/api/panel/admin/link/addOne", async (req, res) => {
   if (!req.session.username) {
     res.json({ success: false, message: "Authentication required" });
@@ -361,11 +371,15 @@ app.post("/api/panel/admin/link/addOne", async (req, res) => {
     res.json({ success: false, message: "Invalid time stamps" });
     return;
   }
-  const data: PanelAdminLinkAddRespData = await sql.createAccessLink(clientId, {
+  const link = await sql.createAccessLink(clientId, {
     validAfter: new Date(validAfterTimeStamp),
     validUntil: new Date(validUntilTimeStamp),
   });
-  res.json({ success: true, message: "", data });
+  if (!link) {
+    res.json({ success: false, message: "Failed to create access link. See DBLogs for more detail." });
+    return;
+  }
+  res.json({ success: true, message: "" });
 });
 
 app.post("/api/panel/admin/link/addMulti", async (req, res) => {
@@ -374,20 +388,20 @@ app.post("/api/panel/admin/link/addMulti", async (req, res) => {
     return;
   }
   const addLinkInfos: PanelAdminLinkAddReqBody[] = req.body;
-  const addLinkPromises: Promise<AccessLinkModel>[] = [];
+  const addLinkPromises: Promise<AccessLinkModel | null>[] = [];
   for (let { clientId, validAfterTimeStamp, validUntilTimeStamp } of addLinkInfos) {
     if (typeof clientId !== "string") {
-      addLinkPromises.push(null);
+      addLinkPromises.push(Promise.resolve(null));
       continue;
     }
     validAfterTimeStamp = validAfterTimeStamp ?? Date.now();
     validUntilTimeStamp = validUntilTimeStamp ?? Date.now() + CLASS_DURATION;
     if (typeof validAfterTimeStamp !== "number" || typeof validUntilTimeStamp !== "number") {
-      addLinkPromises.push(null);
+      addLinkPromises.push(Promise.resolve(null));
       continue;
     }
     if (validAfterTimeStamp > validUntilTimeStamp) {
-      addLinkPromises.push(null);
+      addLinkPromises.push(Promise.resolve(null));
       continue;
     }
     addLinkPromises.push(
@@ -397,8 +411,8 @@ app.post("/api/panel/admin/link/addMulti", async (req, res) => {
       })
     );
   }
-  const data: PanelAdminLinkAddRespData[] = await Promise.all(addLinkPromises);
-  res.json({ success: true, message: "", data });
+  await Promise.all(addLinkPromises); // @TODO: return this to front-end?
+  res.json({ success: true, message: "" });
 });
 
 /** /api/panel/admin/link/edit{One,Multi} request interface */
@@ -592,9 +606,9 @@ app.post("/api/panel/admin/link/deleteMulti", async (req, res) => {
 /** /api/panel/admin/rclient/:id */
 export interface PanelAdminRClientRespData {
   rclient: RemoteClientModel;
-  link: AccessLinkModel;
-  student: StudentModel;
-  camera: CameraModel;
+  link: AccessLinkModel | null;
+  student: StudentModel | null;
+  camera: CameraModel | null;
 }
 app.get("/api/panel/admin/rclient/:id", async (req, res) => {
   if (!req.session.username) {
@@ -668,10 +682,49 @@ app.get("/api/panel/admin/camera/:id", async (req, res) => {
     return;
   }
   const { id } = req.params;
-  logger.info("getCamera request received from client for camera", id);
-  const data: PanelAdminCameraRespData = await sql.getCameraById(id);
+  logger.info("getCamera request received from panel for camera", id);
+  const data: PanelAdminCameraRespData | null = await sql.getCameraById(id);
   if (!data) {
     res.json({ success: false, message: "No such camera" });
+    return;
+  }
+  res.json({
+    success: true,
+    message: "",
+    data,
+  });
+});
+
+/** /api/panel/admin/log{s,/:id} */
+export type PanelAdminLogRespData = DBLogModel;
+app.get("/api/panel/admin/logs", async (req, res) => {
+  if (!req.session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  logger.info("getAllLogs request received from panel");
+  const data: PanelAdminLogRespData[] = await sql.getAllLogs();
+  res.json({
+    success: true,
+    message: "",
+    data,
+  });
+});
+
+app.get("/api/panel/admin/log/:id", async (req, res) => {
+  if (!req.session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  logger.info("getLogById request received from panel");
+  const { id } = req.params;
+  if (!Number.isSafeInteger(Number(id))) {
+    res.json({ success: false, message: "Invalid logId" });
+    return;
+  }
+  const data: PanelAdminLogRespData | null = await sql.getLogById(Number(id));
+  if (!data) {
+    res.json({ success: false, message: "No such log" });
     return;
   }
   res.json({
@@ -709,6 +762,8 @@ export type CameraAttrs = TExtractAttrsFromModel<CameraModel>;
 export type CameraInterface = TExtractInterfaceFromModel<CameraModel>;
 export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
 export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
+export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
+export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
 
 export default {
   app,

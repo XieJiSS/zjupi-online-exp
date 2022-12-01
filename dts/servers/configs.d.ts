@@ -1,3 +1,4 @@
+/** @format */
 export interface Config {
     port: number;
     name: string;

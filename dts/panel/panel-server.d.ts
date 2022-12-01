@@ -1,10 +1,11 @@
-import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel } from "../db/models/all-models";
+/** @format */
+import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBLogModel } from "../db/models/all-models";
 import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
     remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip">;
-    student: TPartialModel<StudentModel, "name">;
-    camera: TPartialModel<CameraModel, "cameraId" | "ip">;
+    student: TPartialModel<StudentModel, "name"> | null;
+    camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
 }
 /** /api/panel/admin/login */
 export interface PanelAdminLoginReqBody {
@@ -12,7 +13,7 @@ export interface PanelAdminLoginReqBody {
     password: string;
 }
 /** /api/panel/admin/student{s,/:id} */
-export type PanelAdminStudentRespData = TPartialModel<StudentModel, "name" | "studentId" | "phone">;
+export type PanelAdminStudentRespData = TPartialModel<StudentModel, "name" | "studentId" | "phone" | "linkId">;
 /** /api/panel/admin/student/add{One,Multi} */
 export interface PanelAdminStudentAddReqBody {
     name: string;
@@ -30,8 +31,6 @@ export interface PanelAdminLinkAddReqBody {
     validAfterTimeStamp: number;
     validUntilTimeStamp: number;
 }
-/** /api/panel/admin/link/add{One,Multi} response data */
-export type PanelAdminLinkAddRespData = AccessLinkModel;
 /** /api/panel/admin/link/edit{One,Multi} request interface */
 export interface PanelAdminLinkEditReqBody {
     linkId: number;
@@ -52,12 +51,14 @@ export interface PanelAdminLinkDeleteReqBody {
 /** /api/panel/admin/rclient/:id */
 export interface PanelAdminRClientRespData {
     rclient: RemoteClientModel;
-    link: AccessLinkModel;
-    student: StudentModel;
-    camera: CameraModel;
+    link: AccessLinkModel | null;
+    student: StudentModel | null;
+    camera: CameraModel | null;
 }
 /** /api/panel/admin/camera{s,/:id} */
 export type PanelAdminCameraRespData = CameraModel;
+/** /api/panel/admin/log{s,/:id} */
+export type PanelAdminLogRespData = DBLogModel;
 export type RemoteClientAttrs = TExtractAttrsFromModel<RemoteClientModel>;
 export type RemoteClientInterface = TExtractInterfaceFromModel<RemoteClientModel>;
 export type StudentAttrs = TExtractAttrsFromModel<StudentModel>;
@@ -66,6 +67,8 @@ export type CameraAttrs = TExtractAttrsFromModel<CameraModel>;
 export type CameraInterface = TExtractInterfaceFromModel<CameraModel>;
 export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
 export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
+export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
+export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
 declare const _default: {
     app: import("express-serve-static-core").Express;
     port: number;

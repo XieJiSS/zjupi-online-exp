@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import log4js from "log4js";
 
@@ -18,7 +18,7 @@ const existingLoggers: Map<string, log4js.Logger> = new Map();
 
 export default function getLogger(name: string): log4js.Logger {
   if (existingLoggers.has(name)) {
-    return /** @type {log4js.Logger} */ existingLoggers.get(name);
+    return existingLoggers.get(name) as log4js.Logger;
   }
   const logger = log4js.getLogger(name);
   existingLoggers.set(name, logger);

@@ -1,4 +1,7 @@
-/** @file This model will be used by express-session */
+/**
+ * @format
+ * @file This model will be used by express-session
+ */
 
 import assert from "assert";
 import { getGlobalSequelizeInstance, hasAuthed } from "../connect";
@@ -6,6 +9,7 @@ assert(hasAuthed);
 
 import Sequelize from "sequelize";
 const sequelize = getGlobalSequelizeInstance();
+assert(sequelize !== null);
 
 const Session: SessionModelCtor = sequelize.define(
   "session",

@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import AccessLinkAPI from "./access-link-api";
 import PanelAdminAPI from "./panel-admin-api";

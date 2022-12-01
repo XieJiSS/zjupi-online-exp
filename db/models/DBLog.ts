@@ -1,3 +1,5 @@
+/** @format */
+
 import assert from "assert";
 
 import { getGlobalSequelizeInstance, hasAuthed } from "db/connect";
@@ -5,6 +7,7 @@ assert(hasAuthed);
 
 import Sequelize from "sequelize";
 const sequelize = getGlobalSequelizeInstance();
+assert(sequelize !== null);
 
 const DBLog: DBLogModelCtor = sequelize.define(
   "db_log",

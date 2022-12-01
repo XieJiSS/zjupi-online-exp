@@ -1,3 +1,4 @@
+/** @format */
 import Sequelize from "sequelize";
 declare const DBLog: DBLogModelCtor;
 export interface DBLogCreationAttributes {

@@ -1,3 +1,4 @@
+/** @format */
 import Sequelize from "sequelize";
 declare const Student: StudentModelCtor;
 export interface StudentCreationAttributes {

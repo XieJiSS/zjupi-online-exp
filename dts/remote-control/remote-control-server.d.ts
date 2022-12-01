@@ -1,3 +1,4 @@
+/** @format */
 /** /api/remote-control/clients */
 export interface RemoteControlClientRespData {
     clientId: string;

@@ -1,3 +1,4 @@
+/** @format */
 import Sequelize from "sequelize";
 declare const Camera: CameraModelCtor;
 export interface CameraCreationAttributes {

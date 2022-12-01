@@ -1,3 +1,4 @@
+/** @format */
 import type { Express } from "express";
 export interface Server {
     app: Express;

@@ -1,9 +1,10 @@
+/** @format */
 import type { CameraModel } from "db/models/all-models";
 import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr, TMarkPartialAttrs } from "types/type-helper";
 import type { CameraReportErrorReqBody } from "camera/camera-server";
-declare function getCameraById(cameraId: string): Promise<CameraModel>;
-declare function getCameraByIdAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(cameraId: string, attributes: Readonly<T[]>): Promise<TPartialModel<CameraModel, T>>;
-declare function createCamera(cameraId: string, ip: string): Promise<CameraModel>;
+declare function getCameraById(cameraId: string): Promise<CameraModel | null>;
+declare function getCameraByIdAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(cameraId: string, attributes: Readonly<T[]>): Promise<TPartialModel<CameraModel, T> | null>;
+declare function createCamera(cameraId: string, ip: string): Promise<CameraModel | null>;
 declare function isCameraOnline(cameraId: string): Promise<boolean>;
 declare function getAllCameras(): Promise<CameraModel[]>;
 declare function getAllCamerasAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(attributes: Readonly<T[]>): Promise<TPartialModelArr<CameraModel, T>>;

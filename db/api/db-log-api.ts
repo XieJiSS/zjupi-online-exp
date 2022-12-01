@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import assert from "assert";
 
@@ -38,7 +38,7 @@ async function getLogById(logId: number) {
 async function getLogByIdAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel>>(
   logId: number,
   attributes: Readonly<T[]>
-): Promise<TPartialModel<DBLogModel, T>> {
+): Promise<TPartialModel<DBLogModel, T> | null> {
   return (await DBLog.findOne({
     where: { logId },
     attributes: attributes as T[],

@@ -1,3 +1,5 @@
+/** @format */
+
 import assert from "assert";
 import { hasAuthed } from "db/connect";
 assert(hasAuthed());
@@ -20,7 +22,7 @@ async function getCameraById(cameraId: string) {
 async function getCameraByIdAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(
   cameraId: string,
   attributes: Readonly<T[]>
-): Promise<TPartialModel<CameraModel, T>> {
+): Promise<TPartialModel<CameraModel, T> | null> {
   return (await Camera.findOne({
     where: { cameraId },
     attributes: attributes as T[],
@@ -95,7 +97,7 @@ async function removeCamera(cameraId: string) {
     return;
   }
   await AccessLink.update({ cameraId: null }, { where: { cameraId } });
-  return await camera.destroy();
+  await camera.destroy();
 }
 
 async function setActiveByCameraId(cameraId: string) {

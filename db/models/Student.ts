@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import assert from "assert";
 
@@ -7,6 +7,7 @@ assert(hasAuthed);
 
 import Sequelize from "sequelize";
 const sequelize = getGlobalSequelizeInstance();
+assert(sequelize !== null);
 
 const Student: StudentModelCtor = sequelize.define(
   "student",

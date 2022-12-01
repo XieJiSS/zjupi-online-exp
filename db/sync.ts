@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import assert from "assert";
 const { hasAuthed } = require("./connect");

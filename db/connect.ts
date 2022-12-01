@@ -1,4 +1,4 @@
-// @ts-check
+/** @format */
 
 import os from "os";
 import { Sequelize } from "sequelize";

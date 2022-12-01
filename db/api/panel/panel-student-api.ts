@@ -1,3 +1,5 @@
+/** @format */
+
 import assert from "assert";
 import { hasAuthed } from "db/connect";
 assert(hasAuthed());
@@ -58,7 +60,7 @@ async function getStudentByLinkId(linkId: number) {
 async function getStudentByLinkIdAttrsOnly<T extends TExtractAttrsFromModel<StudentModel>>(
   linkId: number,
   attributes: Readonly<T[]>
-): Promise<TPartialModel<StudentModel, T>> {
+): Promise<TPartialModel<StudentModel, T> | null> {
   const link = await accessLinkApi.getLinkById(linkId);
   if (!link) {
     return null;
@@ -97,7 +99,7 @@ async function getStudentById(studentId: number) {
 async function getStudentByIdAttrsOnly<T extends TExtractAttrsFromModel<StudentModel>>(
   studentId: number,
   attributes: Readonly<T[]>
-): Promise<TPartialModel<StudentModel, T>> {
+): Promise<TPartialModel<StudentModel, T> | null> {
   return (await Student.findOne({
     where: { studentId },
     attributes: attributes as T[],

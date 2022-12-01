@@ -1,3 +1,4 @@
+/** @format */
 import Sequelize from "sequelize";
 declare const RemoteClient: RemoteClientModelCtor;
 export interface RemoteClientCreationAttributes {

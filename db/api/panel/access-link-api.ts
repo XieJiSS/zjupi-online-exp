@@ -1,3 +1,5 @@
+/** @format */
+
 import assert from "assert";
 import { hasAuthed } from "db/connect";
 assert(hasAuthed());
@@ -46,6 +48,7 @@ async function createAccessLink(clientId: string, options: Required<AccessLinkVa
   }
   const client = await RemoteClient.findOne({ where: { clientId } });
   if (!client) {
+    logger.error(`createAccessLink: client ${clientId} not found`);
     return null;
   }
   const link = await AccessLink.create({
@@ -62,7 +65,7 @@ async function createAccessLink(clientId: string, options: Required<AccessLinkVa
 async function removeAccessLink(linkId: number) {
   const link = await getLinkById(linkId);
   if (!link) {
-    return null;
+    return false;
   }
   logger.info(`Removing access link ${linkId} from database...`);
   await Promise.all([_removeLinkFromRemoteClient(linkId), removeLinkFromStudent(linkId)]);
@@ -132,7 +135,7 @@ async function getLinkById(linkId: number) {
 async function getLinkByIdAttrsOnly<T extends TExtractAttrsFromModel<AccessLinkModel>>(
   linkId: number,
   attributes: Readonly<T[]>
-): Promise<TPartialModel<AccessLinkModel, T>> {
+): Promise<TPartialModel<AccessLinkModel, T> | null> {
   return (await AccessLink.findOne({
     where: { linkId },
     attributes: attributes as T[],
@@ -187,6 +190,7 @@ async function getAllValidLinksAttrsOnly<T extends TExtractAttrsFromModel<Access
 async function getLinkIfValidByLinkPath(linkPath: string) {
   const link = await getLinkByLinkPath(linkPath);
   if (!link) {
+    logger.warn(`getLinkIfValidByLinkPath: link ${linkPath} not found`);
     return null;
   }
   return link.isValid ? link : null;

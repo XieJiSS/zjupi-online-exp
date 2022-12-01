@@ -1,4 +1,7 @@
-/** @file This model will be used by express-session */
+/**
+ * @format
+ * @file This model will be used by express-session
+ */
 import Sequelize from "sequelize";
 declare const Session: SessionModelCtor;
 export interface SessionCreationAttributes {

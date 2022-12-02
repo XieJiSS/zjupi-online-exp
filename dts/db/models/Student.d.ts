@@ -12,5 +12,5 @@ export interface StudentAdditionalModelAttributes {
 }
 export type StudentModelAttributes = StudentCreationAttributes & StudentAdditionalModelAttributes;
 export type StudentModel = Sequelize.Model<StudentModelAttributes, StudentCreationAttributes> & StudentModelAttributes;
-export type StudentModelCtor = Sequelize.ModelCtor<StudentModel>;
+export type StudentModelCtor = Sequelize.ModelStatic<StudentModel>;
 export default Student;

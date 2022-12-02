@@ -13,5 +13,5 @@ export interface SessionAdditionalModelAttributes {
 }
 export type SessionModelAttributes = SessionCreationAttributes & SessionAdditionalModelAttributes;
 export type SessionModel = Sequelize.Model<SessionModelAttributes, SessionCreationAttributes> & SessionModelAttributes;
-export type SessionModelCtor = Sequelize.ModelCtor<SessionModel>;
+export type SessionModelCtor = Sequelize.ModelStatic<SessionModel>;
 export default Session;

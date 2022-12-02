@@ -18,5 +18,5 @@ export interface AccessLinkAdditionalModelAttributesReadonly {
 }
 export type AccessLinkModelAttributes = AccessLinkCreationAttributes & AccessLinkAdditionalModelAttributesWriteable & Readonly<AccessLinkAdditionalModelAttributesReadonly>;
 export type AccessLinkModel = Sequelize.Model<AccessLinkModelAttributes, AccessLinkCreationAttributes> & AccessLinkModelAttributes;
-export type AccessLinkModelCtor = Sequelize.ModelCtor<AccessLinkModel>;
+export type AccessLinkModelCtor = Sequelize.ModelStatic<AccessLinkModel>;
 export default AccessLink;

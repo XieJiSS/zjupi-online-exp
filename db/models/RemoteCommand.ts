@@ -18,13 +18,8 @@ const RemoteCommand: RemoteCommandModelCtor = sequelize.define(
       autoIncrement: true,
       allowNull: false,
     },
-    createdAt: {
-      type: Sequelize.DATE,
-      allowNull: false,
-      defaultValue: () => new Date(),
-    },
     status: {
-      type: Sequelize.ENUM("running", "finished", "failed"),
+      type: Sequelize.ENUM("queued", "running", "finished", "failed"),
       allowNull: false,
     },
     command: {
@@ -35,16 +30,26 @@ const RemoteCommand: RemoteCommandModelCtor = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
-    displayText: {
+    explanation: {
       type: Sequelize.STRING,
       allowNull: false,
     },
-    reportedResult: {
-      type: Sequelize.STRING,
+    createdAt: {
+      type: Sequelize.DATE,
+      allowNull: false,
+      defaultValue: () => new Date(),
+    },
+    executingAt: {
+      type: Sequelize.DATE,
       allowNull: true,
     },
+    // for finished and failed
     reportedAt: {
       type: Sequelize.DATE,
+      allowNull: true,
+    },
+    reportedResult: {
+      type: Sequelize.STRING,
       allowNull: true,
     },
     clientId: {
@@ -57,12 +62,14 @@ const RemoteCommand: RemoteCommandModelCtor = sequelize.define(
   }
 );
 
+export type REMOTE_CMD_STATE = "queued" | "running" | "finished" | "failed";
 export interface RemoteCommandCreationAttributes {
-  createdAt?: Date;
-  status: "running" | "finished" | "failed";
-  command: string;
+  status: REMOTE_CMD_STATE;
   args: string;
-  displayText: string;
+  command: string;
+  createdAt?: Date;
+  executingAt?: Date;
+  explanation: string;
   reportedResult?: string | null;
   reportedAt?: Date | null;
   clientId: string;
@@ -71,13 +78,14 @@ export interface RemoteCommandCreationAttributes {
 export interface RemoteCommandAdditionalModelAttributes {
   commandId: number;
   createdAt: Date;
-  reportedResult: string | null;
+  executingAt: Date | null;
   reportedAt: Date | null;
+  reportedResult: string | null;
 }
 
 export type RemoteCommandModelAttributes = RemoteCommandCreationAttributes & RemoteCommandAdditionalModelAttributes;
 export type RemoteCommandModel = Sequelize.Model<RemoteCommandModelAttributes, RemoteCommandCreationAttributes> &
   RemoteCommandModelAttributes;
-export type RemoteCommandModelCtor = Sequelize.ModelCtor<RemoteCommandModel>;
+export type RemoteCommandModelCtor = Sequelize.ModelStatic<RemoteCommandModel>;
 
 export default RemoteCommand;

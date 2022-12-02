@@ -1,4 +1,6 @@
-import type { Model, ModelCtor } from "sequelize";
+/** @format */
+
+import type { Model, ModelStatic } from "sequelize";
 
 export type TPromisify<F> = F extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : never;
 
@@ -27,7 +29,7 @@ export type TArrayInnerTypeConstraintHelper<A, T, O> = A extends [infer I, ...in
   : never;
 export type TArrayInnerTypeConstraint<A, T> = TArrayInnerTypeConstraintHelper<A, T, A>;
 
-export type TExtractModelFromCtor<T extends ModelCtor<any>> = T extends ModelCtor<infer I> ? I : never;
+export type TExtractModelFromCtor<T extends ModelStatic<any>> = T extends ModelStatic<infer I> ? I : never;
 export type TExtractInterfaceFromModel<T extends Model<any>> = T extends Model<infer I, infer _> ? I : never;
 export type TExtractAttrsFromModel<T extends Model<any>> = keyof TExtractInterfaceFromModel<T>;
 

@@ -1,4 +1,5 @@
-import type { Model, ModelCtor } from "sequelize";
+/** @format */
+import type { Model, ModelStatic } from "sequelize";
 export type TPromisify<F> = F extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : never;
 export type TParialPick<O, KeyUnion> = KeyUnion extends keyof O ? Partial<Pick<O, KeyUnion>> : never;
 export type TMarkPartialAttrs<T, A> = TParialPick<T, A> & TOmit<T, A>;
@@ -14,7 +15,7 @@ export type LastInUnion<U> = UnionToIntersection<UnionToFunction<U>> extends (k:
 export type UnionToArray<U, I = LastInUnion<U>> = [I] extends [never] ? [] : [...UnionToArray<Exclude<U, I>>, I];
 export type TArrayInnerTypeConstraintHelper<A, T, O> = A extends [infer I, ...infer R] ? I extends T ? TArrayInnerTypeConstraintHelper<R, T, O> : never : A extends [] ? O : never;
 export type TArrayInnerTypeConstraint<A, T> = TArrayInnerTypeConstraintHelper<A, T, A>;
-export type TExtractModelFromCtor<T extends ModelCtor<any>> = T extends ModelCtor<infer I> ? I : never;
+export type TExtractModelFromCtor<T extends ModelStatic<any>> = T extends ModelStatic<infer I> ? I : never;
 export type TExtractInterfaceFromModel<T extends Model<any>> = T extends Model<infer I, infer _> ? I : never;
 export type TExtractAttrsFromModel<T extends Model<any>> = keyof TExtractInterfaceFromModel<T>;
 export type TPartialModel<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPickAttrs<T, U> & Omit<T, TExtractAttrsFromModel<T>>;

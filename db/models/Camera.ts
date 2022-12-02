@@ -97,6 +97,6 @@ export interface CameraAdditionalModelAttributesReadonly {
 
 export type CameraModelAttributes = CameraCreationAttributes & Readonly<CameraAdditionalModelAttributesReadonly>;
 export type CameraModel = Sequelize.Model<CameraModelAttributes, CameraCreationAttributes> & CameraModelAttributes;
-export type CameraModelCtor = Sequelize.ModelCtor<CameraModel>;
+export type CameraModelCtor = Sequelize.ModelStatic<CameraModel>;
 
 export default Camera;

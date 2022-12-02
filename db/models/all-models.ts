@@ -1,3 +1,5 @@
+/** @format */
+
 import Session from "./Session"; // will be used by express-session
 import RemoteClient from "./RemoteClient";
 import RemoteCommand from "./RemoteCommand";
@@ -13,7 +15,7 @@ import _ from "db/constraints";
 export { default as RemoteClient } from "./RemoteClient";
 export type { RemoteClientModelCtor, RemoteClientModel } from "./RemoteClient";
 export { default as RemoteCommand } from "./RemoteCommand";
-export type { RemoteCommandModelCtor, RemoteCommandModel } from "./RemoteCommand";
+export type { RemoteCommandModelCtor, RemoteCommandModel, REMOTE_CMD_STATE } from "./RemoteCommand";
 export { default as Camera } from "./Camera";
 export type { CameraModelCtor, CameraModel } from "./Camera";
 export { default as Admin } from "./Admin";

@@ -13,5 +13,5 @@ export interface AdminAdditionalModelAttributes {
 }
 export type AdminModelAttributes = AdminCreationAttributes & AdminAdditionalModelAttributes;
 export type AdminModel = Sequelize.Model<AdminModelAttributes, AdminCreationAttributes> & AdminModelAttributes;
-export type AdminModelCtor = Sequelize.ModelCtor<AdminModel>;
+export type AdminModelCtor = Sequelize.ModelStatic<AdminModel>;
 export default Admin;

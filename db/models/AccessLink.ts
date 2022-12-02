@@ -94,6 +94,6 @@ export type AccessLinkModelAttributes = AccessLinkCreationAttributes &
   Readonly<AccessLinkAdditionalModelAttributesReadonly>;
 export type AccessLinkModel = Sequelize.Model<AccessLinkModelAttributes, AccessLinkCreationAttributes> &
   AccessLinkModelAttributes;
-export type AccessLinkModelCtor = Sequelize.ModelCtor<AccessLinkModel>;
+export type AccessLinkModelCtor = Sequelize.ModelStatic<AccessLinkModel>;
 
 export default AccessLink;

@@ -1,4 +1,7 @@
+/** @format */
+
 import RemoteClient from "./models/RemoteClient";
+// @ts-ignore
 import RemoteCommand from "./models/RemoteCommand";
 
 // @NOTE: Here, we'd like to keep RemoteClient and RemoteCommand as independent models,

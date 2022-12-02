@@ -41,7 +41,7 @@
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "typeRoots": [
       "types",
-      "../../dts/",
+      "../../dts",
       "node_modules/vue/types",
       "src"
     ],
@@ -52,8 +52,7 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "types/**/*.d.ts",
-    "../../dts/**/*.d.ts",
   ],
   // ts 排除的文件
-  "exclude": ["node_modules"]
+  "exclude": ["node_modules", "dts"]
 }

@@ -23,7 +23,7 @@ declare const _default: {
     changeAdminPassword: (adminId: number, password: string) => Promise<boolean>;
     createAccessLink: (clientId: string, options: Required<import("./access-link-api").AccessLinkValidTimeOptions>) => Promise<import("../../models/AccessLink").AccessLinkModel | null>;
     removeAccessLink: (linkId: number) => Promise<boolean>;
-    assignCameraToLink: (linkId: number, cameraId: string) => Promise<boolean>;
+    assignCameraToLink: (cameraId: string, linkId: number) => Promise<boolean>;
     removeCameraFromLink: (linkId: number) => Promise<boolean>;
     assignLinkToStudent: (linkId: number, studentId: number) => Promise<boolean>;
     removeLinkFromStudent: (linkId: number) => Promise<boolean>;

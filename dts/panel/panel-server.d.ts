@@ -3,7 +3,7 @@ import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBL
 import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
-    remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip">;
+    remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
     student: TPartialModel<StudentModel, "name"> | null;
     camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
 }
@@ -57,6 +57,15 @@ export interface PanelAdminRClientRespData {
 }
 /** /api/panel/admin/camera{s,/:id} */
 export type PanelAdminCameraRespData = CameraModel;
+/** /api/panel/admin/camera/assignToLink{One,Multi} request interface */
+export interface PanelAdminCameraAssignToLinkReqBody {
+    cameraId: string;
+    linkId: number;
+}
+/** /api/panel/admin/camera/removeFromLink{One,Multi} request interface */
+export interface PanelAdminCameraRemoveFromLinkReqBody {
+    linkId: number;
+}
 /** /api/panel/admin/log{s,/:id} */
 export type PanelAdminLogRespData = DBLogModel;
 export type RemoteClientAttrs = TExtractAttrsFromModel<RemoteClientModel>;

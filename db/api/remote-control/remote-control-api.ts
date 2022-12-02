@@ -137,7 +137,7 @@ async function getRemoteClientById(clientId: string) {
 async function getRemoteClientByIdAttrsOnly<T extends TExtractAttrsFromModel<RemoteClientModel>>(
   clientId: string,
   attributes: Readonly<T[]>
-): Promise<TPartialModel<RemoteClientModel, T>> {
+): Promise<TPartialModel<RemoteClientModel, T> | null> {
   return (await RemoteClient.findByPk(clientId, {
     attributes: attributes as T[],
   })) as TPartialModel<RemoteClientModel, T>;

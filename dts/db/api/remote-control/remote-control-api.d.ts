@@ -26,7 +26,7 @@ type TRemoteClientWithLink = RemoteClientModel & {
 };
 declare function getAllRemoteClientsWithLinks(): Promise<TRemoteClientWithLink[]>;
 declare function getRemoteClientById(clientId: string): Promise<RemoteClientModel | null>;
-declare function getRemoteClientByIdAttrsOnly<T extends TExtractAttrsFromModel<RemoteClientModel>>(clientId: string, attributes: Readonly<T[]>): Promise<TPartialModel<RemoteClientModel, T>>;
+declare function getRemoteClientByIdAttrsOnly<T extends TExtractAttrsFromModel<RemoteClientModel>>(clientId: string, attributes: Readonly<T[]>): Promise<TPartialModel<RemoteClientModel, T> | null>;
 declare function removeRemoteClientById(clientId: string): Promise<void>;
 declare function setRemoteClientPasswordById(clientId: string, password: string): Promise<RemoteClientModel | null>;
 declare function invalidatePasswordById(clientId: string): Promise<RemoteClientModel | null>;

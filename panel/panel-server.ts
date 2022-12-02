@@ -59,7 +59,7 @@ app.use(
 
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
-  remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip">;
+  remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
   student: TPartialModel<StudentModel, "name"> | null;
   camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
 }
@@ -693,6 +693,91 @@ app.get("/api/panel/admin/camera/:id", async (req, res) => {
     message: "",
     data,
   });
+});
+
+/** /api/panel/admin/camera/assignToLink{One,Multi} request interface */
+export interface PanelAdminCameraAssignToLinkReqBody {
+  cameraId: string;
+  linkId: number;
+}
+app.post("/api/panel/admin/camera/assignToLinkOne", async (req, res) => {
+  if (!req.session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  const { cameraId, linkId }: PanelAdminCameraAssignToLinkReqBody = req.body;
+  logger.info("assigning camera to link:", { cameraId, linkId });
+  if (typeof cameraId !== "string" || typeof linkId !== "number" || !Number.isSafeInteger(linkId)) {
+    res.json({ success: false, message: "Missing or invalid necessary fields" });
+    return;
+  }
+  const succ = await sql.assignCameraToLink(cameraId, linkId);
+  if (!succ) {
+    res.json({ success: false, message: "Failed to assign camera to link" });
+    return;
+  }
+  res.json({ success: true, message: "" });
+});
+
+app.post("/api/panel/admin/camera/assignToLinkMulti", async (req, res) => {
+  if (!req.session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  const assignInfos: PanelAdminCameraAssignToLinkReqBody[] = req.body;
+  logger.info("assigning multiple cameras to links:", assignInfos);
+  const assignPromises: Promise<boolean>[] = [];
+  for (const { cameraId, linkId } of assignInfos) {
+    if (typeof cameraId !== "string" || typeof linkId !== "number" || !Number.isSafeInteger(linkId)) {
+      assignPromises.push(Promise.resolve(false));
+      continue;
+    }
+    assignPromises.push(sql.assignCameraToLink(cameraId, linkId));
+  }
+  await Promise.all(assignPromises); // @TODO: send partial failures to frontend
+  res.json({ success: true, message: "" });
+});
+
+/** /api/panel/admin/camera/removeFromLink{One,Multi} request interface */
+export interface PanelAdminCameraRemoveFromLinkReqBody {
+  linkId: number;
+}
+app.post("/api/panel/admin/camera/removeFromLinkOne", async (req, res) => {
+  if (!req.session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  const { linkId }: PanelAdminCameraRemoveFromLinkReqBody = req.body;
+  logger.info("removing camera from link:", { linkId });
+  if (typeof linkId !== "number" || !Number.isSafeInteger(linkId)) {
+    res.json({ success: false, message: "Missing or invalid necessary fields" });
+    return;
+  }
+  const succ = await sql.removeCameraFromLink(linkId);
+  if (!succ) {
+    res.json({ success: false, message: "Failed to remove camera from link" });
+    return;
+  }
+  res.json({ success: true, message: "" });
+});
+
+app.post("/api/panel/admin/camera/removeFromLinkMulti", async (req, res) => {
+  if (!req.session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+  const removeInfos: PanelAdminCameraRemoveFromLinkReqBody[] = req.body;
+  logger.info("removing multiple cameras to links:", removeInfos);
+  const removePromises: Promise<boolean>[] = [];
+  for (const { linkId } of removeInfos) {
+    if (typeof linkId !== "number" || !Number.isSafeInteger(linkId)) {
+      removePromises.push(Promise.resolve(false));
+      continue;
+    }
+    removePromises.push(sql.removeCameraFromLink(linkId));
+  }
+  await Promise.all(removePromises); // @TODO: send partial failures to frontend
+  res.json({ success: true, message: "" });
 });
 
 /** /api/panel/admin/log{s,/:id} */

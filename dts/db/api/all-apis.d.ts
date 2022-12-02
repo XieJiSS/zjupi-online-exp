@@ -14,7 +14,7 @@ declare const _default: {
         link: import("../models/AccessLink").AccessLinkModel;
     })[]>;
     getRemoteClientById: (clientId: string) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
-    getRemoteClientByIdAttrsOnly: <T_1 extends "online" | "password" | "clientId" | "passwordExpireAt" | "nextPassword" | "ip" | "lastActive" | "isDead" | "linkId">(clientId: string, attributes: readonly T_1[]) => Promise<import("../../types/type-helper").TPartialModel<import("../models/RemoteClient").RemoteClientModel, T_1>>;
+    getRemoteClientByIdAttrsOnly: <T_1 extends "online" | "password" | "clientId" | "passwordExpireAt" | "nextPassword" | "ip" | "lastActive" | "isDead" | "linkId">(clientId: string, attributes: readonly T_1[]) => Promise<import("../../types/type-helper").TPartialModel<import("../models/RemoteClient").RemoteClientModel, T_1> | null>;
     removeRemoteClientById: (clientId: string) => Promise<void>;
     setRemoteClientPasswordById: (clientId: string, password: string) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
     invalidatePasswordById: (clientId: string) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
@@ -43,7 +43,7 @@ declare const _default: {
     changeAdminPassword: (adminId: number, password: string) => Promise<boolean>;
     createAccessLink: (clientId: string, options: Required<import("./panel/access-link-api").AccessLinkValidTimeOptions>) => Promise<import("../models/AccessLink").AccessLinkModel | null>;
     removeAccessLink: (linkId: number) => Promise<boolean>;
-    assignCameraToLink: (linkId: number, cameraId: string) => Promise<boolean>;
+    assignCameraToLink: (cameraId: string, linkId: number) => Promise<boolean>;
     removeCameraFromLink: (linkId: number) => Promise<boolean>;
     assignLinkToStudent: (linkId: number, studentId: number) => Promise<boolean>;
     removeLinkFromStudent: (linkId: number) => Promise<boolean>;

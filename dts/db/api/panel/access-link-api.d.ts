@@ -7,7 +7,7 @@ export interface AccessLinkValidTimeOptions {
 }
 declare function createAccessLink(clientId: string, options: Required<AccessLinkValidTimeOptions>): Promise<AccessLinkModel | null>;
 declare function removeAccessLink(linkId: number): Promise<boolean>;
-declare function assignCameraToLink(linkId: number, cameraId: string): Promise<boolean>;
+declare function assignCameraToLink(cameraId: string, linkId: number): Promise<boolean>;
 declare function removeCameraFromLink(linkId: number): Promise<boolean>;
 /**
  * @description assign a link to a remote client, while removing the link from the previous client

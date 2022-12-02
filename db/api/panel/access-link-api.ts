@@ -72,7 +72,7 @@ async function removeAccessLink(linkId: number) {
   return (await AccessLink.destroy({ where: { linkId } }))[0] > 0;
 }
 
-async function assignCameraToLink(linkId: number, cameraId: string) {
+async function assignCameraToLink(cameraId: string, linkId: number) {
   return (await AccessLink.update({ cameraId }, { where: { linkId } }))[0] > 0;
 }
 

@@ -1,10 +1,11 @@
-// @ts-check
+/** @format */
 
 import { createApp } from "vue";
-import { createRouter, createWebHashHistory } from "vue-router";
-import VueSimpleAlert from "vue3-simple-alert-next";
 
+import { createRouter, createWebHashHistory } from "vue-router";
 import type { RouteRecordRaw } from "vue-router";
+
+import VueSimpleAlert from "vue3-simple-alert-next";
 
 import App from "./App.vue";
 import Access from "./Access.vue";
@@ -37,8 +38,3 @@ declare module "@vue/runtime-core" {
     $fire: typeof VueSimpleAlert.fire;
   }
 }
-
-const x: import("../../../dts/panel/panel-server").RemoteClientInterface = {
-  clientId: 0,
-  aha: "x",
-};

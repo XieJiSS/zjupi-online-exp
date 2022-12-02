@@ -1,8 +1,8 @@
-<script>
-// @ts-check
+<script lang="ts">
 
-import pbkdf2 from "crypto-js/pbkdf2";
 import axios from "axios";
+import pbkdf2 from "crypto-js/pbkdf2";
+import { algo } from "crypto-js";
 
 export default {
   data() {
@@ -13,7 +13,6 @@ export default {
   },
   computed: {
     passwordHash() {
-      // @ts-ignore
       return this.calculatePasswordHash(this.password);
     }
   },
@@ -32,12 +31,15 @@ export default {
       }
       await this.$router.push("/login");
     },
-    calculatePasswordHash(password) {
+    calculatePasswordHash(password: string) {
       const salt = "PI.ZJU_salt";
       const iterations = 1000;
       const keylen = 32;
-      const digest = "sha256";
-      return pbkdf2(password, salt, iterations, keylen, digest).toString();
+      return pbkdf2(password, salt, {
+        iterations,
+        keySize: keylen,
+        hasher: algo.SHA256,
+      }).toString();
     },
   },
 };

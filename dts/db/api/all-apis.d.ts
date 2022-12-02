@@ -1,22 +1,22 @@
 declare const _default: {
     generateRandomClientId: () => string;
-    createRemoteCommand: (clientId: string, directive: import("./remote-control/remote-control-api").RemoteControlDirective, args: string[]) => Promise<import("../models/RemoteCommand").RemoteCommandModel | null>;
-    getRemoteCommands: () => Promise<import("../models/RemoteCommand").RemoteCommandModel[]>;
-    getRemoteCommandById: (clientId: string, commandId: number) => Promise<import("../models/RemoteCommand").RemoteCommandModel | null>;
+    createRemoteCommand: (clientId: string, directive: import("./remote-control/remote-control-api").RemoteControlDirective, args?: string[] | undefined, status?: import("../models/RemoteCommand").REMOTE_CMD_STATE) => Promise<import("../models/RemoteCommand").RemoteCommandModel | null>;
+    getAllRemoteCommands: () => Promise<import("../models/RemoteCommand").RemoteCommandModel[]>;
+    getRemoteCommandByIds: (clientId: string, commandId: number) => Promise<import("../models/RemoteCommand").RemoteCommandModel | null>;
     getRemoteCommandsByClientId: (clientId: string) => Promise<import("../models/RemoteCommand").RemoteCommandModel[]>;
-    getRemoteCommandsByClientIdAndStatus: (clientId: string, status: "failed" | "finished" | "running") => Promise<import("../models/RemoteCommand").RemoteCommandModel[]>;
-    setRemoteCommandStatus: (clientId: string, commandId: number, status: "failed" | "finished" | "running", reportedResult?: string | null | undefined) => Promise<boolean>;
+    getRemoteCommandsByClientIdAndStatus: (clientId: string, statusList: import("../models/RemoteCommand").REMOTE_CMD_STATE[]) => Promise<import("../models/RemoteCommand").RemoteCommandModel[]>;
+    setRemoteCommandStatus: (clientId: string, commandId: number, status: import("../models/RemoteCommand").REMOTE_CMD_STATE, reportedResult?: string | null | undefined) => Promise<boolean>;
     invalidateRemoteCommandByCommandType: (clientId: string, commandType: string) => Promise<void>;
     createRemoteClient: (clientId: string, password: string, ip: string) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
     getAllRemoteClients: () => Promise<import("../models/RemoteClient").RemoteClientModel[]>;
-    getAllRemoteClientsAttrsOnly: <T extends "online" | "password" | "clientId" | "passwordExpireAt" | "nextPassword" | "ip" | "lastActive" | "isDead" | "linkId">(attributes: readonly T[]) => Promise<import("../../types/type-helper").TPartialModelArr<import("../models/RemoteClient").RemoteClientModel, T>>;
+    getAllRemoteClientsAttrsOnly: <T extends "online" | "password" | "clientId" | "passwordExpireAt" | "ip" | "lastActive" | "isDead" | "linkId">(attributes: readonly T[]) => Promise<import("../../types/type-helper").TPartialModelArr<import("../models/RemoteClient").RemoteClientModel, T>>;
     getAllRemoteClientsWithLinks: () => Promise<(import("sequelize").Model<import("../models/RemoteClient").RemoteClientModelAttributes, import("../models/RemoteClient").RemoteClientCreationAttributes> & import("../models/RemoteClient").RemoteClientCreationAttributes & import("../models/RemoteClient").RemoteClientAdditionalModelAttributes & {
         link: import("../models/AccessLink").AccessLinkModel;
     })[]>;
     getRemoteClientById: (clientId: string) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
-    getRemoteClientByIdAttrsOnly: <T_1 extends "online" | "password" | "clientId" | "passwordExpireAt" | "nextPassword" | "ip" | "lastActive" | "isDead" | "linkId">(clientId: string, attributes: readonly T_1[]) => Promise<import("../../types/type-helper").TPartialModel<import("../models/RemoteClient").RemoteClientModel, T_1> | null>;
+    getRemoteClientByIdAttrsOnly: <T_1 extends "online" | "password" | "clientId" | "passwordExpireAt" | "ip" | "lastActive" | "isDead" | "linkId">(clientId: string, attributes: readonly T_1[]) => Promise<import("../../types/type-helper").TPartialModel<import("../models/RemoteClient").RemoteClientModel, T_1> | null>;
     removeRemoteClientById: (clientId: string) => Promise<void>;
-    setRemoteClientPasswordById: (clientId: string, password: string) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
+    setRemoteClientPasswordById: (clientId: string, password: string, validDuration?: number) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
     invalidatePasswordById: (clientId: string) => Promise<import("../models/RemoteClient").RemoteClientModel | null>;
     setActiveByRemoteClientId: (clientId: string) => Promise<void>;
     isRemoteClientActive: (clientId: string) => Promise<boolean>;

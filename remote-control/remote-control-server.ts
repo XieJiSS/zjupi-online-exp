@@ -71,34 +71,18 @@ app.get("/api/remote-control/getUpdate/:clientId", async (req, res) => {
     res.json({ success: false, message: "Client not registered" });
     return;
   }
-  const shouldUpdatePassword = client.passwordExpireAt.getTime() < Date.now() || client.nextPassword !== null;
-  if (shouldUpdatePassword) {
-    logger.info("Attempting to command a password update to client", clientId);
-    let args: string[] = [];
-    if (client.nextPassword) args = [client.nextPassword];
-    await sql.invalidateRemoteCommandByCommandType(clientId, "changePassword");
-    const command = await sql.createRemoteCommand(
-      clientId,
-      {
-        command: "changePassword",
-        displayText: `change password to ${args[0] || "random password"}`,
-      },
-      args
-    );
-    if (command === null) {
-      res.json({ success: false, message: "Failed to create command" });
-      return;
-    }
-    const data: RemoteControlGetUpdateRespData = {
-      id: command.commandId,
-      command: "changePassword",
-      args,
-    };
-    res.json({
-      success: true,
-      message: "update needed",
-      data,
-    });
+
+  const runningCommands = await sql.getRemoteCommandsByClientIdAndStatus(clientId, ["running"]);
+  for (const runningCommand of runningCommands) {
+    await sql.setRemoteCommandStatus(clientId, runningCommand.commandId, "failed", "discarded by client");
+  }
+
+  const queuedCommands = await sql.getRemoteCommandsByClientIdAndStatus(clientId, ["queued"]);
+  if (queuedCommands.length > 0) {
+    const command = queuedCommands[0];
+    await sql.setRemoteCommandStatus(clientId, command.commandId, "running");
+    res.json({ success: true, message: "", data: command });
+    return;
   } else {
     res.json({ success: true, message: "no update", update: null });
   }
@@ -129,6 +113,38 @@ app.post("/api/remote-control/rejectUpdate", async (req, res) => {
     return;
   }
   res.json({ success: true, message: "" });
+  await sql.setActiveByRemoteClientId(clientId);
+});
+
+/** /api/remote-control/resolveUpdate */
+export interface RemoteControlResolveUpdateReqBody {
+  clientId: string;
+  commandId: number;
+}
+app.post("/api/remote-control/resolveUpdate", async (req, res) => {
+  const { clientId, commandId }: RemoteControlResolveUpdateReqBody = req.body;
+  logger.info("resolveUpdate received from", clientId, "for command", commandId);
+  if (typeof clientId !== "string" || typeof commandId !== "number") {
+    res.json({ success: false, message: "Malformed request" });
+    return;
+  }
+  const client = await sql.getRemoteClientById(clientId);
+  if (client === null) {
+    res.json({ success: false, message: "Client not registered" });
+    return;
+  }
+  const success = await sql.setRemoteCommandStatus(clientId, commandId, "finished");
+  if (!success) {
+    res.json({ success: false, message: "Failed to set command status" });
+    return;
+  }
+  res.json({ success: true, message: "" });
+  const command = await sql.getRemoteCommandByIds(clientId, commandId);
+  if (!command) {
+    logger.error("WTF command not found after setting status to finished?");
+  } else {
+    logger.info("command", commandId, "resolved in", command.reportedAt!.getTime() - command.createdAt.getTime(), "ms");
+  }
   await sql.setActiveByRemoteClientId(clientId);
 });
 
@@ -190,24 +206,22 @@ app.post("/api/remote-control/registerClient", async (req, res) => {
 });
 
 /** /api/remote-control/updatePassword */
-export interface RemoteControlUpdatePasswordReqBody {
+export interface RemoteControlSyncPasswordReqBody {
   clientId: string;
-  commandId: number;
   password: string;
 }
-app.post("/api/remote-control/updatePassword", async (req, res) => {
+app.post("/api/remote-control/syncPassword", async (req, res) => {
   const ip = req.headers["x-real-ip"] ?? "";
   if (!ip || typeof ip !== "string" || ip.includes(", ")) {
     res.json({ success: false, message: "Cannot determine IP" });
     return;
   }
-  const { clientId, commandId, password }: RemoteControlUpdatePasswordReqBody = req.body;
-  logger.info("updatePassword request from", clientId, commandId, password);
+  const { clientId, password }: RemoteControlSyncPasswordReqBody = req.body;
+  logger.info("updatePassword request from", clientId, password);
   const client = await sql.getRemoteClientById(clientId);
   if (typeof password !== "string" || !/^[a-zA-Z0-9]+$/.test(password) || password.length < 6) {
     res.json({ success: false, message: "Password format mismatch" });
     logger.error(`Client ${clientId} tried to update password with invalid password ${password}`);
-    await sql.setRemoteCommandStatus(clientId, commandId, "failed", "client reported invalid password");
     return;
   }
   if (client === null) {
@@ -219,29 +233,13 @@ app.post("/api/remote-control/updatePassword", async (req, res) => {
     logger.error(`Client ${clientId} tried to update password with invalid IP ${ip} (expecting ${client.ip})`);
     return;
   }
-  if (typeof commandId === "number") {
-    const command = await sql.getRemoteCommandById(clientId, commandId);
-    if (command === null) {
-      logger.error(`Client ${clientId} tried to update password with invalid command ${commandId}, rejected`);
-      res.json({ success: false, message: "Invalid commandId" });
-      return;
-    } else if (command.status !== "running") {
-      logger.error(`Client ${clientId} tried to reuse obsolete command ${commandId} (is: ${command.status}), rejected`);
-      res.json({ success: false, message: "Obsolete commandId" });
-      return;
-    } else {
-      logger.info(`Client ${clientId} has updated password to ${password}`);
-      await sql.setRemoteClientPasswordById(clientId, password);
-      res.json({ success: true, message: "Password changed" });
-      await Promise.all([
-        sql.setRemoteCommandStatus(clientId, commandId, "finished", "password updated successfully"),
-        sql.setActiveByRemoteClientId(clientId),
-      ]);
-      return;
-    }
-  } else {
-    res.json({ success: false, message: "Invalid commandId" });
-  }
+
+  await sql.setRemoteClientPasswordById(clientId, password);
+  logger.info(`Client ${clientId} updated its password to ${password}`);
+
+  res.json({ success: true, message: "Password changed" });
+
+  await sql.setActiveByRemoteClientId(clientId);
 });
 
 async function autoPruneDeadRemoteClient() {
@@ -249,18 +247,54 @@ async function autoPruneDeadRemoteClient() {
   for (const client of clients) {
     if (client.isDead) {
       logger.warn(`Client ${client.clientId} is probably dead. Removing it automatically...`);
+      const commands = await sql.getRemoteCommandsByClientIdAndStatus(client.clientId, ["queued", "running"]);
+      for (const cmd of commands) {
+        await sql.setRemoteCommandStatus(client.clientId, cmd.commandId, "failed", "client is dead");
+      }
       await sql.removeRemoteClientById(client.clientId);
-      const runningCommands = await sql.getRemoteCommandsByClientIdAndStatus(client.clientId, "running");
-      for (const cmd of runningCommands) {
-        sql.setRemoteCommandStatus(client.clientId, cmd.commandId, "failed", "client is dead");
+    }
+  }
+}
+
+async function autoUpdatePassword() {
+  const clients = await sql.getAllRemoteClients();
+  for (const client of clients) {
+    const commands = await sql.getRemoteCommandsByClientIdAndStatus(client.clientId, ["queued", "running"]);
+    let hasPendingUpdatePasswordCommand = false;
+    for (const cmd of commands) {
+      if (cmd.command === "updatePassword") {
+        hasPendingUpdatePasswordCommand = true;
+        break;
+      }
+    }
+    if (hasPendingUpdatePasswordCommand) {
+      logger.info(`autoUpdatePassword: Client ${client.clientId} already has pending updatePassword command, skipping`);
+      continue;
+    }
+    const shouldUpdatePassword = client.passwordExpireAt.getTime() < Date.now();
+    if (shouldUpdatePassword) {
+      logger.info("Scheduling a password update for client", client.clientId);
+      const command = await sql.createRemoteCommand(
+        client.clientId,
+        {
+          command: "changePassword",
+          explanation: `regenerate password of client ${client.clientId}`,
+        },
+        []
+      );
+      if (command === null) {
+        logger.warn(`autoUpdatePassword: Failed to create changePassword command for client ${client.clientId}`);
       }
     }
   }
 }
+
 if (process.env["AUTO_PRUNE_DEAD_RCLIENT"] === "yes") {
   autoPruneDeadRemoteClient();
   setInterval(autoPruneDeadRemoteClient, 1000 * 60 * 3);
 }
+
+setInterval(autoUpdatePassword, 1000 * 60 * 10);
 
 module.exports = {
   app,

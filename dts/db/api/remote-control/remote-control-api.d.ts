@@ -1,17 +1,17 @@
 /** @format */
-import type { RemoteClientModel, RemoteCommandModel, AccessLinkModel } from "db/models/all-models";
+import type { RemoteClientModel, AccessLinkModel, REMOTE_CMD_STATE } from "db/models/all-models";
 import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
 declare function generateRandomClientId(): string;
 export interface RemoteControlDirective {
     command: string;
-    displayText: string;
+    explanation: string;
 }
-declare function createRemoteCommand(clientId: string, directive: RemoteControlDirective, args: string[]): Promise<RemoteCommandModel | null>;
-declare function getRemoteCommands(): Promise<RemoteCommandModel[]>;
-declare function getRemoteCommandsByClientId(clientId: string): Promise<RemoteCommandModel[]>;
-declare function getRemoteCommandsByClientIdAndStatus(clientId: string, status: "running" | "finished" | "failed"): Promise<RemoteCommandModel[]>;
-declare function getRemoteCommandById(clientId: string, commandId: number): Promise<RemoteCommandModel | null>;
-declare function setRemoteCommandStatus(clientId: string, commandId: number, status: "running" | "finished" | "failed", reportedResult?: string | null): Promise<boolean>;
+declare function createRemoteCommand(clientId: string, directive: RemoteControlDirective, args?: string[], status?: REMOTE_CMD_STATE): Promise<import("db/models/all-models").RemoteCommandModel | null>;
+declare function getAllRemoteCommands(): Promise<import("db/models/all-models").RemoteCommandModel[]>;
+declare function getRemoteCommandsByClientId(clientId: string): Promise<import("db/models/all-models").RemoteCommandModel[]>;
+declare function getRemoteCommandsByClientIdAndStatus(clientId: string, statusList: REMOTE_CMD_STATE[]): Promise<import("db/models/all-models").RemoteCommandModel[]>;
+declare function getRemoteCommandByIds(clientId: string, commandId: number): Promise<import("db/models/all-models").RemoteCommandModel | null>;
+declare function setRemoteCommandStatus(clientId: string, commandId: number, status: REMOTE_CMD_STATE, reportedResult?: string | null): Promise<boolean>;
 declare function invalidateRemoteCommandByCommandType(clientId: string, commandType: RemoteControlDirective["command"]): Promise<void>;
 /**
  * @param {string} clientId
@@ -28,15 +28,15 @@ declare function getAllRemoteClientsWithLinks(): Promise<TRemoteClientWithLink[]
 declare function getRemoteClientById(clientId: string): Promise<RemoteClientModel | null>;
 declare function getRemoteClientByIdAttrsOnly<T extends TExtractAttrsFromModel<RemoteClientModel>>(clientId: string, attributes: Readonly<T[]>): Promise<TPartialModel<RemoteClientModel, T> | null>;
 declare function removeRemoteClientById(clientId: string): Promise<void>;
-declare function setRemoteClientPasswordById(clientId: string, password: string): Promise<RemoteClientModel | null>;
+declare function setRemoteClientPasswordById(clientId: string, password: string, validDuration?: number): Promise<RemoteClientModel | null>;
 declare function invalidatePasswordById(clientId: string): Promise<RemoteClientModel | null>;
 declare function setActiveByRemoteClientId(clientId: string): Promise<void>;
 declare function isRemoteClientActive(clientId: string): Promise<boolean>;
 declare const _default: {
     generateRandomClientId: typeof generateRandomClientId;
     createRemoteCommand: typeof createRemoteCommand;
-    getRemoteCommands: typeof getRemoteCommands;
-    getRemoteCommandById: typeof getRemoteCommandById;
+    getAllRemoteCommands: typeof getAllRemoteCommands;
+    getRemoteCommandByIds: typeof getRemoteCommandByIds;
     getRemoteCommandsByClientId: typeof getRemoteCommandsByClientId;
     getRemoteCommandsByClientIdAndStatus: typeof getRemoteCommandsByClientIdAndStatus;
     setRemoteCommandStatus: typeof setRemoteCommandStatus;

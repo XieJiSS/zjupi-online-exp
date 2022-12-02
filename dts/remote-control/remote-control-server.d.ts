@@ -17,6 +17,11 @@ export interface RemoteControlRejectUpdateReqBody {
     commandId: number;
     reportedResult: string;
 }
+/** /api/remote-control/resolveUpdate */
+export interface RemoteControlResolveUpdateReqBody {
+    clientId: string;
+    commandId: number;
+}
 /** /api/remote-control/getAvailableClientId */
 export interface RemoteControlGetAvailableClientIdRespData {
     clientId: string;
@@ -27,8 +32,7 @@ export interface RemoteControlRegisterClientReqBody {
     password: string;
 }
 /** /api/remote-control/updatePassword */
-export interface RemoteControlUpdatePasswordReqBody {
+export interface RemoteControlSyncPasswordReqBody {
     clientId: string;
-    commandId: number;
     password: string;
 }

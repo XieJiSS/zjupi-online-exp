@@ -4,8 +4,10 @@ import assert from "assert";
 import { hasAuthed } from "db/connect";
 assert(hasAuthed());
 
+import { Op } from "sequelize";
+
 import { RemoteClient, RemoteCommand, AccessLink } from "db/models/all-models";
-import type { RemoteClientModel, RemoteCommandModel, AccessLinkModel } from "db/models/all-models";
+import type { RemoteClientModel, AccessLinkModel, REMOTE_CMD_STATE } from "db/models/all-models";
 import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
 
 const logger = require("util/logger")("remote-control-api");
@@ -27,24 +29,32 @@ function generateRandomClientId() {
 
 export interface RemoteControlDirective {
   command: string;
-  displayText: string;
+  explanation: string;
 }
 
-async function createRemoteCommand(clientId: string, directive: RemoteControlDirective, args: string[]) {
+async function createRemoteCommand(
+  clientId: string,
+  directive: RemoteControlDirective,
+  args?: string[],
+  status: REMOTE_CMD_STATE = "queued"
+) {
+  if (!args) {
+    args = [];
+  }
   if ((await getRemoteClientById(clientId)) === null) {
     logger.warn(`createRemoteCommand: client not found, clientId: ${clientId}`);
     return null;
   }
   return await RemoteCommand.create({
     command: directive.command,
-    displayText: directive.displayText,
+    explanation: directive.explanation,
     args: JSON.stringify(args),
     clientId,
-    status: "running",
+    status,
   });
 }
 
-async function getRemoteCommands() {
+async function getAllRemoteCommands() {
   return await RemoteCommand.findAll();
 }
 
@@ -52,24 +62,61 @@ async function getRemoteCommandsByClientId(clientId: string) {
   return await RemoteCommand.findAll({ where: { clientId } });
 }
 
-async function getRemoteCommandsByClientIdAndStatus(clientId: string, status: "running" | "finished" | "failed") {
-  return await RemoteCommand.findAll({ where: { clientId, status } });
+async function getRemoteCommandsByClientIdAndStatus(clientId: string, statusList: REMOTE_CMD_STATE[]) {
+  return await RemoteCommand.findAll({
+    where: {
+      clientId,
+      status: {
+        [Op.or]: statusList,
+      },
+    },
+  });
 }
 
-async function getRemoteCommandById(clientId: string, commandId: number) {
+async function getRemoteCommandByIds(clientId: string, commandId: number) {
   return await RemoteCommand.findOne({ where: { clientId, commandId } });
 }
 
 async function setRemoteCommandStatus(
   clientId: string,
   commandId: number,
-  status: "running" | "finished" | "failed",
+  status: REMOTE_CMD_STATE,
   reportedResult?: string | null
 ) {
   if (typeof reportedResult === "undefined") {
     reportedResult = null;
   }
-  const results = await RemoteCommand.update({ status, reportedResult }, { where: { clientId, commandId } });
+  let results: [number];
+  switch (status) {
+    case "queued":
+      logger.error(
+        `setRemoteCommandStatus: should not set status to queued, clientId: ${clientId}, commandId: ${commandId}`
+      );
+      return false;
+    case "running":
+      results = await RemoteCommand.update(
+        {
+          status,
+          executingAt: new Date(),
+        },
+        { where: { clientId, commandId } }
+      );
+      break;
+    case "finished":
+    case "failed": // [fallthrough]
+      results = await RemoteCommand.update(
+        {
+          status,
+          reportedResult,
+          reportedAt: new Date(),
+        },
+        { where: { clientId, commandId } }
+      );
+      break;
+    default:
+      logger.error(`setRemoteCommandStatus: unknown status: ${status}`);
+      return false;
+  }
   if (results[0] === 0) {
     logger.error("no command found. client:", clientId, "command:", commandId, `(${status}, ${reportedResult})`);
     return false;
@@ -152,10 +199,14 @@ async function removeRemoteClientById(clientId: string) {
   if (client.online === true) {
     logger.warn(`removing a client that is still online, clientId: ${clientId}`);
   }
+  const commands = await getRemoteCommandsByClientId(clientId);
+  for (const command of commands) {
+    await command.update({ status: "failed", reportedResult: "client is offline for too long" });
+  }
   await client.destroy();
 }
 
-async function setRemoteClientPasswordById(clientId: string, password: string) {
+async function setRemoteClientPasswordById(clientId: string, password: string, validDuration = CLASS_DURATION) {
   const client = await getRemoteClientById(clientId);
   if (client === null) {
     logger.warn(`setRemoteClientPasswordById: cannot update because client doesn't exist, clientId: ${clientId}`);
@@ -164,8 +215,7 @@ async function setRemoteClientPasswordById(clientId: string, password: string) {
   await RemoteClient.update(
     {
       password,
-      passwordExpireAt: new Date(Date.now() + CLASS_DURATION),
-      nextPassword: null,
+      passwordExpireAt: new Date(Date.now() + validDuration),
     },
     { where: { clientId } }
   );
@@ -192,8 +242,8 @@ async function isRemoteClientActive(clientId: string): Promise<boolean> {
 export default {
   generateRandomClientId,
   createRemoteCommand,
-  getRemoteCommands,
-  getRemoteCommandById,
+  getAllRemoteCommands,
+  getRemoteCommandByIds,
   getRemoteCommandsByClientId,
   getRemoteCommandsByClientIdAndStatus,
   setRemoteCommandStatus,

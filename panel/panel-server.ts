@@ -616,7 +616,7 @@ app.get("/api/panel/admin/rclient/:id", async (req, res) => {
     return;
   }
   const { id } = req.params;
-  logger.info("getRemoteClient request received from client for client", id);
+  logger.info("getRemoteClient request received from admin for client", id);
   const rclient = await sql.getRemoteClientById(id);
   if (!rclient) {
     res.json({ success: false, message: "No such client" });
@@ -638,6 +638,7 @@ app.get("/api/panel/admin/rclients", async (req, res) => {
     res.json({ success: false, message: "Authentication required" });
     return;
   }
+  logger.info("getRemoteClients request received from admin");
   const rclients = await sql.getAllRemoteClients();
 
   const data: PanelAdminRClientRespData[] = await Promise.all(
@@ -658,6 +659,46 @@ app.get("/api/panel/admin/rclients", async (req, res) => {
     message: "",
     data,
   });
+});
+
+/** /api/panel/admin/rclient/:id req interface */
+export interface PanelAdminRClientRestartReqBody {
+  t: number;
+}
+app.post("/api/panel/admin/rclient/:id/restart", async (req, res) => {
+  if (!req.session.username) {
+    res.json({ success: false, message: "Authentication required" });
+    return;
+  }
+
+  const { t }: PanelAdminRClientRestartReqBody = req.body;
+  if (typeof t !== "number" || !Number.isSafeInteger(t) || Date.now() - t > 1000 * 60 * 5) {
+    res.json({ success: false, message: "Invalid request" });
+    return;
+  }
+
+  const { id } = req.params;
+  logger.info("restartPC request received from admin for client", id);
+
+  const rclient = await sql.getRemoteClientById(id);
+  if (!rclient) {
+    res.json({ success: false, message: "No such client" });
+    return;
+  }
+
+  const commands = await sql.getRemoteCommandsByClientIdAndStatus(id, ["queued", "running"]);
+  if (commands.length > 0) {
+    res.json({ success: true, message: "Restart already scheduled, please wait" });
+    return;
+  }
+
+  const command = await sql.createRemoteCommand(id, { command: "restartPC", explanation: "Restart PC" });
+  if (!command) {
+    res.json({ success: false, message: "Failed to create command" });
+    return;
+  }
+
+  res.json({ success: true, message: "" });
 });
 
 /** /api/panel/admin/camera{s,/:id} */

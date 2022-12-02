@@ -55,6 +55,10 @@ export interface PanelAdminRClientRespData {
     student: StudentModel | null;
     camera: CameraModel | null;
 }
+/** /api/panel/admin/rclient/:id req interface */
+export interface PanelAdminRClientRestartReqBody {
+    t: number;
+}
 /** /api/panel/admin/camera{s,/:id} */
 export type PanelAdminCameraRespData = CameraModel;
 /** /api/panel/admin/camera/assignToLink{One,Multi} request interface */

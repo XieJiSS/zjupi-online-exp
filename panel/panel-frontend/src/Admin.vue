@@ -162,15 +162,19 @@ function toggleTab(newTab: AdminTab) {
     switch (newTab) {
       case "rclients":
         targetDataLength = rclients.value.length;
+        loadAllRClients();
         break;
       case "students":
         targetDataLength = students.value.length;
+        loadAllStudents();
         break;
       case "logs":
         targetDataLength = logs.value.length;
+        loadAllLogs();
         break;
       case "cameras":
         targetDataLength = cameras.value.length;
+        loadAllCameras();
         break;
     }
     if (storedSelectedStatus.length < targetDataLength) {

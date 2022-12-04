@@ -31,8 +31,7 @@ const Camera: CameraModelCtor = sequelize.define(
     online: {
       type: Sequelize.VIRTUAL,
       get() {
-        const that = this;
-        return Date.now() - (that.lastActive?.getTime() ?? 0) < 1000 * 60 * 3;
+        return Date.now() - (this.getDataValue("lastActive")?.getTime() ?? 0) < 1000 * 60 * 3;
       },
       set(_) {
         logger.error("Do not try to set the online attribute of the RemoteClient Model!");

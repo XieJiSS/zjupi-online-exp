@@ -49,9 +49,8 @@ const AccessLink: AccessLinkModelCtor = sequelize.define(
     isValid: {
       type: Sequelize.VIRTUAL,
       get() {
-        const that = /** @type {TModel} */ this;
-        const validUntil = that.getDataValue("validUntil");
-        const validAfter = that.getDataValue("validAfter");
+        const validUntil = this.getDataValue("validUntil");
+        const validAfter = this.getDataValue("validAfter");
         if (!validUntil || !validAfter) {
           // https://github.com/sequelize/sequelize/issues/13284
           // in getters, properties might not yet exist, so we have to check

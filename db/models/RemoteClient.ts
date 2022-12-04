@@ -39,8 +39,7 @@ const RemoteClient: RemoteClientModelCtor = sequelize.define(
     online: {
       type: Sequelize.VIRTUAL,
       get() {
-        const that = this;
-        return Date.now() - (that.lastActive.getTime() ?? 0) < 1000 * 45;
+        return Date.now() - (this.getDataValue("lastActive")?.getTime() ?? 0) < 1000 * 45;
       },
       set(_) {
         logger.error("Do not try to set the online attribute of the RemoteClient Model!");
@@ -50,8 +49,7 @@ const RemoteClient: RemoteClientModelCtor = sequelize.define(
     isDead: {
       type: Sequelize.VIRTUAL,
       get() {
-        const that = this;
-        return that.online ? false : Date.now() - (that.lastActive.getTime() ?? 0) >= 1000 * 60 * 30;
+        return this.online ? false : Date.now() - (this.getDataValue("lastActive")?.getTime() ?? 0) >= 1000 * 60 * 30;
       },
       set(_) {
         logger.error("Do not try to set the isDead attribute of the RemoteClient Model!");

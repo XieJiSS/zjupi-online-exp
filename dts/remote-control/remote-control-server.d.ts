@@ -1,4 +1,5 @@
 /** @format */
+export declare const app: import("express-serve-static-core").Express;
 /** /api/remote-control/clients */
 export interface RemoteControlClientRespData {
     clientId: string;
@@ -36,3 +37,4 @@ export interface RemoteControlSyncPasswordReqBody {
     clientId: string;
     password: string;
 }
+export { port, name, subdomain } from "./config";

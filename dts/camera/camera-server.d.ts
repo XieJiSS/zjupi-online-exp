@@ -1,4 +1,5 @@
 /** @format */
+export declare const app: import("express-serve-static-core").Express;
 /** /api/camera/register */
 export interface CameraRegisterReqBody {
     cameraId: string;
@@ -14,10 +15,4 @@ export interface CameraReportErrorReqBody {
     detail: string;
     timestamp: number;
 }
-declare const _default: {
-    app: import("express-serve-static-core").Express;
-    port: number;
-    name: string;
-    subdomain: string;
-};
-export default _default;
+export { port, name, subdomain } from "./config";

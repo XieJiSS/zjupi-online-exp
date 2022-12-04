@@ -10,9 +10,12 @@ import getLogger from "./util/logger";
 const logger = getLogger("app-entrance");
 
 import { getServers } from "./servers/all-servers";
+import { startHbbServer } from "./remote-control/utils";
 
 async function main() {
   await require("./db/init")();
+
+  startHbbServer();
 
   const servers = await getServers();
   for (const server of servers) {

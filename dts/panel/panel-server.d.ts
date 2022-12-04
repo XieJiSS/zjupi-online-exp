@@ -1,6 +1,7 @@
 /** @format */
 import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBLogModel } from "../db/models/all-models";
 import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
+export declare const app: import("express-serve-static-core").Express;
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
     remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
@@ -82,10 +83,4 @@ export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
 export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
 export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
 export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
-declare const _default: {
-    app: import("express-serve-static-core").Express;
-    port: number;
-    name: string;
-    subdomain: string;
-};
-export default _default;
+export { port, name, subdomain } from "./config";

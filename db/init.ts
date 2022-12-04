@@ -9,7 +9,8 @@ async function initDB() {
   await _promise;
   assert(hasAuthed(), "Failed to connect to database.");
 
-  await require("./sync")();
+  const { syncDB } = await import("./sync");
+  await syncDB();
 }
 
 module.exports = initDB;

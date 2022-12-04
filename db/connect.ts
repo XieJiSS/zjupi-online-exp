@@ -36,6 +36,7 @@ export const _promise: Promise<Sequelize> = new Promise(async (resolve, reject) 
       acquire: 30000,
       idle: 10000,
     },
+    benchmark: true,
     logging: (sql, timing) => seqLogger.debug.bind(seqLogger)(sql, "executed in", timing, "ms"),
   });
   try {

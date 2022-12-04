@@ -13,7 +13,7 @@ import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel 
 import type { AccessLinkValidTimeOptions } from "../db/api/panel/access-link-api";
 
 import path from "path";
-import * as assert from "assert";
+import assert from "assert";
 import { promisify } from "util";
 
 import { hasAuthed } from "../db/connect";

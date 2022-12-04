@@ -1,6 +1,6 @@
 /** @format */
 
-import * as assert from "assert";
+import assert from "assert";
 import { getGlobalSequelizeInstance, hasAuthed } from "./connect";
 assert(hasAuthed());
 

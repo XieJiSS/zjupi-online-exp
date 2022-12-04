@@ -4,7 +4,7 @@
 
 import { port, name as serverName, subdomain } from "./config";
 
-import * as assert from "assert";
+import assert from "assert";
 import { hasAuthed } from "../db/connect";
 assert(hasAuthed);
 

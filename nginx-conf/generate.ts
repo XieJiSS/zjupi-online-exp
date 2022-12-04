@@ -3,7 +3,7 @@
 import { config } from "dotenv";
 config({ path: __dirname + "/../.env" });
 
-import * as assert from "assert";
+import assert from "assert";
 assert(process.env["DOMAIN"] && process.env["DOMAIN"].length > 0, "config DOMAIN is required.");
 
 import path from "path";

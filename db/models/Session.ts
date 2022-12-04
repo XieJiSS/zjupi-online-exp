@@ -3,7 +3,7 @@
  * @file This model will be used by express-session
  */
 
-import * as assert from "assert";
+import assert from "assert";
 import { getGlobalSequelizeInstance, hasAuthed } from "../connect";
 assert(hasAuthed);
 

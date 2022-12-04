@@ -1,6 +1,6 @@
 /** @format */
 
-import * as assert from "assert";
+import assert from "assert";
 import { hasAuthed } from "./connect";
 assert(hasAuthed());
 

@@ -1,20 +1,20 @@
 /** @format */
 
 import * as assert from "assert";
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../../connect";
 assert(hasAuthed());
 
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "../../../types/type-helper";
 
-import getLogger from "util/logger";
-import { getPersistentLoggerUtil } from "db/api/db-log-api";
+import getLogger from "../../../util/logger";
+import { getPersistentLoggerUtil } from "../db-log-api";
 const logger = getLogger("access-link-api");
 logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
 import { Op } from "sequelize";
-import { AccessLink, RemoteClient, Student } from "db/models/all-models";
-import type { AccessLinkModel } from "db/models/all-models";
+import { AccessLink, RemoteClient, Student } from "../../models/all-models";
+import type { AccessLinkModel } from "../../models/all-models";
 
 function generateLinkPath() {
   const charset = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789";

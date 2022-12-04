@@ -1,17 +1,19 @@
 /** @format */
 
 import * as assert from "assert";
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../../connect";
 assert(hasAuthed());
 
 import { Op } from "sequelize";
 
-import { RemoteClient, RemoteCommand, AccessLink } from "db/models/all-models";
-import type { RemoteClientModel, AccessLinkModel, REMOTE_CMD_STATE } from "db/models/all-models";
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
+import { RemoteClient, RemoteCommand, AccessLink } from "../../models/all-models";
+import type { RemoteClientModel, AccessLinkModel, REMOTE_CMD_STATE } from "../../models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "../../../types/type-helper";
 
-const logger = require("util/logger")("remote-control-api");
-import { getPersistentLoggerUtil } from "db/api/db-log-api";
+import getLogger from "../../../util/logger";
+const logger = getLogger("remote-control-api");
+
+import { getPersistentLoggerUtil } from "../db-log-api";
 logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 

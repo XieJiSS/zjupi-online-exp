@@ -2,7 +2,7 @@
 
 import os from "os";
 import { Sequelize } from "sequelize";
-import getLogger from "util/logger";
+import getLogger from "../util/logger";
 const dbConnectLogger = getLogger("db-connect");
 
 const poolSize = Math.max(os.cpus().length - 1, 1);

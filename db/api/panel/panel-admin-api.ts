@@ -1,20 +1,20 @@
 /** @format */
 
 import * as assert from "assert";
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../../connect";
 assert(hasAuthed());
 
 import crypto from "crypto";
 import { promisify } from "util";
 const pbkdf2 = promisify(crypto.pbkdf2);
 
-import getLogger from "util/logger";
-import { getPersistentLoggerUtil } from "db/api/db-log-api";
+import getLogger from "../../../util/logger";
+import { getPersistentLoggerUtil } from "../db-log-api";
 const logger = getLogger("panel-admin-api");
 logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
-import { Admin } from "db/models/all-models";
+import { Admin } from "../../models/all-models";
 
 async function _getPBKDF2Hash(password: string, salt: string) {
   const iterations = 10000;

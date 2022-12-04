@@ -2,14 +2,14 @@
 
 import * as assert from "assert";
 
-import { getGlobalSequelizeInstance, hasAuthed } from "db/connect";
+import { getGlobalSequelizeInstance, hasAuthed } from "../connect";
 assert(hasAuthed);
 
 import Sequelize from "sequelize";
 const sequelize = getGlobalSequelizeInstance();
 assert(sequelize !== null);
 
-import getLogger from "util/logger";
+import getLogger from "../../util/logger";
 const logger = getLogger("access-link-model");
 
 const AccessLink: AccessLinkModelCtor = sequelize.define(

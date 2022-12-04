@@ -1,11 +1,11 @@
 /** @format */
 
 import * as assert from "assert";
-const { hasAuthed } = require("./connect");
+import { hasAuthed } from "./connect";
 assert(hasAuthed());
 
 import type { Model } from "sequelize/types";
-import { topoSortedModels } from "db/models/all-models";
+import { topoSortedModels } from "./models/all-models";
 
 export async function syncDB() {
   for (const sameLevelModels of topoSortedModels) {

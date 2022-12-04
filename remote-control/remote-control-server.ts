@@ -5,21 +5,21 @@
 import { port, name as serverName, subdomain } from "./config";
 
 import * as assert from "assert";
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../db/connect";
 assert(hasAuthed);
 
 import express from "express";
 const app = express();
 
-import getLogger from "util/logger";
-import { getPersistentLoggerUtil } from "db/api/db-log-api";
+import getLogger from "../util/logger";
+import { getPersistentLoggerUtil } from "../db/api/db-log-api";
 const logger = getLogger(serverName);
 logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
-import sql from "db/api/remote-control/remote-control-api";
+import sql from "../db/api/remote-control/remote-control-api";
 
-import logRequest from "util/logRequest";
+import logRequest from "../util/logRequest";
 app.use(logRequest(serverName, logger));
 
 app.use(function verify(req, res, next) {

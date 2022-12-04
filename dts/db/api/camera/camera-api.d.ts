@@ -1,7 +1,7 @@
 /** @format */
-import type { CameraModel } from "db/models/all-models";
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr, TMarkPartialAttrs } from "types/type-helper";
-import type { CameraReportErrorReqBody } from "camera/camera-server";
+import type { CameraModel } from "../../models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr, TMarkPartialAttrs } from "../../../types/type-helper";
+import type { CameraReportErrorReqBody } from "../../../camera/camera-server";
 declare function getCameraById(cameraId: string): Promise<CameraModel | null>;
 declare function getCameraByIdAttrsOnly<T extends TExtractAttrsFromModel<CameraModel>>(cameraId: string, attributes: Readonly<T[]>): Promise<TPartialModel<CameraModel, T> | null>;
 declare function createCamera(cameraId: string, ip: string): Promise<CameraModel | null>;

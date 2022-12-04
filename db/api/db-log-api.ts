@@ -2,14 +2,14 @@
 
 import * as assert from "assert";
 
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../connect";
 assert(hasAuthed());
 
 import { inspect } from "util";
-import { DBLog } from "db/models/all-models";
-import type { DBLogModel } from "db/models/all-models";
+import { DBLog } from "../models/all-models";
+import type { DBLogModel } from "../models/all-models";
 
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "../../types/type-helper";
 
 export async function createDBLog(level: "info" | "warn" | "error", text: string, sourceFile: string) {
   return await DBLog.create({

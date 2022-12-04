@@ -1,16 +1,21 @@
 /** @format */
 
 import * as assert from "assert";
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../../connect";
 assert(hasAuthed());
 
-import { Camera, AccessLink } from "db/models/all-models";
-import type { CameraModel } from "db/models/all-models";
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr, TMarkPartialAttrs } from "types/type-helper";
-import type { CameraReportErrorReqBody } from "camera/camera-server";
+import { Camera, AccessLink } from "../../models/all-models";
+import type { CameraModel } from "../../models/all-models";
+import type {
+  TExtractAttrsFromModel,
+  TPartialModel,
+  TPartialModelArr,
+  TMarkPartialAttrs,
+} from "../../../types/type-helper";
+import type { CameraReportErrorReqBody } from "../../../camera/camera-server";
 
-import getLogger from "util/logger";
-import { createDBLog, getPersistentLoggerUtil } from "db/api/db-log-api";
+import getLogger from "../../../util/logger";
+import { createDBLog, getPersistentLoggerUtil } from "../db-log-api";
 const logger = getLogger("camera-api");
 logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));

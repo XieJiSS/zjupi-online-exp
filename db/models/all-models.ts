@@ -9,7 +9,7 @@ import Student from "./Student";
 import AccessLink from "./AccessLink";
 import DBLog from "./DBLog";
 
-import _ from "db/constraints";
+import _ from "../constraints";
 
 // we are not exporting Session here because it shouldn't be manipulated by hand
 export { default as RemoteClient } from "./RemoteClient";

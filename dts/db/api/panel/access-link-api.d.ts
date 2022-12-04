@@ -1,6 +1,6 @@
 /** @format */
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
-import type { AccessLinkModel } from "db/models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "../../../types/type-helper";
+import type { AccessLinkModel } from "../../models/all-models";
 export interface AccessLinkValidTimeOptions {
     validAfter?: Date;
     validUntil?: Date;

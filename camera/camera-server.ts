@@ -3,21 +3,21 @@
 "use strict";
 
 import * as assert from "assert";
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../db/connect";
 assert(hasAuthed);
 
 import { port, name as serverName, subdomain } from "./config";
 import express from "express";
 const app = express();
 
-import getLogger from "util/logger";
+import getLogger from "../util/logger";
 const logger = getLogger(serverName);
-import { getPersistentLoggerUtil } from "db/api/db-log-api";
+import { getPersistentLoggerUtil } from "../db/api/db-log-api";
 logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
-import sql from "db/api/camera/camera-api";
-import logRequest from "util/logRequest";
+import sql from "../db/api/camera/camera-api";
+import logRequest from "../util/logRequest";
 
 app.use(logRequest(serverName, logger));
 

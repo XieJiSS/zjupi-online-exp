@@ -1,16 +1,16 @@
 /** @format */
-import type { RemoteClientModel, AccessLinkModel, REMOTE_CMD_STATE } from "db/models/all-models";
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
+import type { RemoteClientModel, AccessLinkModel, REMOTE_CMD_STATE } from "../../models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "../../../types/type-helper";
 declare function generateRandomClientId(): string;
 export interface RemoteControlDirective {
     command: string;
     explanation: string;
 }
-declare function createRemoteCommand(clientId: string, directive: RemoteControlDirective, args?: string[], status?: REMOTE_CMD_STATE): Promise<import("db/models/all-models").RemoteCommandModel | null>;
-declare function getAllRemoteCommands(): Promise<import("db/models/all-models").RemoteCommandModel[]>;
-declare function getRemoteCommandsByClientId(clientId: string): Promise<import("db/models/all-models").RemoteCommandModel[]>;
-declare function getRemoteCommandsByClientIdAndStatus(clientId: string, statusList: REMOTE_CMD_STATE[]): Promise<import("db/models/all-models").RemoteCommandModel[]>;
-declare function getRemoteCommandByIds(clientId: string, commandId: number): Promise<import("db/models/all-models").RemoteCommandModel | null>;
+declare function createRemoteCommand(clientId: string, directive: RemoteControlDirective, args?: string[], status?: REMOTE_CMD_STATE): Promise<import("../../models/RemoteCommand").RemoteCommandModel | null>;
+declare function getAllRemoteCommands(): Promise<import("../../models/RemoteCommand").RemoteCommandModel[]>;
+declare function getRemoteCommandsByClientId(clientId: string): Promise<import("../../models/RemoteCommand").RemoteCommandModel[]>;
+declare function getRemoteCommandsByClientIdAndStatus(clientId: string, statusList: REMOTE_CMD_STATE[]): Promise<import("../../models/RemoteCommand").RemoteCommandModel[]>;
+declare function getRemoteCommandByIds(clientId: string, commandId: number): Promise<import("../../models/RemoteCommand").RemoteCommandModel | null>;
 declare function setRemoteCommandStatus(clientId: string, commandId: number, status: REMOTE_CMD_STATE, reportedResult?: string | null): Promise<boolean>;
 declare function invalidateRemoteCommandByCommandType(clientId: string, commandType: RemoteControlDirective["command"]): Promise<void>;
 /**

@@ -1,19 +1,19 @@
 /** @format */
 
 import * as assert from "assert";
-import { hasAuthed } from "db/connect";
+import { hasAuthed } from "../../connect";
 assert(hasAuthed());
 
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "../../../types/type-helper";
 
-import getLogger from "util/logger";
-import { getPersistentLoggerUtil } from "db/api/db-log-api";
+import getLogger from "../../../util/logger";
+import { getPersistentLoggerUtil } from "../db-log-api";
 const logger = getLogger("panel-student-api");
 logger.error = getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
-import { Student, RemoteClient, Camera } from "db/models/all-models";
-import { StudentModel } from "db/models/all-models";
+import { Student, RemoteClient, Camera } from "../../models/all-models";
+import { StudentModel } from "../../models/all-models";
 import accessLinkApi from "./access-link-api";
 
 async function getLinkByStudentId(studentId: number) {

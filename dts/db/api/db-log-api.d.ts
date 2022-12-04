@@ -1,6 +1,6 @@
 /** @format */
-import type { DBLogModel } from "db/models/all-models";
-import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "types/type-helper";
+import type { DBLogModel } from "../models/all-models";
+import type { TExtractAttrsFromModel, TPartialModel, TPartialModelArr } from "../../types/type-helper";
 export declare function createDBLog(level: "info" | "warn" | "error", text: string, sourceFile: string): Promise<DBLogModel>;
 declare function getAllLogs(): Promise<DBLogModel[]>;
 declare function getAllLogsAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel>>(attributes: Readonly<T[]>): Promise<TPartialModelArr<DBLogModel, T>>;

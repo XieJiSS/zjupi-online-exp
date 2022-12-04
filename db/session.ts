@@ -1,7 +1,7 @@
 /** @format */
 
 import * as assert from "assert";
-import { getGlobalSequelizeInstance, hasAuthed } from "db/connect";
+import { getGlobalSequelizeInstance, hasAuthed } from "./connect";
 assert(hasAuthed());
 
 import type { Store } from "express-session";

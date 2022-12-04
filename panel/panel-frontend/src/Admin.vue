@@ -148,6 +148,13 @@ async function loadAll(alert: boolean = false) {
     await $alert("刷新成功", "提示", "info");
   }
 }
+function clearSelected() {
+  selectedStatus.value = [];
+  const storedSelectedStatus = JSON.parse(localStorage.getItem(tab.value + "_selectedStatus") ?? "[]");
+  if (storedSelectedStatus.length > 0) {
+    localStorage.setItem(tab.value + "_selectedStatus", JSON.stringify([]));
+  }
+}
 function toggleTab(newTab: AdminTab) {
   const storedSelectedStatus = JSON.parse(localStorage.getItem(newTab + "_selectedStatus") ?? "[]");
   if (storedSelectedStatus.length > 0) {
@@ -703,6 +710,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab === 'rclients'">
           <div class="card-body-header">
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选择</a>
             <a href="javascript:void(0);" class="btn" v-on:click="searchClients">查找ID</a>
             <a href="javascript:void(0);" class="btn" v-on:click="showAllClients"
               v-if="displayRClients.length < rclients.length">显示全部</a>
@@ -742,6 +750,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'students'">
           <div class="card-body-header">
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选择</a>
             <a href="javascript:void(0);" class="btn" v-on:click="addStudent">添加学生</a>
             <a href="javascript:void(0);" class="btn" v-on:click="importStudentsFromCSV">从 CSV 导入</a>
             <a href="javascript:void(0);" class="btn" v-on:click="void 0">批量删除</a>
@@ -768,7 +777,8 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'logs'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">Logout</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选择</a>
+            <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
           </div>
           <div class="table-responsive">
             <table class="table table-hover">
@@ -791,7 +801,8 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'cameras'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">Logout</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选择</a>
+            <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
           </div>
           <div class="table-responsive">
             <table class="table table-hover">

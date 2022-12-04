@@ -1,3 +1,4 @@
+/** @format */
 /** /api/camera/register */
 export interface CameraRegisterReqBody {
     cameraId: string;

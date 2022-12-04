@@ -1,6 +1,6 @@
 /** @format */
 
-import assert from "assert";
+import * as assert from "assert";
 const { hasAuthed } = require("./connect");
 assert(hasAuthed());
 

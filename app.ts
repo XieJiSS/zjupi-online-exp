@@ -1,7 +1,9 @@
+/** @format */
+
 import { config } from "dotenv";
 config();
 
-import assert from "assert";
+import * as assert from "assert";
 assert(Number(process.versions.node.split(".")[0]) >= 15, "Node.js version >= 15.0.0 is required.");
 
 import getLogger from "util/logger";

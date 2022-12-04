@@ -1,6 +1,8 @@
+/** @format */
+
 // init == connect + sync
 
-import assert from "assert";
+import * as assert from "assert";
 import { _promise, hasAuthed } from "./connect";
 
 async function initDB() {

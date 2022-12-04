@@ -524,7 +524,10 @@ function getRClientDisplayValue(rclientObj: PanelAdminRClientRespData, key: stri
   ret = ret ?? "N/A";
   // is Date
   if (typeof ret === "string" && /^\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(ret)) {
-    ret = new Date(ret).toLocaleString();
+    const d = new Date(ret);
+    const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const time = `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
+    ret = `${date} ${time}`;
   } else if (ret === true) {
     ret = "是";
   } else if (ret === false) {
@@ -639,6 +642,7 @@ const rclientKeys = computed(() => {
   keys.push("link#validUntil");
   keys.push("student#name");
   keys.push("student#phone");
+  keys.push("camera#cameraId");
   return keys;
 });
 

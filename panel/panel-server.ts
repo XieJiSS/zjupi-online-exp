@@ -26,18 +26,18 @@ import session from "express-session";
 
 const app = express();
 
-import getLogger from "util/logger";
-import dbLogApi from "db/api/db-log-api";
+import getLogger from "../util/logger";
+import dbLogApi from "../db/api/db-log-api";
 const logger = getLogger(serverName);
 logger.error = dbLogApi.getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
 logger.warn = dbLogApi.getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
-import sql from "db/api/all-apis";
-import { getSequelizeSessionStore } from "db/session";
+import sql from "../db/api/all-apis";
+import { getSequelizeSessionStore } from "../db/session";
 
 const CLASS_DURATION = (Number(process.env["CLASS_DURATION_MINUTES"]) || 240) * 60 * 1000;
 
-import logRequest from "util/logRequest";
+import logRequest from "../util/logRequest";
 app.use(logRequest(serverName, logger));
 
 app.use(express.json());

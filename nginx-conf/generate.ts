@@ -8,7 +8,9 @@ assert(process.env["DOMAIN"] && process.env["DOMAIN"].length > 0, "config DOMAIN
 
 import path from "path";
 import { writeFileSync } from "fs";
-const logger = require("util/logger")("conf-generator");
+
+import getLogger from "../util/logger";
+const logger = getLogger("conf-generator");
 
 const template = `
 upstream %name% {

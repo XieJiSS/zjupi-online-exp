@@ -52,7 +52,7 @@ const displayKeymap: DisplayKeymap = {
     phone: "学生手机"
   },
   camera: {
-    cameraId: "摄像头标识符",
+    cameraId: "摄像头",
     ip: "摄像头 IP",
   },
   log: {

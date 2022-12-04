@@ -94,7 +94,7 @@ export default defineComponent({
       </div>
       <div>
         <h2>Camera</h2>
-        <iframe v-bind:src="`http://${camera.ip}:4096/streams/index.html`" frameborder="0" scrolling="no"
+        <iframe v-bind:src="`http://${camera.ip}:4096/index.html`" frameborder="0" scrolling="no"
           width="100%" height="100%"></iframe>
       </div>
     </div>

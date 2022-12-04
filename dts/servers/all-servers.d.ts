@@ -6,4 +6,4 @@ export interface Server {
     name: string;
     subdomain: string;
 }
-export declare function getServers(): Server[];
+export declare function getServers(): Promise<Server[]>;

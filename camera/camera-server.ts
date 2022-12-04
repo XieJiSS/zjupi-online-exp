@@ -6,9 +6,10 @@ import assert from "assert";
 import { hasAuthed } from "../db/connect";
 assert(hasAuthed);
 
-import { port, name as serverName, subdomain } from "./config";
+import { name as serverName } from "./config";
 import express from "express";
-const app = express();
+
+export const app = express();
 
 import getLogger from "../util/logger";
 const logger = getLogger(serverName);
@@ -166,9 +167,4 @@ if (process.env["AUTO_PRUNE_DEAD_CAMERA"] === "yes") {
   setInterval(autoPruneDeadCamera, 1000 * 30);
 }
 
-export default {
-  app,
-  port,
-  name: serverName,
-  subdomain,
-};
+export { port, name, subdomain } from "./config";

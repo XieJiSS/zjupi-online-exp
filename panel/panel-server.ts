@@ -20,11 +20,11 @@ import { hasAuthed } from "../db/connect";
 assert(hasAuthed);
 assert(typeof process.env["SESSION_SECRET"] === "string" && process.env["SESSION_SECRET"].length > 0);
 
-import { port, name as serverName, subdomain } from "./config";
+import { name as serverName } from "./config";
 import express from "express";
 import session from "express-session";
 
-const app = express();
+export const app = express();
 
 import getLogger from "../util/logger";
 import dbLogApi from "../db/api/db-log-api";
@@ -891,9 +891,4 @@ export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
 export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
 export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
 
-export default {
-  app,
-  port,
-  name: serverName,
-  subdomain,
-};
+export { port, name, subdomain } from "./config";

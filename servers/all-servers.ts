@@ -11,6 +11,6 @@ export interface Server {
 }
 
 // make this lazy loaded
-export function getServers(): Server[] {
-  return serverLists.map((mod) => require(mod));
+export function getServers(): Promise<Server[]> {
+  return Promise.all(serverLists.map(async (mod): Promise<Server> => await import(mod)));
 }

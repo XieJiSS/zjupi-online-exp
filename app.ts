@@ -14,7 +14,7 @@ import { getServers } from "./servers/all-servers";
 async function main() {
   await require("./db/init")();
 
-  const servers = getServers();
+  const servers = await getServers();
   for (const server of servers) {
     // @TODO: spawn servers in separate processes
     // @TODO: implement clusters

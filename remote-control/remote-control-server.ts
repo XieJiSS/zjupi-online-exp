@@ -2,14 +2,15 @@
 
 "use strict";
 
-import { port, name as serverName, subdomain } from "./config";
+import { name as serverName } from "./config";
 
 import assert from "assert";
 import { hasAuthed } from "../db/connect";
 assert(hasAuthed);
 
 import express from "express";
-const app = express();
+
+export const app = express();
 
 import getLogger from "../util/logger";
 import { getPersistentLoggerUtil } from "../db/api/db-log-api";
@@ -296,9 +297,4 @@ if (process.env["AUTO_PRUNE_DEAD_RCLIENT"] === "yes") {
 
 setInterval(autoUpdatePassword, 1000 * 60 * 10);
 
-module.exports = {
-  app,
-  port,
-  name: serverName,
-  subdomain,
-};
+export { port, name, subdomain } from "./config";

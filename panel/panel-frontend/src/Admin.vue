@@ -551,7 +551,7 @@ async function assignCamerasToSelectedLinks() {
   const assignInfos: PanelAdminCameraAssignToLinkReqBody[] = [];
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
-      let html = `<input type="list" id="swal-input1" class="swal2-input" onfocus="this.showPicker()" list="student-list">`;
+      let html = `<input type="list" id="swal-input1" class="swal2-input" onfocus="this.showPicker()" list="camera-list">`;
       html += `<datalist id="camera-list">`;
       let choiceCount = 0;
       const assignedCameraIds = rclients.value.map(rclient => rclient.camera?.cameraId).filter(id => id !== undefined && id !== null) as string[];
@@ -562,7 +562,7 @@ async function assignCamerasToSelectedLinks() {
         if (pendingCameraIds.includes(camera.cameraId)) {
           continue;
         }
-        html += `<option value="${camera.cameraId}">${camera.cameraId} (${camera.ip}}})</option>`;
+        html += `<option value="${camera.cameraId}">${camera.cameraId} (${camera.ip})</option>`;
         choiceCount++;
       }
       html += `</datalist>`;

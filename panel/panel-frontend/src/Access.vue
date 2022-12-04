@@ -98,6 +98,19 @@ export default defineComponent({
           width="100%" height="100%"></iframe>
       </div>
     </div>
+    <div v-else>
+      <div v-if="remoteClient">
+        <h2>Remote Client</h2>
+        <div style="font-size: 16px; line-height: 18px;">
+          工控机连接凭据：
+          <i class="fa fa-user icon" id="icon"></i><span>{{ remoteClient.clientId }}</span>
+          <span style="margin: 0 6px;"></span>
+          <i class="fa fa-lock icon"></i><span>{{ remoteClient.password }}</span>
+        </div>
+        <iframe v-bind:src="`http://${hostname}:5005/`" frameborder="0" scrolling="no" width="100%"
+          height="calc(100% - 20px);"></iframe>
+      </div>
+    </div>
   </div>
   <div v-else>
     <div class="loader">

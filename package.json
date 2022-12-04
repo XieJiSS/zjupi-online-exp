@@ -4,10 +4,11 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "npm run build && node build/app.js",
+    "dev": "yarn run build && cd build && node app.js",
+    "prod": "yarn run build && cd build && pm2 stop online-exp && pm2 start app.js online-exp",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dts": "yarn -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
-    "build": "yarn -p typescript tsc"
+    "build": "yarn -p typescript tsc && cp .env build/.env"
   },
   "repository": {
     "type": "git",

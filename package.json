@@ -8,7 +8,7 @@
     "prod": "yarn run build && cd build && pm2 stop online-exp && pm2 start app.js online-exp",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dts": "yarn -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
-    "build": "yarn -p typescript tsc && cp .env build/.env"
+    "build": "yarn -p typescript tsc && cp .env build/.env && cp -r panel/panel-frontend/dist build/panel/panel-frontend/"
   },
   "repository": {
     "type": "git",

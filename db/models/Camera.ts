@@ -75,6 +75,7 @@ const Camera: CameraModelCtor = sequelize.define(
 
         // type is Sequelize.STRING
         this.setDataValue("reportedErrors", serializedErrors as unknown as string[]);
+        return true;
       },
     },
   },

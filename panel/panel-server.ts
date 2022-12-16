@@ -559,8 +559,13 @@ app.post("/api/panel/admin/link/assignToStudentMulti", async (req, res) => {
     await Promise.all(assignPromises);
     res.json({ success: true, message: "" });
   } catch (e) {
-    logger.error("Error while assigning links to students:", e.message);
-    res.json({ success: false, message: e.message });
+    if (e instanceof Error) {
+      logger.error("Error while assigning links to students:", e.message);
+      res.json({ success: false, message: e.message });
+    } else {
+      logger.error("Error while assigning links to students:", e);
+      res.json({ success: false, message: "Unknown error" });
+    }
   }
 });
 

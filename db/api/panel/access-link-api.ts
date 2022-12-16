@@ -69,7 +69,7 @@ async function removeAccessLink(linkId: number) {
   }
   logger.info(`Removing access link ${linkId} from database...`);
   await Promise.all([_removeLinkFromRemoteClient(linkId), removeLinkFromStudent(linkId)]);
-  return (await AccessLink.destroy({ where: { linkId } }))[0] > 0;
+  return (await AccessLink.destroy({ where: { linkId } })) > 0;
 }
 
 async function assignCameraToLink(cameraId: string, linkId: number) {

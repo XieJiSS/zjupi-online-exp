@@ -5,7 +5,7 @@
     // 采用的模块系统
     "module": "CommonJS",
     // 以严格模式解析
-    "strict": false,
+    "strict": true,
     "jsx": "preserve",
     // 从 tslib 导入外部帮助库: 比如__extends，__rest等
     "importHelpers": true,
@@ -26,6 +26,10 @@
     "sourceMap": true,
     // 为 this 提供 type check
     "noImplicitThis": true,
+    "noImplicitReturns": true,
+    "noUncheckedIndexedAccess": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedParameters": true,
     "isolatedModules": true,
     "maxNodeModuleJsDepth": 3,
     // 解析非相对模块名的基准目录 

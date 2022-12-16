@@ -27,7 +27,7 @@
     "connect-session-sequelize": "^7.1.4",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",
-    "express": "5.0.0-alpha.8",
+    "express": "https://github.com/XieJiSS/express#v5.0.0-beta.1-fix",
     "express-session": "^1.17.3",
     "log4js": "^6.6.1",
     "mysql2": "2",

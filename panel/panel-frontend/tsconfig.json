@@ -25,6 +25,8 @@
     // 为 this 提供 type check
     "noImplicitThis": true,
     "noImplicitAny": true,
+    "noUncheckedIndexedAccess": true,
+    "skipLibCheck": true,
     "isolatedModules": true,
     "maxNodeModuleJsDepth": 3,
     // 解析非相对模块名的基准目录 

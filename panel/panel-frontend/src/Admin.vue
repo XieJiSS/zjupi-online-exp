@@ -5,7 +5,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import type { Ref } from "vue";
 
 import axios from "axios";
-import type { AxiosResp } from "types/type-helper";
+import type { AxiosResp, JSONLayer } from "types/type-helper";
 
 import type {
   PanelAdminRClientRespData, PanelAccessRespData, PanelAdminLinkEditReqBody,
@@ -65,13 +65,13 @@ const displayKeymap: DisplayKeymap = {
 
 interface VueAppData {
   tab: AdminTab;
-  rclients: PanelAdminRClientRespData[];
+  rclients: JSONLayer<PanelAdminRClientRespData>[];
   rclientSearchCond: string;
-  students: PanelAdminStudentRespData[];
-  links: PanelAdminLinkRespData[];
-  cameras: PanelAdminCameraRespData[];
+  students: JSONLayer<PanelAdminStudentRespData>[];
+  links: JSONLayer<PanelAdminLinkRespData>[];
+  cameras: JSONLayer<PanelAdminCameraRespData>[];
   selectedStatus: boolean[];
-  logs: Partial<DBLogInterface>[];
+  logs: Partial<JSONLayer<DBLogInterface>>[];
 }
 
 const rclients = ref([]) as Ref<VueAppData["rclients"]>;
@@ -244,7 +244,7 @@ async function importStudentsFromCSV() {
     const lines = text.trim().split("\n");
     const students: PanelAdminStudentAddReqBody[] = [];
     for (let i = 0; i < lines.length; i++) {
-      const line = lines[i];
+      const line = lines[i]!;
       if (!line.trim()) continue;
       if (!/^[\s\S]*[,\t]\s*[\s\S]*$/.test(line.trim())) {
         console.error("Invalid line: " + line);
@@ -256,7 +256,7 @@ async function importStudentsFromCSV() {
         await $alert("格式错误：请检查第" + (i + 1) + "行是否完整");
         return;
       }
-      const [name, phone] = cells;
+      const [name, phone] = cells as [string, string];
       const code = extractLocationCode(phone);
       if (code) {
         await $alert("警告：第" + (i + 1) + "行手机号存在地区码前缀 " + code + "，可能导致短信发送失败");
@@ -297,13 +297,13 @@ async function generateLinksForSelectedRClients() {
   }
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
-      const link = rclients.value[i].link;
+      const link = rclients.value[i]!.link;
       if (!link) continue;
-      const isValidAfter = link.validAfter ? link.validAfter <= new Date() : true;
-      const isValidUntil = link.validUntil ? link.validUntil >= new Date() : true;
+      const isValidAfter = link.validAfter ? Date.parse(link.validAfter) <= Date.now() : true;
+      const isValidUntil = link.validUntil ? Date.parse(link.validUntil) >= Date.now() : true;
       const isValid = isValidAfter && isValidUntil;
       if (isValid) {
-        await $alert("链接重复生成：请先删除ID为" + rclients.value[i].rclient.clientId + "的客户端的访问链接");
+        await $alert("链接重复生成：请先删除ID为" + rclients.value[i]!.rclient.clientId + "的客户端的访问链接");
         return;
       }
     }
@@ -319,8 +319,8 @@ async function generateLinksForSelectedRClients() {
       const input2 = document.getElementById("swal-input2") as HTMLInputElement;
       const now = new Date();
       const ISODateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
-      input1.value = ISODateTime.split("T")[0];
-      input2.value = ISODateTime.split("T")[1].slice(0, 5);
+      input1.value = ISODateTime.split("T")[0]!;
+      input2.value = ISODateTime.split("T")[1]!.slice(0, 5);
     },
     preConfirm: () => {
       return [
@@ -349,8 +349,8 @@ async function generateLinksForSelectedRClients() {
       const input2 = document.getElementById("swal-input2") as HTMLInputElement;
       const now = new Date();
       const ISODateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
-      input1.value = ISODateTime.split("T")[0];
-      input2.value = ISODateTime.split("T")[1].slice(0, 5);
+      input1.value = ISODateTime.split("T")[0]!;
+      input2.value = ISODateTime.split("T")[1]!.slice(0, 5);
     },
     preConfirm: () => {
       return [
@@ -378,7 +378,7 @@ async function generateLinksForSelectedRClients() {
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
       links.push({
-        clientId: rclients.value[i].rclient.clientId as string,
+        clientId: rclients.value[i]!.rclient.clientId as string,
         validAfterTimeStamp: validAfter.getTime(),
         validUntilTimeStamp: validUntil.getTime(),
       });
@@ -399,7 +399,7 @@ async function deleteLinksFromSelectedRClients() {
   const links: PanelAdminLinkDeleteReqBody[] = [];
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
-      const link = rclients.value[i].link;
+      const link = rclients.value[i]!.link;
       if (!link) {
         continue;
       }
@@ -420,14 +420,14 @@ async function assignStudentsToSelectedRClients() {
   }
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
-      const student = rclients.value[i].student;
+      const student = rclients.value[i]!.student;
       if (student) {
-        await $alert("访问码已被占用：需要删除并重新创建工控机" + rclients.value[i].rclient.clientId + "上的访问码");
+        await $alert("访问码已被占用：需要删除并重新创建工控机" + rclients.value[i]!.rclient.clientId + "上的访问码");
         return;
       }
-      const link = rclients.value[i].link;
+      const link = rclients.value[i]!.link;
       if (!link) {
-        await $alert("未分配访问码：请先为工控机" + rclients.value[i].rclient.clientId + "分配访问码");
+        await $alert("未分配访问码：请先为工控机" + rclients.value[i]!.rclient.clientId + "分配访问码");
         return;
       }
     }
@@ -454,7 +454,7 @@ async function assignStudentsToSelectedRClients() {
         break;  // no more students to assign
       }
       const studentId = (await $fire({
-        title: `请选择要分配到工控机${rclients.value[i].rclient.clientId}的学生`,
+        title: `请选择要分配到工控机${rclients.value[i]!.rclient.clientId}的学生`,
         html,
         preConfirm: () => {
           const text = (document.getElementById("swal-input1") as HTMLInputElement).value;
@@ -471,7 +471,7 @@ async function assignStudentsToSelectedRClients() {
       }
       pendingStudentIds.push(studentId);
       assignInfos.push({
-        linkId: rclients.value[i].link!.linkId,
+        linkId: rclients.value[i]!.link!.linkId,
         studentId,
       });
     }
@@ -505,7 +505,7 @@ function getRClientDisplayKey(key: string) {
     return key;
   }
 }
-function getRClientDisplayValue(rclientObj: PanelAdminRClientRespData, key: string) {
+function getRClientDisplayValue(rclientObj: JSONLayer<PanelAdminRClientRespData>, key: string) {
   const [type, name] = key.split("#");
   let ret: string | boolean = "N/A";
   if (type === "rclient") {
@@ -543,9 +543,9 @@ async function assignCamerasToSelectedLinks() {
   }
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
-      const camera = rclients.value[i].camera;
+      const camera = rclients.value[i]!.camera;
       if (camera) {
-        await $alert("工控机" + rclients.value[i].rclient.clientId + "已经被分配了摄像头");
+        await $alert("工控机" + rclients.value[i]!.rclient.clientId + "已经被分配了摄像头");
         return;
       }
     }
@@ -573,7 +573,7 @@ async function assignCamerasToSelectedLinks() {
         break;  // no more students to assign
       }
       const cameraId = (await $fire({
-        title: `请选择要分配到工控机${rclients.value[i].rclient.clientId}的远控摄像头`,
+        title: `请选择要分配到工控机${rclients.value[i]!.rclient.clientId}的远控摄像头`,
         html,
         preConfirm: () => {
           const text = (document.getElementById("swal-input1") as HTMLInputElement).value;
@@ -586,7 +586,7 @@ async function assignCamerasToSelectedLinks() {
       }
       pendingCameraIds.push(cameraId);
       assignInfos.push({
-        linkId: rclients.value[i].link!.linkId,
+        linkId: rclients.value[i]!.link!.linkId,
         cameraId,
       });
     }
@@ -606,14 +606,14 @@ async function removeCamerasFromSelectedLinks() {
   const links: PanelAdminCameraRemoveFromLinkReqBody[] = [];
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
-      const camera = rclients.value[i].camera;
+      const camera = rclients.value[i]!.camera;
       if (!camera) {
-        await $alert("工控机" + rclients.value[i].rclient.clientId + "没有被分配摄像头");
+        await $alert("工控机" + rclients.value[i]!.rclient.clientId + "没有被分配摄像头");
         return;
       }
-      const link = rclients.value[i].link;
+      const link = rclients.value[i]!.link;
       if (!link) {
-        await $alert("非预期异常：无法为工控机" + rclients.value[i].rclient.clientId + "移除已分配的摄像头");
+        await $alert("非预期异常：无法为工控机" + rclients.value[i]!.rclient.clientId + "移除已分配的摄像头");
         return;
       }
       links.push({
@@ -630,7 +630,7 @@ async function removeCamerasFromSelectedLinks() {
 }
 
 const displayRClients = computed(() => {
-  return rclients.value.filter(({ rclient }: PanelAdminRClientRespData) => {
+  return rclients.value.filter(({ rclient }: JSONLayer<PanelAdminRClientRespData>) => {
     if (rclientSearchCond.value === "") return true;
     return rclient.clientId.toLowerCase().includes(rclientSearchCond.value.toLowerCase());
   });

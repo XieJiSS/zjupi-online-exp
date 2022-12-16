@@ -38,23 +38,11 @@ app.use(express.json());
 export interface RemoteControlClientRespData {
   clientId: string;
   ip: string;
-  lastActive: number | null;
+  lastActive: Date | null;
 }
-app.get("/api/remote-control/clients", async (req, res) => {
+app.get("/api/remote-control/clients", async (_, res) => {
   logger.info("Listing all remote clients...");
-  const clients = await sql.getAllRemoteClients();
-  // filter out password from results
-  /**
-   * @type {{ clientId: string, ip: string, lastActive: number | null }[]}
-   */
-  const data: RemoteControlClientRespData[] = clients.map((client) => {
-    const { clientId, ip, lastActive } = client;
-    return {
-      clientId,
-      ip,
-      lastActive: lastActive && lastActive.getTime(),
-    };
-  });
+  const data: RemoteControlClientRespData[] = await sql.getAllRemoteClientsAttrsOnly(["clientId", "ip", "lastActive"]);
   res.json({ success: true, message: "", data });
 });
 
@@ -80,7 +68,7 @@ app.get("/api/remote-control/getUpdate/:clientId", async (req, res) => {
 
   const queuedCommands = await sql.getRemoteCommandsByClientIdAndStatus(clientId, ["queued"]);
   if (queuedCommands.length > 0) {
-    const command = queuedCommands[0];
+    const command = queuedCommands[0]!;
     await sql.setRemoteCommandStatus(clientId, command.commandId, "running");
     res.json({ success: true, message: "", data: command });
     return;

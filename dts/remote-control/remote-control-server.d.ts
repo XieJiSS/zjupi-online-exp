@@ -4,7 +4,7 @@ export declare const app: import("express-serve-static-core").Express;
 export interface RemoteControlClientRespData {
     clientId: string;
     ip: string;
-    lastActive: number | null;
+    lastActive: Date | null;
 }
 /** /api/remote-control/getUpdate/:clientId */
 export interface RemoteControlGetUpdateRespData {

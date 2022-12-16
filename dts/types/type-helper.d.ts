@@ -22,3 +22,8 @@ export type TPartialModel<T extends Model<any>, U extends TExtractAttrsFromModel
 export type TPartialModelArr<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPartialModel<T, U>[];
 export type AsyncPartialModelPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (attributes: U[]) => Promise<TPartialModel<T, U>>;
 export type AsyncPartialModelArrPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (attributes: U[]) => Promise<TPartialModel<T, U>[]>;
+export type JSONFields = string | number | boolean | null | undefined;
+export type MakeJSONSafe<T> = Exclude<T, Date> extends JSONFields ? Date extends T ? T extends Date ? string : Exclude<T, Date> | string : Exclude<T, Date> : never;
+export type JSONLayer<T> = T extends Record<string | number | symbol, any> | JSONFields | Date ? T extends JSONFields | Date ? MakeJSONSafe<T> : [keyof Exclude<T, JSONFields | Date>] extends [never] ? {} | Exclude<T, Exclude<T, JSONFields | Date>> : {
+    [P in keyof T]: JSONLayer<T[P]>;
+} | Exclude<T, Exclude<T, JSONFields | Date>> : never;

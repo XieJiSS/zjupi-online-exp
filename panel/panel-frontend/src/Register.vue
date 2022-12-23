@@ -54,7 +54,8 @@ export default {
           placeholder="username">
       </div>
       <div>
-        <i class="fa fa-lock icon"></i><input type="password" v-model="password" placeholder="password">
+        <i class="fa fa-lock icon"></i><input type="password" v-model="password" placeholder="password"
+          autocomplete="new-password">
       </div>
       <div class="submit">
         <input class="submit-primitive" type="submit" value="REGISTER" v-on:click.prevent="submitRegister">

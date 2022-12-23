@@ -1,8 +1,9 @@
 <script lang="ts">
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import pbkdf2 from "crypto-js/pbkdf2";
 import { algo } from "crypto-js";
+import type { AxiosResp } from "types/type-helper";
 
 export default {
   data() {
@@ -18,12 +19,14 @@ export default {
   },
   methods: {
     async submitLogin() {
-      const { data } = await axios.post("/api/panel/admin/login", {
+      const { data } = await axios.post<AxiosResp<void>>("/api/panel/admin/login", {
         username: this.username,
         password: this.passwordHash,
-      }).catch(err => {
+      }).catch((err: AxiosError<AxiosResp<void>>) => {
         console.error(err);
-        return { data: { success: false, message: err.toString() } };
+        const errData = { ...err.response?.data };
+        delete errData.success;
+        return { data: { success: false, message: String(errData.message || err) } } as AxiosResp<void>;
       });
       if (!data.success) {
         alert(data.message);

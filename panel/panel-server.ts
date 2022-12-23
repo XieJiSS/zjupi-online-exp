@@ -108,13 +108,14 @@ app.post("/api/panel/admin/login", async (req, res) => {
   logger.info("login request received from client for user", username);
   const success = await sql.isValidAdminCredentials(username, password);
   if (!success) {
-    res.json({ success: false, message: "Wrong username/password" });
+    res.status(403).json({ success: false, message: "Wrong username/password" });
     return;
   }
   const session = req.session;
   session.username = username;
   await promisify(session.save.bind(session))();
   res.json({ success: true, message: "" });
+  logger.warn("login request succeeded for user", username);
 });
 
 // One should never use GET for logout, because GET can be triggered everywhere, e.g. by

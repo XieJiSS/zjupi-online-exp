@@ -5,7 +5,7 @@ import { computed, onMounted, ref, watch } from "vue";
 import type { Ref } from "vue";
 
 import axios from "axios";
-import type { AxiosResp, JSONLayer } from "types/type-helper";
+import type { AxiosResp, JSONTransform } from "types/type-helper";
 
 import type {
   PanelAdminRClientRespData, PanelAccessRespData, PanelAdminLinkEditReqBody,
@@ -65,13 +65,13 @@ const displayKeymap: DisplayKeymap = {
 
 interface VueAppData {
   tab: AdminTab;
-  rclients: JSONLayer<PanelAdminRClientRespData>[];
+  rclients: JSONTransform<PanelAdminRClientRespData>[];
   rclientSearchCond: string;
-  students: JSONLayer<PanelAdminStudentRespData>[];
-  links: JSONLayer<PanelAdminLinkRespData>[];
-  cameras: JSONLayer<PanelAdminCameraRespData>[];
+  students: JSONTransform<PanelAdminStudentRespData>[];
+  links: JSONTransform<PanelAdminLinkRespData>[];
+  cameras: JSONTransform<PanelAdminCameraRespData>[];
   selectedStatus: boolean[];
-  logs: Partial<JSONLayer<DBLogInterface>>[];
+  logs: Partial<JSONTransform<DBLogInterface>>[];
 }
 
 const rclients = ref([]) as Ref<VueAppData["rclients"]>;
@@ -505,7 +505,7 @@ function getRClientDisplayKey(key: string) {
     return key;
   }
 }
-function getRClientDisplayValue(rclientObj: JSONLayer<PanelAdminRClientRespData>, key: string) {
+function getRClientDisplayValue(rclientObj: JSONTransform<PanelAdminRClientRespData>, key: string) {
   const [type, name] = key.split("#");
   let ret: string | boolean = "N/A";
   if (type === "rclient") {
@@ -630,7 +630,7 @@ async function removeCamerasFromSelectedLinks() {
 }
 
 const displayRClients = computed(() => {
-  return rclients.value.filter(({ rclient }: JSONLayer<PanelAdminRClientRespData>) => {
+  return rclients.value.filter(({ rclient }: JSONTransform<PanelAdminRClientRespData>) => {
     if (rclientSearchCond.value === "") return true;
     return rclient.clientId.toLowerCase().includes(rclientSearchCond.value.toLowerCase());
   });

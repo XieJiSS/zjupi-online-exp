@@ -3,13 +3,13 @@ import { defineComponent } from "vue"
 import axios from "axios"
 
 import type { PanelAccessRespData } from "../../../dts/panel/panel-server"
-import type { AxiosResp, JSONLayer } from "types/type-helper"
+import type { AxiosResp, JSONTransform } from "types/type-helper"
 
 interface VueAppData {
   ready: boolean;
-  remoteClient: JSONLayer<PanelAccessRespData>["remoteClient"] | null;
-  camera: JSONLayer<PanelAccessRespData>["camera"] | null;
-  student: JSONLayer<PanelAccessRespData>["student"] | null;
+  remoteClient: JSONTransform<PanelAccessRespData>["remoteClient"] | null;
+  camera: JSONTransform<PanelAccessRespData>["camera"] | null;
+  student: JSONTransform<PanelAccessRespData>["student"] | null;
   hostname: string;
 }
 

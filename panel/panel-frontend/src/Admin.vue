@@ -718,7 +718,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab === 'rclients'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清空选择</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="searchClients">查找ID</a>
             <a href="javascript:void(0);" class="btn" v-on:click="showAllClients"
               v-if="displayRClients.length < rclients.length">显示全部</a>
@@ -758,7 +758,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'students'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清空选择</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="addStudent">添加学生</a>
             <a href="javascript:void(0);" class="btn" v-on:click="importStudentsFromCSV">从 CSV 导入</a>
             <a href="javascript:void(0);" class="btn" v-on:click="void 0">批量删除</a>
@@ -785,7 +785,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'logs'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清空选择</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
           </div>
           <div class="table-responsive">
@@ -809,7 +809,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'cameras'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清空选择</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
           </div>
           <div class="table-responsive">

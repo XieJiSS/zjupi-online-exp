@@ -1,6 +1,7 @@
 /** @format */
 
 import assert from "assert";
+import path from "path";
 
 import { hasAuthed } from "../connect";
 assert(hasAuthed());
@@ -45,6 +46,7 @@ async function getLogByIdAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel>>
   })) as TPartialModel<DBLogModel, T>;
 }
 
+// maybe we should move this function to another proper place
 /**
  * @param level DB log level
  * @param sourceFile should be __filename
@@ -55,6 +57,7 @@ export function getPersistentLoggerUtil(
   sourceFile: string,
   oldLogger: (message: any, ...args: any[]) => void
 ): (message: any, ...args: any[]) => void {
+  const trimmedSourceFile = sourceFile.replace(path.resolve(process.cwd()), "$ROOT");
   return (message, ...args) => {
     const allArgs = [message, ...args];
     let errmsg = "";
@@ -68,8 +71,8 @@ export function getPersistentLoggerUtil(
       }
       errmsg += " ";
     }
-    createDBLog(level, errmsg, sourceFile).catch((err) => {
-      oldLogger("failed to write", level, "due to", err);
+    createDBLog(level, errmsg, trimmedSourceFile).catch((err) => {
+      oldLogger("failed to write", level, "log record, due to", err);
     });
     oldLogger(message, ...args);
   };

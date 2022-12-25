@@ -647,6 +647,18 @@ app.post("/api/panel/admin/link/deleteOne", async (req, res) => {
     res.json({ success: false, message: "Missing necessary fields" });
     return;
   }
+  const link = await sql.getLinkById(linkId);
+  if (!link) {
+    res.json({ success: false, message: "Link already deleted" });
+    return;
+  }
+  const rclient = link.clientId ? await sql.getRemoteClientById(link.clientId) : null;
+  if (rclient) {
+    await sql.createRemoteCommand(rclient.clientId, {
+      command: "changePassword",
+      explanation: "Automatically update password when link is deleted",
+    });
+  }
   await sql.removeAccessLink(linkId);
   res.json({ success: true, message: "" });
 });
@@ -666,7 +678,22 @@ app.post("/api/panel/admin/link/deleteMulti", async (req, res) => {
     if (typeof linkId !== "number" || !Number.isSafeInteger(linkId)) {
       continue;
     }
-    deletePromises.push(sql.removeAccessLink(linkId));
+    deletePromises.push(
+      (async () => {
+        const link = await sql.getLinkById(linkId);
+        if (!link) {
+          return false;
+        }
+        const rclient = link.clientId ? await sql.getRemoteClientById(link.clientId) : null;
+        if (rclient) {
+          await sql.createRemoteCommand(rclient.clientId, {
+            command: "changePassword",
+            explanation: "Automatically update password when link is deleted",
+          });
+        }
+        return sql.removeAccessLink(linkId);
+      })()
+    );
   }
   await Promise.all(deletePromises);
   res.json({ success: true, message: "" });
@@ -940,6 +967,10 @@ async function removeOutdatedLinksFromRClients() {
     }
     const link = await sql.getLinkById(rclient.linkId);
     if (link && link.validUntil < new Date()) {
+      await sql.createRemoteCommand(rclient.clientId, {
+        command: "changePassword",
+        explanation: "Automatically update password when link expires",
+      });
       logger.info("removing outdated link", link.linkId, "on rclient", rclient.clientId, "from database");
       await sql.removeAccessLink(link.linkId);
     }

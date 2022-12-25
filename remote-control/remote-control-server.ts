@@ -224,7 +224,7 @@ app.post("/api/remote-control/syncPassword", async (req, res) => {
   }
 
   await sql.setRemoteClientPasswordById(clientId, password);
-  logger.info(`Client ${clientId} updated its password to ${password}`);
+  logger.warn(`Client ${clientId} updated its password to ${password}`);
 
   res.json({ success: true, message: "Password changed" });
 

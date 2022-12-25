@@ -216,8 +216,9 @@ async function searchClients() {
 function showAllClients() {
   rclientSearchCond.value = "";
 }
-function getCSVFromDisplayRClients() {
-  let header = "";
+function getCSVOfDisplayRClients() {
+  const entry = location.origin + location.pathname + location.search + "#/access";
+  let header = "入口网址为," + entry + "\r\n";
   for (const key of rclientKeys.value) {
     const text = getRClientDisplayKey(key);
     header += text + ",";
@@ -783,7 +784,7 @@ onMounted(async () => {
               v-if="selectedStatus.filter((s) => s).length > 0">解绑摄像头</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
             <a href="javascript:void(0);" class="btn align-right"
-              v-on:click="downloadCSV(getCSVFromDisplayRClients(), 'download.csv')">导出</a>
+              v-on:click="downloadCSV(getCSVOfDisplayRClients(), new Date().toISOString() + '.csv')">导出表格</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="loadAll(true)">刷新</a>
           </div>
           <div class="table-responsive">

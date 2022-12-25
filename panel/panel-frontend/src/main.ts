@@ -9,6 +9,7 @@ import VueSimpleAlert from "vue3-simple-alert-next";
 
 import App from "./App.vue";
 import Access from "./Access.vue";
+import AccessRedirect from "./AccessRedirect.vue";
 import Admin from "./Admin.vue";
 import Login from "./Login.vue";
 import Register from "./Register.vue";
@@ -16,9 +17,14 @@ import Register from "./Register.vue";
 import "./assets/style/font-awesome.css";
 
 const routes: RouteRecordRaw[] = [
-  { path: "/access/:code", component: Access, props: {
-    rustdeskHostname: import.meta.env.VITE_RUSTDESK_HOSTNAME,
-  } },
+  {
+    path: "/access/:code",
+    component: Access,
+    props: {
+      rustdeskHostname: import.meta.env.VITE_RUSTDESK_HOSTNAME,
+    },
+  },
+  { path: "/access", component: AccessRedirect },
   { path: "/admin", component: Admin },
   { path: "/login", component: Login },
   { path: "/pizju_register", component: Register },

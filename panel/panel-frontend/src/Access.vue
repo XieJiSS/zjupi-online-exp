@@ -7,6 +7,7 @@ import type { AxiosResp, JSONTransform } from "types/type-helper";
 
 interface VueAppData {
   ready: boolean;
+  error: boolean;
   remoteClient: JSONTransform<PanelAccessRespData>["remoteClient"] | null;
   camera: JSONTransform<PanelAccessRespData>["camera"] | null;
   student: JSONTransform<PanelAccessRespData>["student"] | null;
@@ -16,6 +17,7 @@ export default defineComponent({
   data(): VueAppData {
     return {
       ready: false,
+      error: false,
       remoteClient: null,
       camera: null,
       student: null,
@@ -24,6 +26,7 @@ export default defineComponent({
   async mounted() {
     if (typeof this.$route.params.code !== "string") {
       console.error("mounted: param `code` is not a string");
+      this.error = true;
       return;
     }
     const linkData = await this.fetchLinkData(this.$route.params.code);
@@ -31,6 +34,7 @@ export default defineComponent({
       this.$alert("Failed to fetch link data", "Error", "error", {
         confirmButtonText: "OK",
       });
+      this.error = true;
       return;
     }
     const { remoteClient, camera, student } = linkData;
@@ -38,12 +42,14 @@ export default defineComponent({
       this.$alert("Remote client not found", "Error", "error", {
         confirmButtonText: "OK",
       });
+      this.error = true;
       return;
     }
     if (!student) {
       this.$alert("This link is not assigned yet", "Error", "error", {
         confirmButtonText: "OK",
       });
+      this.error = true;
       return;
     }
     this.remoteClient = remoteClient;
@@ -111,7 +117,7 @@ export default defineComponent({
     </div>
   </div>
   <div v-else>
-    <div class="loader">
+    <div class="loader" v-if="!error">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
         style="margin: auto; background: rgba(0, 0, 0, 0); display: block;" width="200px" height="200px"
         viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">

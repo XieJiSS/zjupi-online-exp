@@ -216,6 +216,39 @@ async function searchClients() {
 function showAllClients() {
   rclientSearchCond.value = "";
 }
+function getCSVFromDisplayRClients() {
+  let header = "";
+  for (const key of rclientKeys.value) {
+    const text = getRClientDisplayKey(key);
+    header += text + ",";
+  }
+  header = header.slice(0, -1);
+  let body = "";
+  /*
+  <tr v-for="(rclient, i) in displayRClients">
+    <td v-for="key in rclientKeys">{{
+        getRClientDisplayValue(rclient, key)
+    }}</td>
+  </tr>
+  */
+  for (const rclient of displayRClients.value) {
+    for (const key of rclientKeys.value) {
+      const text = getRClientDisplayValue(rclient, key);
+      body += text + ",";
+    }
+    body = body.slice(0, -1);
+    body += "\r\n";
+  }
+  return header + "\r\n" + body;
+}
+function downloadCSV(csv: string, filename: string) {
+  const blob = new Blob(["\uFEFF" + csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+}
 async function addStudent() {
   const name = await $prompt("请输入学生姓名：");
   const phone = (await $prompt("请输入学生手机号：")) || "";
@@ -749,6 +782,8 @@ onMounted(async () => {
             <a href="javascript:void(0);" class="btn" v-on:click="removeCamerasFromSelectedLinks"
               v-if="selectedStatus.filter((s) => s).length > 0">解绑摄像头</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
+            <a href="javascript:void(0);" class="btn align-right"
+              v-on:click="downloadCSV(getCSVFromDisplayRClients(), 'download.csv')">导出</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="loadAll(true)">刷新</a>
           </div>
           <div class="table-responsive">

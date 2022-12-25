@@ -11,7 +11,7 @@ declare function getLogByIdAttrsOnly<T extends TExtractAttrsFromModel<DBLogModel
  * @param sourceFile should be __filename
  * @param oldLogger non-persistent logger which will be wrapped
  */
-export declare function getPersistentLoggerUtil(level: "info" | "warn" | "error", sourceFile: string, oldLogger: (message: any, ...args: any[]) => void): (message: any, ...args: any[]) => void;
+export declare function getPersistentLoggerUtil(level: "info" | "warn" | "error", sourceFile: string, oldLogger: (message: any, ...args: any[]) => void): (message: any, ...args: any[]) => Promise<void>;
 declare const _default: {
     createDBLog: typeof createDBLog;
     getAllLogs: typeof getAllLogs;

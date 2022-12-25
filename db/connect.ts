@@ -8,22 +8,20 @@ const dbConnectLogger = getLogger("db-connect");
 const poolSize = Math.max(os.cpus().length - 1, 1);
 dbConnectLogger.debug("Will set poolSize to", poolSize);
 
-import asyncExitHook from "async-exit-hook";
-asyncExitHook((done: () => void) => {
+const seqLogger = getLogger("sequelize");
+let _sequelize: Sequelize | null = null;
+
+export async function gracefullyCloseDatabaseConnection() {
   dbConnectLogger.info("Gracefully shutting down database connection...");
   if (_sequelize !== null) {
     dbConnectLogger.debug("Waiting for database connection to be closed...");
-    _sequelize.close().then(() => {
-      dbConnectLogger.debug("Database connection closed.");
-      done();
-    });
-  } else {
-    done();
+    try {
+      await _sequelize.close();
+    } catch {}
+    dbConnectLogger.debug("Database connection closed.");
+    return;
   }
-});
-
-const seqLogger = getLogger("sequelize");
-let _sequelize: Sequelize | null = null;
+}
 
 export const _promise: Promise<Sequelize> = new Promise(async (resolve, reject) => {
   const sequelize = new Sequelize("db", "root", process.env["DB_MYSQL_PSWD"], {

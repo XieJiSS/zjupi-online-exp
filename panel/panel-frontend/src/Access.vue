@@ -76,9 +76,7 @@ export default defineComponent({
 </script>
 
 <template>
-  Hi!
   <div v-if="ready">
-    <div v-if="student">Welcome, {{ student.name }}!</div>
     <div class="flex-container" v-if="camera">
       <!-- two column, flex -->
       <div v-if="remoteClient">
@@ -115,7 +113,7 @@ export default defineComponent({
   <div v-else>
     <div class="loader">
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-        style="margin: auto; background: rgb(241, 242, 243); display: block;" width="200px" height="200px"
+        style="margin: auto; background: rgba(0, 0, 0, 0); display: block;" width="200px" height="200px"
         viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
         <path fill="none" stroke="#85a2b6" stroke-width="8"
           stroke-dasharray="42.76482137044271 42.76482137044271"

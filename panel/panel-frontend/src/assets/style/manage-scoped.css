@@ -71,6 +71,8 @@ div.card-body-has-sidebar {
 }
 .card-title {
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   margin-bottom: 0.75rem;
 }
 .card .card-subtitle {
@@ -82,6 +84,8 @@ div.card-body-has-sidebar {
   margin-top: -0.375rem;
   margin-bottom: 0;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
 }
 .card-subtitle a, .card-subtitle a:visited {
   color: #adb5bd;
@@ -140,8 +144,8 @@ table th {
   border-radius: 4px;
   background-color: rgba(0, 0, 0, .02);
   color: #74787c;
-  user-select: none;
   -webkit-user-drag: none;
+  user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   -ms-user-select: none;
@@ -259,6 +263,8 @@ i.fa.fa-remove {
   text-align: center;
   cursor: pointer;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   transition: background-color 0.3s;
   -webkit-transition: background-color 0.3s;
 }
@@ -284,6 +290,8 @@ i.fa.fa-remove {
   text-align: center;
   margin-bottom: 20px;
   user-select: none;
+  -webkit-user-select: none;
+  -moz-user-select: none;
   color: #8396a9;
 }
 .card-body-header {

@@ -750,7 +750,9 @@ onMounted(async () => {
                   <td>
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
-                  <td v-for="key in rclientKeys">{{ getRClientDisplayValue(rclient, key) }}</td>
+                  <td v-for="key in rclientKeys" v-bind:class="'table-rc-' + key">{{
+                      getRClientDisplayValue(rclient, key)
+                  }}</td>
                 </tr>
               </tbody>
             </table>
@@ -777,7 +779,9 @@ onMounted(async () => {
                   <td>
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
-                  <td v-for="key in ObjectKeys(displayKeymap.student)">{{ student[key] }}</td>
+                  <td v-for="key in ObjectKeys(displayKeymap.student)" v-bind:class="'table-stu-' + key">{{
+                      student[key]
+                  }}</td>
                 </tr>
               </tbody>
             </table>
@@ -801,7 +805,9 @@ onMounted(async () => {
                   <td>
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
-                  <td v-for="key in ObjectKeys(displayKeymap.log)">{{ log[key] }}</td>
+                  <td v-for="key in ObjectKeys(displayKeymap.log)" v-bind:class="'table-log-' + key">{{
+                      log[key]
+                  }}</td>
                 </tr>
               </tbody>
             </table>
@@ -825,7 +831,9 @@ onMounted(async () => {
                   <td>
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
-                  <td v-for="key in ObjectKeys(displayKeymap.camera)">{{ camera[key] }}</td>
+                  <td v-for="key in ObjectKeys(displayKeymap.camera)" v-bind:class="'table-cam-' + key">{{
+                      camera[key]
+                  }}</td>
                 </tr>
               </tbody>
             </table>
@@ -846,10 +854,15 @@ onMounted(async () => {
 
 input[type="date"],
 input[type="time"] {
-  font-family: Consolas, "Courier New", Courier, monospace;
+  font-family: Courier, Consolas, "Courier New", monospace;
   user-select: none;
   -webkit-user-select: none;
   -moz-user-select: none;
   cursor: pointer;
+}
+
+.table-log-source,
+.table-log-level {
+  font-family: Courier, Consolas, 'Courier New', monospace;
 }
 </style>

@@ -6,11 +6,15 @@ export default defineComponent({
     return {};
   },
   async mounted() {
-    const code = await this.$prompt("Please enter the access code", "");
-    if (!code) {
-      return;
+    try {
+      const code = await this.$prompt("Please enter the access code", "");
+      if (!code) {
+        return;
+      }
+      this.$router.push(`/access/${code}`);
+    } catch (err) {
+      console.error(err);
     }
-    this.$router.push(`/access/${code}`);
   },
 });
 </script>

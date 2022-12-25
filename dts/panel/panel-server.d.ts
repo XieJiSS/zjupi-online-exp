@@ -2,12 +2,22 @@
 import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBLogModel } from "../db/models/all-models";
 import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
 export declare const app: import("express-serve-static-core").Express;
+import type { CameraDirection } from "./camera-req-proxy";
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
     remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
     student: TPartialModel<StudentModel, "name"> | null;
     camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
 }
+export type PanelAccessLinkCameraControlReqBody = {
+    direction: CameraDirection;
+    operation: "start";
+    speed: number;
+} | {
+    direction: void;
+    operation: "stop";
+    speed?: void;
+};
 /** /api/panel/admin/login */
 export interface PanelAdminLoginReqBody {
     username: string;

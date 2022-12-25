@@ -4,11 +4,12 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": "yarn run build && cd build && node app.js",
+    "dev": "yarn run build-dev && cd build && node app.js",
     "prod": "yarn run build && cd build && pm2 stop online-exp && pm2 start app.js online-exp",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dts": "yarn -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
     "build": "yarn -p typescript tsc && cp .env build/.env && cp -r thirdparty build/ && yarn run deploy-frontend",
+    "build-dev": "yarn -p typescript tsc --sourceMap && cp .env build/.env && cp -r thirdparty build/ && yarn run deploy-frontend",
     "deploy-frontend": "cp -r panel/panel-frontend/dist build/panel/panel-frontend/"
   },
   "repository": {
@@ -24,6 +25,7 @@
   "homepage": "https://github.com/XieJiSS/zju-eng-dep-online-exp#readme",
   "dependencies": {
     "async-exit-hook": "^2.0.1",
+    "axios": "^1.2.1",
     "connect-session-sequelize": "^7.1.4",
     "cookie-parser": "^1.4.6",
     "dotenv": "^16.0.1",

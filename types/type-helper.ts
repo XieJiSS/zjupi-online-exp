@@ -1,6 +1,14 @@
 /** @format */
 
+import type { AxiosResponse } from "axios";
 import type { Model, ModelStatic } from "sequelize";
+
+export interface AxiosRespBase {
+  success: boolean;
+  message: string;
+}
+
+export type AxiosResp<T> = AxiosRespBase & AxiosResponse<JSONTransform<T>>;
 
 export type TPromisify<F> = F extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : never;
 

@@ -34,6 +34,8 @@ logger.warn = dbLogApi.getPersistentLoggerUtil("warn", __filename, logger.warn.b
 
 import sql from "../db/api/all-apis";
 import { getSequelizeSessionStore } from "../db/session";
+import { sendOpToCameraIP } from "./camera-req-proxy";
+import type { CameraDirection } from "./camera-req-proxy";
 
 const CLASS_DURATION = (Number(process.env["CLASS_DURATION_MINUTES"]) || 240) * 60 * 1000;
 
@@ -92,6 +94,66 @@ app.get("/api/panel/access/:link", async (req, res) => {
     message: "",
     data,
   });
+});
+
+export type PanelAccessLinkCameraControlReqBody =
+  | {
+      direction: CameraDirection;
+      operation: "start";
+      speed: number;
+    }
+  | {
+      direction: void;
+      operation: "stop";
+      speed?: void;
+    };
+app.post("/api/panel/access/:link/camera-control", async (req, res) => {
+  const link = req.params.link;
+  logger.info("camera control request received from client for", link);
+  if (!link) {
+    res.json({ success: false, message: "Missing link field" });
+    return;
+  }
+  const linkObj = await sql.getLinkIfValidByLinkPath(link);
+  if (linkObj === null) {
+    res.json({ success: false, message: "Link not found or invalid" });
+    return;
+  }
+  const camera = linkObj.cameraId ? await sql.getCameraByIdAttrsOnly(linkObj.cameraId, ["ip"]) : null;
+  if (!camera) {
+    res.json({ success: false, message: "Camera not found" });
+    return;
+  }
+  const body = req.body as PanelAccessLinkCameraControlReqBody;
+  if (!body) {
+    res.json({ success: false, message: "Missing body" });
+    return;
+  }
+  if (body.direction === undefined && body.operation === "stop") {
+    // stop all
+    let success;
+    try {
+      success = await sendOpToCameraIP(camera.ip, void 0, "stop");
+    } catch (e) {
+      logger.warn("failed to send stop command to camera", camera.ip, e);
+      success = false;
+    }
+    res.json({ success, message: success ? "" : "Failed to send operation to camera" });
+    return;
+  }
+  // operation === "start" after this line
+  if (body.direction === undefined || body.operation === undefined || body.speed === undefined) {
+    res.json({ success: false, message: "Missing direction, operation or speed field" });
+    return;
+  }
+  let success;
+  try {
+    success = await sendOpToCameraIP(camera.ip, body.direction, body.operation, body.speed);
+  } catch (e) {
+    logger.warn("failed to send command to camera", camera.ip, e);
+    success = false;
+  }
+  res.json({ success, message: success ? "" : "Failed to send operation to camera" });
 });
 
 /** /api/panel/admin/login */

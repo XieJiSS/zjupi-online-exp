@@ -1,5 +1,11 @@
 /** @format */
+import type { AxiosResponse } from "axios";
 import type { Model, ModelStatic } from "sequelize";
+export interface AxiosRespBase {
+    success: boolean;
+    message: string;
+}
+export type AxiosResp<T> = AxiosRespBase & AxiosResponse<JSONTransform<T>>;
 export type TPromisify<F> = F extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : never;
 export type TParialPick<O, KeyUnion> = KeyUnion extends keyof O ? Partial<Pick<O, KeyUnion>> : never;
 export type TMarkPartialAttrs<T, A> = TParialPick<T, A> & TOmit<T, A>;

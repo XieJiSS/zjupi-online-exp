@@ -3,7 +3,7 @@
     // 编译输出目标 ES 版本
     "target": "ES6",
     // 采用的模块系统
-    "module": "UMD",
+    "module": "es2020",
     // 以严格模式解析
     "strict": true,
     "jsx": "preserve",
@@ -34,7 +34,7 @@
     // 给错误和消息设置样式，使用颜色和上下文。
     "pretty": true,
     // 设置引入的定义文件
-    "types": [],
+    "types": ["vite/client"],
     // 指定特殊模块的路径
     "paths": {
       "@/*": ["src/*"]
@@ -54,7 +54,8 @@
     "src/**/*.tsx",
     "src/**/*.vue",
     "types/**/*.d.ts",
+    "./vite.config.ts",
   ],
   // ts 排除的文件
-  "exclude": ["node_modules", "dts"]
+  "exclude": ["node_modules"]
 }

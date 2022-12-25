@@ -1,16 +1,15 @@
 <script lang="ts">
-import { defineComponent } from "vue"
-import axios from "axios"
+import { defineComponent } from "vue";
+import axios from "axios";
 
-import type { PanelAccessRespData } from "../../../dts/panel/panel-server"
-import type { AxiosResp, JSONTransform } from "types/type-helper"
+import type { PanelAccessRespData } from "../../../dts/panel/panel-server";
+import type { AxiosResp, JSONTransform } from "types/type-helper";
 
 interface VueAppData {
   ready: boolean;
   remoteClient: JSONTransform<PanelAccessRespData>["remoteClient"] | null;
   camera: JSONTransform<PanelAccessRespData>["camera"] | null;
   student: JSONTransform<PanelAccessRespData>["student"] | null;
-  hostname: string;
 }
 
 export default defineComponent({
@@ -20,56 +19,62 @@ export default defineComponent({
       remoteClient: null,
       camera: null,
       student: null,
-      hostname: location.hostname,
-    }
+    };
   },
   async mounted() {
     if (typeof this.$route.params.code !== "string") {
-      console.error("mounted: param `code` is not a string")
-      return
+      console.error("mounted: param `code` is not a string");
+      return;
     }
     const linkData = await this.fetchLinkData(this.$route.params.code);
     if (!linkData) {
       this.$alert("Failed to fetch link data", "Error", "error", {
         confirmButtonText: "OK",
-      })
+      });
       return;
     }
     const { remoteClient, camera, student } = linkData;
     if (!remoteClient) {
       this.$alert("Remote client not found", "Error", "error", {
         confirmButtonText: "OK",
-      })
+      });
       return;
     }
     if (!student) {
       this.$alert("This link is not assigned yet", "Error", "error", {
         confirmButtonText: "OK",
-      })
+      });
       return;
     }
-    this.remoteClient = remoteClient
-    this.camera = camera
-    this.student = student
-    this.ready = true
+    this.remoteClient = remoteClient;
+    this.camera = camera;
+    this.student = student;
+    this.ready = true;
   },
   methods: {
     async fetchLinkData(code: string) {
       if (!code) {
-        return null
+        return null;
       }
+
       try {
         const { data } = await axios.get<AxiosResp<PanelAccessRespData>>(`/api/panel/access/${code}`, {
           responseType: "json",
-        })
+        });
         if (!data.success) {
           throw new Error(data.message)
         }
-        return data.data
+        return data.data;
       } catch (error) {
-        console.error(error)
-        return null
+        console.error(error);
+        return null;
       }
+    },
+  },
+  props: {
+    rustdeskHostname: {
+      type: String,
+      required: true,
     },
   },
 });
@@ -77,36 +82,31 @@ export default defineComponent({
 
 <template>
   <div v-if="ready">
-    <div class="flex-container" v-if="camera">
+    <div class="grid-container" v-if="camera">
       <!-- two column, flex -->
-      <div v-if="remoteClient">
-        <h2>Remote Client</h2>
-        <div style="font-size: 16px; line-height: 18px;">
+      <div class="remote-client-area remote-client-grid" v-if="remoteClient">
+        <div class="header-info">
           工控机连接凭据：
-          <i class="fa fa-user icon" id="icon"></i><span>{{ remoteClient.clientId }}</span>
-          <span style="margin: 0 6px;"></span>
-          <i class="fa fa-lock icon"></i><span>{{ remoteClient.password }}</span>
+          <i class="fa fa-user icon" id="icon"></i>远程 ID:&nbsp;<span>{{ remoteClient.clientId }}</span>
+          <span style="margin: 0 6px;">&nbsp;</span>
+          <i class="fa fa-lock icon"></i>密码:&nbsp;<span>{{ remoteClient.password }}</span>
         </div>
-        <iframe v-bind:src="`http://${hostname}:5005/`" frameborder="0" scrolling="no" width="100%"
-          height="calc(100% - 20px);"></iframe>
+        <iframe v-bind:src="`http://${rustdeskHostname}:5005/`" frameborder="0" scrolling="no"></iframe>
       </div>
-      <div>
-        <h2>Camera</h2>
-        <iframe v-bind:src="`http://${camera.ip}:4096/index.html`" frameborder="0" scrolling="no"
-          width="100%" height="100%"></iframe>
+      <div class="camera-area camera-grid">
+        <iframe id="camera-iframe" v-bind:src="`http://${camera.ip}:4096/index.html`" frameborder="0"
+          scrolling="no"></iframe>
       </div>
     </div>
     <div v-else>
-      <div v-if="remoteClient">
-        <h2>Remote Client</h2>
-        <div style="font-size: 16px; line-height: 18px;">
+      <div class="remote-client-area remote-client-full" v-if="remoteClient">
+        <div class="header-info">
           工控机连接凭据：
-          <i class="fa fa-user icon" id="icon"></i><span>{{ remoteClient.clientId }}</span>
-          <span style="margin: 0 6px;"></span>
-          <i class="fa fa-lock icon"></i><span>{{ remoteClient.password }}</span>
+          <i class="fa fa-user icon" id="icon"></i>远程 ID:&nbsp;<span>{{ remoteClient.clientId }}</span>
+          <span style="margin: 0 6px;">&nbsp;</span>
+          <i class="fa fa-lock icon"></i>密码:&nbsp;<span>{{ remoteClient.password }}</span>
         </div>
-        <iframe v-bind:src="`http://${hostname}:5005/`" frameborder="0" scrolling="no" width="100%"
-          height="calc(100% - 20px);"></iframe>
+        <iframe v-bind:src="`http://${rustdeskHostname}:5005/`" frameborder="0" scrolling="no"></iframe>
       </div>
     </div>
   </div>
@@ -128,13 +128,36 @@ export default defineComponent({
 </template>
 
 <style scoped>
-.flex-container {
-  display: flex;
-  flex-direction: row;
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-gap: 10px;
+  height: 100%;
 }
 
-.flex-container>div {
-  margin: 0 2px;
+.grid-container>div {
+  margin: 0 4px;
+}
+
+.camera-area iframe {
+  height: 500px;
+  width: 100%;
+}
+
+.remote-client-area iframe {
+  height: calc(100vh - 20px);
+  width: 100%;
+}
+
+.header-info {
+  font-size: 16px;
+  line-height: 18px;
+  padding: 6px 0 6px 4px;
+}
+
+.remote-client-area .header-info {
+  background-color: #2196f3;
+  color: white;
 }
 
 .loader {
@@ -152,5 +175,9 @@ export default defineComponent({
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+.fa.icon {
+  margin-right: 2px;
 }
 </style>

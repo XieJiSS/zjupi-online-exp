@@ -16,7 +16,9 @@ import Register from "./Register.vue";
 import "./assets/style/font-awesome.css";
 
 const routes: RouteRecordRaw[] = [
-  { path: "/access/:code", component: Access },
+  { path: "/access/:code", component: Access, props: {
+    rustdeskHostname: import.meta.env.VITE_RUSTDESK_HOSTNAME,
+  } },
   { path: "/admin", component: Admin },
   { path: "/login", component: Login },
   { path: "/pizju_register", component: Register },

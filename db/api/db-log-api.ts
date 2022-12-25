@@ -56,9 +56,9 @@ export function getPersistentLoggerUtil(
   level: "info" | "warn" | "error",
   sourceFile: string,
   oldLogger: (message: any, ...args: any[]) => void
-): (message: any, ...args: any[]) => void {
+): (message: any, ...args: any[]) => Promise<void> {
   const trimmedSourceFile = sourceFile.replace(path.resolve(process.cwd()), "$ROOT");
-  return (message, ...args) => {
+  return async (message, ...args) => {
     const allArgs = [message, ...args];
     let errmsg = "";
     for (const arg of allArgs) {
@@ -71,7 +71,7 @@ export function getPersistentLoggerUtil(
       }
       errmsg += " ";
     }
-    createDBLog(level, errmsg, trimmedSourceFile).catch((err) => {
+    await createDBLog(level, errmsg, trimmedSourceFile).catch((err) => {
       oldLogger("failed to write", level, "log record, due to", err);
     });
     oldLogger(message, ...args);

@@ -14,13 +14,18 @@ log4js.configure({
   },
 });
 
-const existingLoggers: Map<string, log4js.Logger> = new Map();
+interface CustomLogger extends log4js.Logger {
+  warn: (message: any, ...args: any[]) => void | Promise<void>;
+  error: (message: any, ...args: any[]) => void | Promise<void>;
+}
 
-export default function getLogger(name: string): log4js.Logger {
+const existingLoggers: Map<string, CustomLogger> = new Map();
+
+export default function getLogger(name: string): CustomLogger {
   if (existingLoggers.has(name)) {
-    return existingLoggers.get(name) as log4js.Logger;
+    return existingLoggers.get(name) as CustomLogger;
   }
-  const logger = log4js.getLogger(name);
+  const logger: CustomLogger = log4js.getLogger(name);
   existingLoggers.set(name, logger);
   return logger;
 }

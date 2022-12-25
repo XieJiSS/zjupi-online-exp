@@ -140,7 +140,7 @@ async function loadAllLogs() {
   if (!resp.data) {
     return;
   }
-  logs.value = resp.data;
+  logs.value = resp.data.reverse();
 }
 async function loadAll(alert: boolean = false) {
   await Promise.all([loadAllStudents(), loadAllLinks(), loadAllCameras(), loadAllRClients(), loadAllLogs()]);
@@ -156,32 +156,46 @@ function clearSelected() {
   }
 }
 function toggleTab(newTab: AdminTab) {
+  switch (newTab) {
+    case "rclients":
+      loadAllRClients();
+      break;
+    case "students":
+      loadAllStudents();
+      break;
+    case "logs":
+      loadAllLogs();
+      break;
+    case "cameras":
+      loadAllCameras();
+      break;
+  }
+
   const storedSelectedStatus = JSON.parse(localStorage.getItem(newTab + "_selectedStatus") ?? "[]");
+
   if (storedSelectedStatus.length > 0) {
     let targetDataLength = 0;
     switch (newTab) {
       case "rclients":
         targetDataLength = rclients.value.length;
-        loadAllRClients();
         break;
       case "students":
         targetDataLength = students.value.length;
-        loadAllStudents();
         break;
       case "logs":
         targetDataLength = logs.value.length;
-        loadAllLogs();
         break;
       case "cameras":
         targetDataLength = cameras.value.length;
-        loadAllCameras();
         break;
     }
+
     if (storedSelectedStatus.length < targetDataLength) {
       for (let i = storedSelectedStatus.length; i < targetDataLength; i++) {
         storedSelectedStatus.push(false);
       }
     }
+
     localStorage.setItem(newTab + "_selectedStatus", JSON.stringify(storedSelectedStatus));
     selectedStatus.value = storedSelectedStatus;
   }

@@ -36,6 +36,7 @@ import sql from "../db/api/all-apis";
 import { getSequelizeSessionStore } from "../db/session";
 import { sendOpToCameraIP } from "./camera-req-proxy";
 import type { CameraDirection } from "./camera-req-proxy";
+export type { CameraDirection, CameraOperation } from "./camera-req-proxy";
 
 const CLASS_DURATION = (Number(process.env["CLASS_DURATION_MINUTES"]) || 240) * 60 * 1000;
 

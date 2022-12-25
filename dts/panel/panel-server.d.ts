@@ -3,6 +3,7 @@ import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBL
 import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
 export declare const app: import("express-serve-static-core").Express;
 import type { CameraDirection } from "./camera-req-proxy";
+export type { CameraDirection, CameraOperation } from "./camera-req-proxy";
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
     remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;

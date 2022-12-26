@@ -1,5 +1,5 @@
 {
-  "name": "zju-eng-dep-online-exp",
+  "name": "zjupi-online-exp",
   "version": "1.0.0",
   "description": "",
   "main": "app.js",
@@ -14,15 +14,15 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/XieJiSS/zju-eng-dep-online-exp.git"
+    "url": "git+https://github.com/XieJiSS/zjupi-online-exp.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/XieJiSS/zju-eng-dep-online-exp/issues"
+    "url": "https://github.com/XieJiSS/zjupi-online-exp/issues"
   },
-  "homepage": "https://github.com/XieJiSS/zju-eng-dep-online-exp#readme",
+  "homepage": "https://github.com/XieJiSS/zjupi-online-exp#readme",
   "dependencies": {
     "async-exit-hook": "^2.0.1",
     "axios": "^1.2.1",

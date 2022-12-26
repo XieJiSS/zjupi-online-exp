@@ -7,9 +7,10 @@ export type { CameraDirection, CameraOperation } from "./camera-req-proxy";
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
     remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
-    student: TPartialModel<StudentModel, "name"> | null;
+    student: TPartialModel<StudentModel, "name" | "studentId"> | null;
     camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
 }
+/** /api/panel/access/:link/camera-control req body */
 export type PanelAccessLinkCameraControlReqBody = {
     direction: CameraDirection;
     operation: "start";

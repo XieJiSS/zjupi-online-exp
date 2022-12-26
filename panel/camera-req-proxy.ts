@@ -75,7 +75,7 @@ export async function sendOpToCameraIP<T extends CameraOperation>(
   let resp;
 
   try {
-    resp = await axios.post<AxiosResp<void>>(`http://${cameraIP}/api/camera-client/operation`, body);
+    resp = await axios.post<AxiosResp<void>>(`http://${cameraIP}:5004/api/camera-client/operation`, body);
   } catch {
     logger.error(`Failed to send operation ${direction} ${operation} ${speed} to camera ${cameraIP}`);
     return false;

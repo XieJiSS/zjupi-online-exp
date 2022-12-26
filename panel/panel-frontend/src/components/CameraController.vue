@@ -10,7 +10,7 @@ const props = defineProps<{
   accessCode: string | null;
 }>();
 
-const speed = ref<number>(30);
+const speed = ref<number>(40);
 const cameraControlDelayNotified = ref<"no" | "pending" | "yes">("no");
 
 onMounted(async () => {

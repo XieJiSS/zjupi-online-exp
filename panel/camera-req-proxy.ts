@@ -52,7 +52,7 @@ export async function sendOpToCameraIP<T extends CameraOperation>(
   speed?: number
 ) {
   if (operation === "stop") speed = 0;
-  if (typeof speed !== "number") speed = 30;
+  if (typeof speed !== "number") speed = 40;
 
   let body: CameraClientOperationReqBody;
 

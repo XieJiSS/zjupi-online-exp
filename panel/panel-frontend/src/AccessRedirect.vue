@@ -7,7 +7,7 @@ export default defineComponent({
   },
   async mounted() {
     try {
-      const code = await this.$prompt("Please enter the access code", "");
+      const code = await this.$prompt("请输入访问码：", "");
       if (!code) {
         return;
       }

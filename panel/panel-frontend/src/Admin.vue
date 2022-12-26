@@ -320,6 +320,27 @@ async function importStudentsFromCSV() {
   };
   reader.readAsArrayBuffer(file);
 }
+async function removeSelectedStudents() {
+  if (tab.value !== "students") {
+    await $alert("当前 tab 不支持该操作");
+    return;
+  }
+  const deleteStudents: PanelAdminStudentDeleteReqBody[] = [];
+  for (let i = 0; i < selectedStatus.value.length; i++) {
+    if (selectedStatus.value[i]) {
+      const student = students.value[i];
+      if (!student)
+        continue;
+      deleteStudents.push({ studentId: student.studentId });
+    }
+  }
+  const resp: AxiosResp<void> = await axiosPost<void>("/api/panel/admin/student/deleteMulti", deleteStudents);
+  if (!resp.success) {
+    await $alert("Failed: " + resp.message);
+    return;
+  }
+  await loadAllStudents();
+}
 function extractLocationCode(phone: string): string {
   phone = phone.replace(/\s/g, "");
   if (/^\d+$/.test(phone)) {
@@ -766,7 +787,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab === 'rclients'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="searchClients">查找ID</a>
             <a href="javascript:void(0);" class="btn" v-on:click="showAllClients"
               v-if="displayRClients.length < rclients.length">显示全部</a>
@@ -810,10 +831,10 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'students'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="addStudent">添加学生</a>
             <a href="javascript:void(0);" class="btn" v-on:click="importStudentsFromCSV">从 CSV 导入</a>
-            <a href="javascript:void(0);" class="btn" v-on:click="void 0">批量删除</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="removeSelectedStudents">删除选中学生</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
           </div>
           <div class="table-responsive">
@@ -839,7 +860,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'logs'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选中</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
           </div>
           <div class="table-responsive">
@@ -865,7 +886,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'cameras'">
           <div class="card-body-header">
-            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">清除选中</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected">取消选中</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
           </div>
           <div class="table-responsive">

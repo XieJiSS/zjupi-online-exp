@@ -1,8 +1,8 @@
 {
   "name": "zjupi-online-exp",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
-  "main": "app.js",
+  "main": "build/app.js",
   "scripts": {
     "dev": "yarn run build-dev && cd build && node app.js",
     "prod": "yarn run build && cd build && pm2 stop online-exp && pm2 start app.js online-exp",

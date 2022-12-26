@@ -296,6 +296,7 @@ i.fa.fa-remove {
 }
 .card-body-header {
   margin-bottom: 20px;
+  height: 26px;
 }
 .align-right {
   float: right;

@@ -812,7 +812,7 @@ onMounted(async () => {
             <a href="javascript:void(0);" class="btn align-right" v-on:click="loadAll(true)">刷新</a>
           </div>
           <div class="table-responsive">
-            <table class="table table-hover" v-if="rclients.length > 0">
+            <table class="table table-hover">
               <thead>
                 <tr>
                   <th>选择</th>

@@ -9,7 +9,7 @@ export interface AxiosRespBase {
 
 export type AxiosResp<T> = AxiosRespBase & AxiosResponse<JSONTransform<T>>;
 
-export type JSONFields = string | number | boolean | null | undefined;
+export type JSONFields = string | number | boolean | null | undefined | void;
 export type ToSafeJSONField<T> = Exclude<T, Date> extends JSONFields
   ? Date extends T
     ? T extends Date // T == Date

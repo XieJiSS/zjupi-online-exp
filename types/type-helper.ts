@@ -54,7 +54,7 @@ export type AsyncPartialModelArrPicker<T extends Model<any>, U extends TExtractA
   attributes: U[]
 ) => Promise<TPartialModel<T, U>[]>;
 
-export type JSONFields = string | number | boolean | null | undefined;
+export type JSONFields = string | number | boolean | null | undefined | void;
 export type ToSafeJSONField<T> = Exclude<T, Date> extends JSONFields
   ? Date extends T
     ? T extends Date // T == Date

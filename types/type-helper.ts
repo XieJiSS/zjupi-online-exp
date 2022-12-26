@@ -43,9 +43,16 @@ export type TExtractAttrsFromModel<T extends Model<any>> = keyof TExtractInterfa
 
 // for limiting accessible attributes
 
+// should be used at DAO level
 export type TPartialModel<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPickAttrs<T, U> &
   Omit<T, TExtractAttrsFromModel<T>>;
 export type TPartialModelArr<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPartialModel<T, U>[];
+// should be used at service/router level
+export type TPartialModelPrimitive<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPickAttrs<T, U>;
+export type TPartialModelPrimitiveArr<
+  T extends Model<any>,
+  U extends TExtractAttrsFromModel<T>
+> = TPartialModelPrimitive<T, U>[];
 
 export type AsyncPartialModelPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (
   attributes: U[]

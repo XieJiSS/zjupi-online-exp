@@ -9,7 +9,7 @@ import type {
   AccessLinkModel,
   DBLogModel,
 } from "../db/models/all-models";
-import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
+import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModelPrimitive } from "../types/type-helper";
 import type { AccessLinkValidTimeOptions } from "../db/api/panel/access-link-api";
 
 import path from "path";
@@ -62,9 +62,9 @@ app.use(
 
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
-  remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
-  student: TPartialModel<StudentModel, "name" | "studentId"> | null;
-  camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
+  remoteClient: TPartialModelPrimitive<RemoteClientModel, "clientId" | "password" | "ip"> | null;
+  student: TPartialModelPrimitive<StudentModel, "name" | "studentId"> | null;
+  camera: TPartialModelPrimitive<CameraModel, "cameraId" | "ip"> | null;
 }
 app.get("/api/panel/access/:link", async (req, res) => {
   const link = req.params.link;
@@ -231,7 +231,7 @@ if (process.env["NODE_ENV"] === "development") {
 }
 
 /** /api/panel/admin/student{s,/:id} */
-export type PanelAdminStudentRespData = TPartialModel<StudentModel, "name" | "studentId" | "phone" | "linkId">;
+export type PanelAdminStudentRespData = TPartialModelPrimitive<StudentModel, "name" | "studentId" | "phone" | "linkId">;
 app.get("/api/panel/admin/students", async (req, res) => {
   const session = /** @type {AdminSession & Express.Request["session"]} */ req.session;
   if (!session.username) {

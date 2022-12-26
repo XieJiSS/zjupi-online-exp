@@ -1,14 +1,14 @@
 /** @format */
 import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBLogModel } from "../db/models/all-models";
-import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModel } from "../types/type-helper";
+import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModelPrimitive } from "../types/type-helper";
 export declare const app: import("express-serve-static-core").Express;
 import type { CameraDirection } from "./camera-req-proxy";
 export type { CameraDirection, CameraOperation } from "./camera-req-proxy";
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
-    remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
-    student: TPartialModel<StudentModel, "name" | "studentId"> | null;
-    camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
+    remoteClient: TPartialModelPrimitive<RemoteClientModel, "clientId" | "password" | "ip"> | null;
+    student: TPartialModelPrimitive<StudentModel, "name" | "studentId"> | null;
+    camera: TPartialModelPrimitive<CameraModel, "cameraId" | "ip"> | null;
 }
 /** /api/panel/access/:link/camera-control req body */
 export type PanelAccessLinkCameraControlReqBody = {
@@ -26,7 +26,7 @@ export interface PanelAdminLoginReqBody {
     password: string;
 }
 /** /api/panel/admin/student{s,/:id} */
-export type PanelAdminStudentRespData = TPartialModel<StudentModel, "name" | "studentId" | "phone" | "linkId">;
+export type PanelAdminStudentRespData = TPartialModelPrimitive<StudentModel, "name" | "studentId" | "phone" | "linkId">;
 /** /api/panel/admin/student/add{One,Multi} */
 export interface PanelAdminStudentAddReqBody {
     name: string;

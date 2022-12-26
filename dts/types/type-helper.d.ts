@@ -26,6 +26,8 @@ export type TExtractInterfaceFromModel<T extends Model<any>> = T extends Model<i
 export type TExtractAttrsFromModel<T extends Model<any>> = keyof TExtractInterfaceFromModel<T>;
 export type TPartialModel<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPickAttrs<T, U> & Omit<T, TExtractAttrsFromModel<T>>;
 export type TPartialModelArr<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPartialModel<T, U>[];
+export type TPartialModelPrimitive<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPickAttrs<T, U>;
+export type TPartialModelPrimitiveArr<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPartialModelPrimitive<T, U>[];
 export type AsyncPartialModelPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (attributes: U[]) => Promise<TPartialModel<T, U>>;
 export type AsyncPartialModelArrPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (attributes: U[]) => Promise<TPartialModel<T, U>[]>;
 export type JSONFields = string | number | boolean | null | undefined | void;

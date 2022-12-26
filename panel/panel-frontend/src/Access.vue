@@ -2,15 +2,19 @@
 import { defineComponent } from "vue";
 import axios from "axios";
 
+import CameraController from "./components/CameraController.vue";
+
 import type { PanelAccessRespData } from "../../../dts/panel/panel-server";
 import type { AxiosResp, JSONTransform } from "types/type-helper";
 
 interface VueAppData {
   ready: boolean;
   error: boolean;
+  accessCode: string | null;
   remoteClient: JSONTransform<PanelAccessRespData>["remoteClient"] | null;
   camera: JSONTransform<PanelAccessRespData>["camera"] | null;
   student: JSONTransform<PanelAccessRespData>["student"] | null;
+  refreshTimer: ReturnType<typeof setInterval> | null;
 }
 
 export default defineComponent({
@@ -18,9 +22,11 @@ export default defineComponent({
     return {
       ready: false,
       error: false,
+      accessCode: null,
       remoteClient: null,
       camera: null,
       student: null,
+      refreshTimer: null,
     };
   },
   async mounted() {
@@ -29,7 +35,9 @@ export default defineComponent({
       this.error = true;
       return;
     }
-    const linkData = await this.fetchLinkData(this.$route.params.code);
+    const code = this.$route.params.code;
+    this.accessCode = code;
+    const linkData = await this.fetchLinkData(code);
     if (!linkData) {
       this.$alert("Failed to fetch link data", "Error", "error", {
         confirmButtonText: "OK",
@@ -52,10 +60,31 @@ export default defineComponent({
       this.error = true;
       return;
     }
+
     this.remoteClient = remoteClient;
     this.camera = camera;
     this.student = student;
     this.ready = true;
+
+    this.refreshTimer = setInterval(() => {
+      console.log("refreshing link data");
+      this.fetchAndLoadLinkData(code);
+    }, 5000);
+  },
+  beforeUnmount() {
+    if (this.refreshTimer) {
+      console.log("clearing refresh timer");
+      clearInterval(this.refreshTimer);
+    }
+  },
+  watch: {
+    error(newError: boolean) {
+      if (newError) {
+        setTimeout(() => {
+          this.$router.push("/access");
+        }, 3000);
+      }
+    },
   },
   methods: {
     async fetchLinkData(code: string) {
@@ -76,12 +105,42 @@ export default defineComponent({
         return null;
       }
     },
+    async fetchAndLoadLinkData(code: string): Promise<boolean> {
+      const linkData = await this.fetchLinkData(code);
+      if (!linkData) {
+        console.error("Failed to fetch link data");
+        return false;
+      }
+      const { remoteClient, camera, student } = linkData;
+      if (!remoteClient) {
+        console.error("Remote client not found");
+        await this.$router.push("/access");
+        return false;
+      }
+      if (!student) {
+        console.error("This link is not assigned yet");
+        await this.$router.push("/access");
+        return false;
+      }
+      if (this.student && student.studentId !== this.student.studentId) {
+        console.error("This link is not assigned to you any more");
+        await this.$router.push("/access");
+        return false;
+      }
+      this.remoteClient = remoteClient;
+      this.camera = camera;
+      this.student = student;
+      return true;
+    },
   },
   props: {
     rustdeskHostname: {
       type: String,
       required: true,
     },
+  },
+  components: {
+    CameraController,
   },
 });
 </script>
@@ -102,6 +161,9 @@ export default defineComponent({
       <div class="camera-area camera-grid">
         <iframe id="camera-iframe" v-bind:src="`http://${camera.ip}:4096/index.html`" frameborder="0"
           scrolling="no"></iframe>
+        <div class="camera-controller">
+          <CameraController :access-code="accessCode" />
+        </div>
       </div>
     </div>
     <div v-else>
@@ -118,22 +180,37 @@ export default defineComponent({
   </div>
   <div v-else>
     <div class="loader" v-if="!error">
+      <!-- grabbed from loading.io -->
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
-        style="margin: auto; background: rgba(0, 0, 0, 0); display: block;" width="200px" height="200px"
+        style="margin: auto; background: rgba(0, 0, 0, 0); display: block;" width="150px" height="150px"
         viewBox="0 0 100 100" preserveAspectRatio="xMidYMid">
         <path fill="none" stroke="#85a2b6" stroke-width="8"
           stroke-dasharray="42.76482137044271 42.76482137044271"
           d="M24.3 30C11.4 30 5 43.3 5 50s6.4 20 19.3 20c19.3 0 32.1-40 51.4-40 C88.6 30 95 43.3 95 50s-6.4 20-19.3 20C56.4 70 43.6 30 24.3 30z"
-          stroke-linecap="round" style="transform:scale(0.8);transform-origin:50px 50px">
+          stroke-linecap="round" style="transform: scale(0.8); transform-origin: 50px 50px">
           <animate attributeName="stroke-dashoffset" repeatCount="indefinite" dur="1s" keyTimes="0;1"
             values="0;256.58892822265625"></animate>
         </path>
       </svg>
     </div>
+    <div v-else>
+      <div class="error">
+        <span>出错了！</span>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped>
+.error {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  font-size: 24px;
+  color: rgb(208, 72, 72);
+}
+
 .grid-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -142,7 +219,7 @@ export default defineComponent({
 }
 
 .grid-container>div {
-  margin: 0 4px;
+  margin: 0;
 }
 
 .camera-area iframe {
@@ -164,6 +241,10 @@ export default defineComponent({
 .remote-client-area .header-info {
   background-color: #2196f3;
   color: white;
+}
+
+.camera-controller {
+  margin-left: 8px;
 }
 
 .loader {

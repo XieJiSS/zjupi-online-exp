@@ -63,7 +63,7 @@ app.use(
 /** /api/panel/access/:link */
 export interface PanelAccessRespData {
   remoteClient: TPartialModel<RemoteClientModel, "clientId" | "password" | "ip"> | null;
-  student: TPartialModel<StudentModel, "name"> | null;
+  student: TPartialModel<StudentModel, "name" | "studentId"> | null;
   camera: TPartialModel<CameraModel, "cameraId" | "ip"> | null;
 }
 app.get("/api/panel/access/:link", async (req, res) => {
@@ -84,7 +84,7 @@ app.get("/api/panel/access/:link", async (req, res) => {
     sql.getRemoteClientByIdAttrsOnly(clientId, ["clientId", "password", "ip"]),
     cameraId ? sql.getCameraByIdAttrsOnly(cameraId, ["cameraId", "ip", "lastActive"]) : null,
   ]);
-  const student = await sql.getStudentByLinkIdAttrsOnly(linkObj.linkId, ["name"]);
+  const student = await sql.getStudentByLinkIdAttrsOnly(linkObj.linkId, ["name", "studentId"]);
   const data: PanelAccessRespData = {
     remoteClient: client,
     camera: camera,
@@ -97,6 +97,7 @@ app.get("/api/panel/access/:link", async (req, res) => {
   });
 });
 
+/** /api/panel/access/:link/camera-control req body */
 export type PanelAccessLinkCameraControlReqBody =
   | {
       direction: CameraDirection;

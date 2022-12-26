@@ -6,17 +6,23 @@ import path from "path";
 import { setTimeout as sleep } from "timers/promises";
 
 import getLogger from "../util/logger";
-import dbLogApi from "../db/api/db-log-api";
 const logger = getLogger("rustdesk-wrapper");
-logger.error = dbLogApi.getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
-logger.warn = dbLogApi.getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
 const HOST_IP = "127.0.0.1";
+
+let dbLoggerInited = false;
 
 let hbbServerStatusChecker: NodeJS.Timeout | null = null;
 let restartHbbServerAttempt = 0;
 
 export async function startHbbServer() {
+  if (!dbLoggerInited) {
+    const dbLogApi = await import("../db/api/db-log-api");
+    logger.error = dbLogApi.getPersistentLoggerUtil("error", __filename, logger.error.bind(logger));
+    logger.warn = dbLogApi.getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
+    dbLoggerInited = true;
+  }
+
   if (os.platform() !== "win32") {
     logger.warn("Currently can't start rustdesk hbbs/hbbr server on non-Windows platforms.");
     return;

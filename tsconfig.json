@@ -33,15 +33,13 @@
     "isolatedModules": true,
     "maxNodeModuleJsDepth": 3,
     // 解析非相对模块名的基准目录 
-    "baseUrl": ".",
+    // "baseUrl": ".", // https://github.com/microsoft/TypeScript/issues/51701
     // 给错误和消息设置样式，使用颜色和上下文。
     "pretty": true,
     // 设置引入的定义文件
     "types": ["node", "express", "express-session"],
     // 指定特殊模块的路径
-    "paths": {
-      "@/*": ["src/*"]
-    },
+    "paths": {},
     // 编译过程中需要引入的库文件的列表
     "lib": ["esnext", "dom", "dom.iterable", "scripthost"],
     "typeRoots": [

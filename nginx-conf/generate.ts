@@ -41,7 +41,7 @@ if (process.env["NODE_ENV"] === "development") {
   conf = "";
 }
 
-import { configs as serverConfigs } from "servers/configs";
+import { configs as serverConfigs } from "../servers/configs";
 for (const server of serverConfigs) {
   logger.info(`Generating config for server ${server.name} ...`);
   assert(/^[a-zA-Z0-9_]+$/.test(server.name), "server name must be alphanumeric.");

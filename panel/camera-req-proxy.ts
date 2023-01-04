@@ -13,7 +13,7 @@ logger.error = dbLogApi.getPersistentLoggerUtil("error", __filename, logger.erro
 logger.warn = dbLogApi.getPersistentLoggerUtil("warn", __filename, logger.warn.bind(logger));
 
 import { default as _axios } from "axios";
-import type { AxiosResp } from "types/type-helper";
+import type { AxiosResp } from "../types/type-helper";
 
 const axios = _axios.create({
   timeout: 3000,

@@ -23,9 +23,18 @@ export default {
     isPhoneValid() {
       return /^1[3456789]\d{9}$/.test(this.phone);
     },
+    isPasswordValid() {
+      return this.password.length >= 6;
+    },
     async submitRegister() {
       if (!this.isPhoneValid()) {
         await this.$alert("手机号码格式不正确", "错误", "error", {
+          confirmButtonText: "确定",
+        });
+        return;
+      }
+      if (!this.isPasswordValid()) {
+        await this.$alert("密码长度不得少于6位", "错误", "error", {
           confirmButtonText: "确定",
         });
         return;

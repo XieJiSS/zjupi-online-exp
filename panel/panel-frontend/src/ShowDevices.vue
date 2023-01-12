@@ -270,10 +270,12 @@ function showDeviceDetail(device: UnifiedDeviceModelWrapperResp) {
       idValue.value = device.device.id;
       stateLabel.value = "状态";
       stateValue.value = device.device.state ? "开" : "关";
-      showDetailValue.value = false;
+      showDetailValue.value = true;
+      valueLabel.value = "亮度";
+      valueValue.value = String(device.device.value);
 
       stateConfigurable.value = true;
-      valueConfigurable.value = false;
+      valueConfigurable.value = true;
       break;
     case "doorlock":
       typeValue.value = "门锁";
@@ -294,7 +296,7 @@ function showDeviceDetail(device: UnifiedDeviceModelWrapperResp) {
       stateValue.value = device.device.state ? "工作" : "关机";
       showDetailValue.value = true;
       valueLabel.value = "传感值";
-      valueValue.value = String(device.device.value) + "%";
+      valueValue.value = String(device.device.value);
 
       stateConfigurable.value = true;
       valueConfigurable.value = true;
@@ -350,7 +352,7 @@ async function updateDeviceValue(value: string) {
   }
   showDetailModal.value = false;
   const body: PanelAdminPlaceDeviceUpdateReqBody = {
-    value: parseInt(value, 10) || 0,
+    value: parseFloat(value) || 0,
   };
   const resp = await axiosPost<void>(
     `/api/panel/admin/place/${placeId.value}/device/${detailDevice.value.type}/${detailDevice.value.device.id}/update`,
@@ -390,7 +392,7 @@ async function deleteDevice(device: UnifiedDeviceModelWrapperResp) {
             <th>类别</th>
             <th>设备名称</th>
             <th>设备状态</th>
-            <th>上报数值</th>
+            <th>数值</th>
             <th>操作</th>
           </tr>
         </thead>
@@ -403,7 +405,8 @@ async function deleteDevice(device: UnifiedDeviceModelWrapperResp) {
             <td>
               <n-space size="small">
                 <n-button size="small" @click="showDeviceDetail(device)">详情</n-button>
-                <n-button size="small" @click="deleteDevice(device)">删除</n-button>
+                <n-button v-if="device.type !== 'rclient' && device.type !== 'camera'" size="small"
+                  @click="deleteDevice(device)">删除</n-button>
               </n-space>
             </td>
           </tr>
@@ -461,5 +464,15 @@ async function deleteDevice(device: UnifiedDeviceModelWrapperResp) {
 
 #place-canvas {
   margin-top: 12px;
+}
+</style>
+
+<style>
+.n-base-selection.n-base-selection--disabled .n-base-selection-label .n-base-selection-input {
+  color: var(--n-text-color) !important;
+}
+
+input[disabled] {
+  color: black !important;
 }
 </style>

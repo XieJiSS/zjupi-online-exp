@@ -216,7 +216,7 @@ app.post("/api/panel/admin/logout", async (req, res) => {
     return;
   }
   req.session.username = null;
-  await promisify(req.session.save.bind(session))();
+  req.session.save.bind(session);
   res.json({ success: true, message: "" });
 });
 
@@ -234,11 +234,6 @@ export interface PanelAdminRegisterReqBody {
   password: string;
 }
 app.post("/api/panel/admin/register", async (req, res) => {
-  if ((await sql.getAdminCount()) > 0) {
-    res.json({ success: false, message: "Admin already registered" });
-    return;
-  }
-
   const { username, phone, password }: PanelAdminRegisterReqBody = req.body;
   if (typeof username !== "string" || typeof password !== "string" || typeof phone !== "string") {
     res.json({ success: false, message: "Missing necessary fields" });

@@ -1,38 +1,79 @@
 <!-- @format -->
 
 <script lang="ts" setup>
-import { computed, onMounted, ref, watch } from "vue";
+import { ComputedRef, computed, onMounted, ref, watch } from "vue";
 import type { Ref } from "vue";
+
+import { NButton, NModal } from 'naive-ui';
 
 import axios from "axios";
 import type { AxiosResp, JSONTransform } from "types/type-helper";
 
 import type {
-  PanelAdminRClientRespData, PanelAccessRespData, PanelAdminLinkEditReqBody,
-  PanelAdminStudentDeleteReqBody, PanelAdminStudentAddReqBody,
-  PanelAdminLinkAddReqBody, PanelAdminLinkDeleteReqBody,
-  RemoteClientAttrs, StudentAttrs, AccessLinkAttrs, CameraAttrs, DBLogAttrs,
+  PanelAdminRClientRespData,
+  PanelAccessRespData,
+  PanelAdminLinkEditReqBody,
+  PanelAdminStudentDeleteReqBody,
+  PanelAdminStudentAddReqBody,
+  PanelAdminLinkAddReqBody,
+  PanelAdminLinkDeleteReqBody,
+  RemoteClientAttrs,
+  StudentAttrs,
+  AccessLinkAttrs,
+  CameraAttrs,
+  DBLogAttrs,
   PanelAdminLinkAssignToStudentReqBody,
-  RemoteClientInterface, StudentInterface, AccessLinkInterface, CameraInterface, DBLogInterface,
-  PanelAdminStudentRespData, PanelAdminLinkRespData, PanelAdminCameraRespData,
-  PanelAdminLogRespData, PanelAdminCameraAssignToLinkReqBody, PanelAdminCameraRemoveFromLinkReqBody,
+  RemoteClientInterface,
+  StudentInterface,
+  AccessLinkInterface,
+  CameraInterface,
+  DBLogInterface,
+  PanelAdminStudentRespData,
+  PanelAdminLinkRespData,
+  PanelAdminCameraRespData,
+  PanelAdminLogRespData,
+  PanelAdminCameraAssignToLinkReqBody,
+  PanelAdminCameraRemoveFromLinkReqBody,
+  PanelAdminPlaceDeviceListRespData,
+  PanelAdminPlaceGetRespData,
+  PlaceAttrs,
+  PanelAdminPlacesDeleteMultiReqBody,
 } from "../../../dts/panel/panel-server";
+import {
+  CameraDeviceModelResp,
+  DeviceModelWrapperResp,
+  RClientDeviceModelResp,
+  UnifiedDeviceModelWrapperResp,
+  VirtualDeviceModelWrapperResp,
+} from "../../../dts/db/api/devices-api";
 
-import { useRouter } from 'vue-router';
+import { useRouter } from "vue-router";
 import swal from "vue3-simple-alert-next";
 
 const router = useRouter();
 const { alert: $alert, confirm: $confirm, prompt: $prompt, fire: $fire } = swal;
 
-type AdminTab = "rclients" | "students" | "logs" | "cameras";
-const tab = ref("rclients") as Ref<AdminTab>;
+type AdminTab = "rclients" | "students" | "logs" | "cameras" | "places";
+const tab = ref("places") as Ref<AdminTab>;
 
+interface VueAppData {
+  tab: AdminTab;
+  rclients: JSONTransform<PanelAdminRClientRespData>[];
+  rclientSearchCond: string;
+  students: JSONTransform<PanelAdminStudentRespData>[];
+  links: JSONTransform<PanelAdminLinkRespData>[];
+  cameras: JSONTransform<PanelAdminCameraRespData>[];
+  selectedStatus: boolean[];
+  logs: Partial<JSONTransform<DBLogInterface>>[];
+  places: JSONTransform<PanelAdminPlaceGetRespData>[];
+}
 type DisplayKeymap = {
   rclient: Partial<Record<RemoteClientAttrs, string>>;
   link: Partial<Record<AccessLinkAttrs, string>>;
   camera: Partial<Record<CameraAttrs, string>>;
   student: Partial<Record<StudentAttrs, string>>;
   log: Partial<Record<DBLogAttrs, string>>;
+  place: Partial<Record<PlaceAttrs, string>>;
 };
 const displayKeymap: DisplayKeymap = {
   rclient: {
@@ -49,7 +90,7 @@ const displayKeymap: DisplayKeymap = {
   },
   student: {
     name: "学生姓名",
-    phone: "学生手机"
+    phone: "学生手机",
   },
   camera: {
     cameraId: "摄像头",
@@ -60,35 +101,34 @@ const displayKeymap: DisplayKeymap = {
     text: "内容",
     source: "来源",
     level: "级别",
-  }
+  },
+  place: {
+    placeId: "场地ID",
+    image: "图片",
+  },
 };
 
-interface VueAppData {
-  tab: AdminTab;
-  rclients: JSONTransform<PanelAdminRClientRespData>[];
-  rclientSearchCond: string;
-  students: JSONTransform<PanelAdminStudentRespData>[];
-  links: JSONTransform<PanelAdminLinkRespData>[];
-  cameras: JSONTransform<PanelAdminCameraRespData>[];
-  selectedStatus: boolean[];
-  logs: Partial<JSONTransform<DBLogInterface>>[];
-}
+const imageModalVisible = ref(false);
+const imageModalSrc = ref("");
 
-const rclients = ref([]) as Ref<VueAppData["rclients"]>;
-const rclientSearchCond = ref("") as Ref<VueAppData["rclientSearchCond"]>;
-const students = ref([]) as Ref<VueAppData["students"]>;
-const links = ref([]) as Ref<VueAppData["links"]>;
-const cameras = ref([]) as Ref<VueAppData["cameras"]>;
-const logs = ref([]) as Ref<VueAppData["logs"]>;
-const selectedStatus = ref([]) as Ref<VueAppData["selectedStatus"]>;
+const rclients: Ref<VueAppData["rclients"]> = ref([]);
+const rclientSearchCond: Ref<VueAppData["rclientSearchCond"]> = ref("");
+const students: Ref<VueAppData["students"]> = ref([]);
+const links: Ref<VueAppData["links"]> = ref([]);
+const cameras: Ref<VueAppData["cameras"]> = ref([]);
+const logs: Ref<VueAppData["logs"]> = ref([]);
+const places: Ref<VueAppData["places"]> = ref([]);
+const selectedStatus: Ref<VueAppData["selectedStatus"]> = ref([]);
 
 async function axiosGet<T>(url: string, params: Record<string, any> = {}): Promise<AxiosResp<T>> {
-  const { data } = await axios.get<AxiosResp<T>>(url, {
-    params,
-  }).catch((err) => {
-    console.error(err);
-    return { data: { success: false, message: err.toString() } as AxiosResp<T> };
-  });
+  const { data } = await axios
+    .get<AxiosResp<T>>(url, {
+      params,
+    })
+    .catch((err) => {
+      console.error(err);
+      return { data: { success: false, message: err.toString() } as AxiosResp<T> };
+    });
   if (!data.success && data.message === "Authentication required") {
     await router.push("/login");
     return data;
@@ -142,8 +182,22 @@ async function loadAllLogs() {
   }
   logs.value = resp.data.reverse();
 }
+async function loadAllPlaces() {
+  const resp = await axiosGet<PanelAdminPlaceGetRespData[]>("/api/panel/admin/place/list");
+  if (!resp.data) {
+    return;
+  }
+  places.value = resp.data;
+}
 async function loadAll(alert: boolean = false) {
-  await Promise.all([loadAllStudents(), loadAllLinks(), loadAllCameras(), loadAllRClients(), loadAllLogs()]);
+  await Promise.all([
+    loadAllStudents(),
+    loadAllLinks(),
+    loadAllCameras(),
+    loadAllRClients(),
+    loadAllLogs(),
+    loadAllPlaces(),
+  ]);
   if (alert) {
     await $alert("刷新成功", "提示", "info");
   }
@@ -163,6 +217,9 @@ function toggleTab(newTab: AdminTab) {
     case "students":
       loadAllStudents();
       break;
+    case "places":
+      loadAllPlaces();
+      break;
     case "logs":
       loadAllLogs();
       break;
@@ -181,6 +238,9 @@ function toggleTab(newTab: AdminTab) {
         break;
       case "students":
         targetDataLength = students.value.length;
+        break;
+      case "places":
+        targetDataLength = places.value.length;
         break;
       case "logs":
         targetDataLength = logs.value.length;
@@ -250,6 +310,41 @@ function downloadCSV(csv: string, filename: string) {
   a.download = filename;
   a.click();
 }
+function showImage(src: string) {
+  imageModalSrc.value = src;
+  imageModalVisible.value = true;
+}
+async function addPlace() {
+  await router.push("/admin/createPlace");
+}
+async function managePlace(placeId: string) {
+  await router.push("/admin/managePlace/" + placeId);
+}
+async function showDevices(placeId: string) {
+  await router.push("/admin/showDevices/" + placeId);
+}
+async function removeSelectedPlaces() {
+  if (tab.value !== "places") {
+    await $alert("当前 tab 不支持该操作");
+    return;
+  }
+  const deletePlaces: PanelAdminPlacesDeleteMultiReqBody = [];
+  for (let i = 0; i < selectedStatus.value.length; i++) {
+    if (selectedStatus.value[i]) {
+      const place = places.value[i];
+      if (!place) continue;
+      deletePlaces.push({ placeId: place.placeId });
+    }
+  }
+  const resp = await axiosPost<void>("/api/panel/admin/places/deleteMulti", deletePlaces);
+  if (!resp.success) {
+    await $alert("Failed: " + resp.message, "Error", "error");
+    return;
+  }
+  setTimeout(() => {
+    loadAllPlaces();
+  }, 400);
+}
 async function addStudent() {
   const name = await $prompt("请输入学生姓名：");
   const phone = (await $prompt("请输入学生手机号：")) || "";
@@ -263,7 +358,7 @@ async function addStudent() {
     await $alert("Failed: " + resp.message);
     return;
   }
-  await loadAllStudents();  // @TODO: 增量更新，需要服务端返回新增加学生的 id
+  await loadAllStudents(); // @TODO: 增量更新，需要服务端返回新增加学生的 id
 }
 async function importStudentsFromCSV() {
   const { value: file } = await $fire({
@@ -316,7 +411,7 @@ async function importStudentsFromCSV() {
       await $alert("Failed: " + resp.message);
       return;
     }
-    await loadAllStudents();  // @TODO: 增量更新，需要服务端返回新增加学生的 id
+    await loadAllStudents(); // @TODO: 增量更新，需要服务端返回新增加学生的 id
   };
   reader.readAsArrayBuffer(file);
 }
@@ -329,8 +424,7 @@ async function removeSelectedStudents() {
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
       const student = students.value[i];
-      if (!student)
-        continue;
+      if (!student) continue;
       deleteStudents.push({ studentId: student.studentId });
     }
   }
@@ -377,66 +471,70 @@ async function generateLinksForSelectedRClients() {
       }
     }
   }
-  const [startDate, startTime] = (await $fire({
-    title: "请选择链接生效时间点",
-    html: `
+  const [startDate, startTime] = (
+    await $fire({
+      title: "请选择链接生效时间点",
+      html: `
           <input type="date" id="swal-input1" class="swal2-input" onfocus="this.showPicker()">
           <input type="time" id="swal-input2" class="swal2-input" onfocus="this.showPicker()">
         `,
-    onBeforeOpen: () => {
-      const input1 = document.getElementById("swal-input1") as HTMLInputElement;
-      const input2 = document.getElementById("swal-input2") as HTMLInputElement;
-      const now = new Date();
-      const ISODateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
-      input1.value = ISODateTime.split("T")[0]!;
-      input2.value = ISODateTime.split("T")[1]!.slice(0, 5);
-    },
-    preConfirm: () => {
-      return [
-        (document.getElementById("swal-input1") as HTMLInputElement).value,
-        (document.getElementById("swal-input2") as HTMLInputElement).value,
-      ];
-    },
-    inputValidator: (value) => {
-      const [date, time] = value as unknown as string[];
-      if (!date) {
-        return "日期不能为空";
-      } else if (!time) {
-        return "时间不能为空";
-      }
-      return null;
-    },
-  })).value as string[];
-  const [endDate, endTime] = (await $fire({
-    title: "请选择链接失效时间点",
-    html: `
+      onBeforeOpen: () => {
+        const input1 = document.getElementById("swal-input1") as HTMLInputElement;
+        const input2 = document.getElementById("swal-input2") as HTMLInputElement;
+        const now = new Date();
+        const ISODateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
+        input1.value = ISODateTime.split("T")[0]!;
+        input2.value = ISODateTime.split("T")[1]!.slice(0, 5);
+      },
+      preConfirm: () => {
+        return [
+          (document.getElementById("swal-input1") as HTMLInputElement).value,
+          (document.getElementById("swal-input2") as HTMLInputElement).value,
+        ];
+      },
+      inputValidator: (value) => {
+        const [date, time] = value as unknown as string[];
+        if (!date) {
+          return "日期不能为空";
+        } else if (!time) {
+          return "时间不能为空";
+        }
+        return null;
+      },
+    })
+  ).value as string[];
+  const [endDate, endTime] = (
+    await $fire({
+      title: "请选择链接失效时间点",
+      html: `
           <input type="date" id="swal-input1" class="swal2-input" onfocus="this.showPicker()">
           <input type="time" id="swal-input2" class="swal2-input" onfocus="this.showPicker()">
         `,
-    onBeforeOpen: () => {
-      const input1 = document.getElementById("swal-input1") as HTMLInputElement;
-      const input2 = document.getElementById("swal-input2") as HTMLInputElement;
-      const now = new Date();
-      const ISODateTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
-      input1.value = ISODateTime.split("T")[0]!;
-      input2.value = ISODateTime.split("T")[1]!.slice(0, 5);
-    },
-    preConfirm: () => {
-      return [
-        (document.getElementById("swal-input1") as HTMLInputElement).value,
-        (document.getElementById("swal-input2") as HTMLInputElement).value,
-      ];
-    },
-    inputValidator: (value) => {
-      const [date, time] = value as unknown as string[];
-      if (!date) {
-        return "日期不能为空";
-      } else if (!time) {
-        return "时间不能为空";
-      }
-      return null;
-    },
-  })).value as string[];
+      onBeforeOpen: () => {
+        const input1 = document.getElementById("swal-input1") as HTMLInputElement;
+        const input2 = document.getElementById("swal-input2") as HTMLInputElement;
+        const now = new Date();
+        const ISODateTime = new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString();
+        input1.value = ISODateTime.split("T")[0]!;
+        input2.value = ISODateTime.split("T")[1]!.slice(0, 5);
+      },
+      preConfirm: () => {
+        return [
+          (document.getElementById("swal-input1") as HTMLInputElement).value,
+          (document.getElementById("swal-input2") as HTMLInputElement).value,
+        ];
+      },
+      inputValidator: (value) => {
+        const [date, time] = value as unknown as string[];
+        if (!date) {
+          return "日期不能为空";
+        } else if (!time) {
+          return "时间不能为空";
+        }
+        return null;
+      },
+    })
+  ).value as string[];
   const links: PanelAdminLinkAddReqBody[] = [];
   const validAfter = new Date(startDate + " " + startTime);
   const validUntil = new Date(endDate + " " + endTime);
@@ -509,7 +607,7 @@ async function assignStudentsToSelectedRClients() {
       html += `<datalist id="student-list">`;
       let choiceCount = 0;
       for (const student of students.value) {
-        if (rclients.value.map(rclient => rclient.student?.studentId).includes(student.studentId)) {
+        if (rclients.value.map((rclient) => rclient.student?.studentId).includes(student.studentId)) {
           continue;
         }
         if (pendingStudentIds.includes(student.studentId as number)) {
@@ -520,20 +618,22 @@ async function assignStudentsToSelectedRClients() {
       }
       html += `</datalist>`;
       if (choiceCount === 0) {
-        break;  // no more students to assign
+        break; // no more students to assign
       }
-      const studentId = (await $fire({
-        title: `请选择要分配到工控机${rclients.value[i]!.rclient.clientId}的学生`,
-        html,
-        preConfirm: () => {
-          const text = (document.getElementById("swal-input1") as HTMLInputElement).value;
-          const id = Number(text);
-          if (Number.isNaN(id) || text === "") {
-            return null;
-          }
-          return id;
-        },
-      })).value as number | null;
+      const studentId = (
+        await $fire({
+          title: `请选择要分配到工控机${rclients.value[i]!.rclient.clientId}的学生`,
+          html,
+          preConfirm: () => {
+            const text = (document.getElementById("swal-input1") as HTMLInputElement).value;
+            const id = Number(text);
+            if (Number.isNaN(id) || text === "") {
+              return null;
+            }
+            return id;
+          },
+        })
+      ).value as number | null;
       if (studentId === null) {
         await $alert("要分配的学生不能为空");
         return;
@@ -626,7 +726,9 @@ async function assignCamerasToSelectedLinks() {
       let html = `<input type="list" id="swal-input1" class="swal2-input" onfocus="this.showPicker()" list="camera-list">`;
       html += `<datalist id="camera-list">`;
       let choiceCount = 0;
-      const assignedCameraIds = rclients.value.map(rclient => rclient.camera?.cameraId).filter(id => id !== undefined && id !== null) as string[];
+      const assignedCameraIds = rclients.value
+        .map((rclient) => rclient.camera?.cameraId)
+        .filter((id) => id !== undefined && id !== null) as string[];
       for (const camera of cameras.value) {
         if (assignedCameraIds.includes(camera.cameraId)) {
           continue;
@@ -639,16 +741,18 @@ async function assignCamerasToSelectedLinks() {
       }
       html += `</datalist>`;
       if (choiceCount === 0) {
-        break;  // no more students to assign
+        break; // no more students to assign
       }
-      const cameraId = (await $fire({
-        title: `请选择要分配到工控机${rclients.value[i]!.rclient.clientId}的远控摄像头`,
-        html,
-        preConfirm: () => {
-          const text = (document.getElementById("swal-input1") as HTMLInputElement).value;
-          return text;
-        },
-      })).value as string | null;
+      const cameraId = (
+        await $fire({
+          title: `请选择要分配到工控机${rclients.value[i]!.rclient.clientId}的远控摄像头`,
+          html,
+          preConfirm: () => {
+            const text = (document.getElementById("swal-input1") as HTMLInputElement).value;
+            return text;
+          },
+        })
+      ).value as string | null;
       if (cameraId === null) {
         await $alert("要分配的摄像头不能为空");
         return;
@@ -705,7 +809,7 @@ const displayRClients = computed(() => {
   });
 });
 const rclientKeys = computed(() => {
-  const keys = ObjectKeys(displayKeymap.rclient).map(s => "rclient#" + s);
+  const keys = ObjectKeys(displayKeymap.rclient).map((s) => "rclient#" + s);
   keys.push("link#linkPath");
   keys.push("link#validAfter");
   keys.push("link#validUntil");
@@ -714,7 +818,6 @@ const rclientKeys = computed(() => {
   keys.push("camera#cameraId");
   return keys;
 });
-
 
 watch(rclients, () => {
   localStorage.removeItem("rclients_selectedStatus");
@@ -753,7 +856,7 @@ function ObjectKeys<T extends Object>(obj: T): (keyof T)[] {
 }
 
 onMounted(async () => {
-  tab.value = localStorage.getItem("tab") as AdminTab || "rclients";
+  tab.value = (localStorage.getItem("tab") as AdminTab) || "rclients";
   await loadAll();
 });
 </script>
@@ -765,7 +868,11 @@ onMounted(async () => {
         <h5 class="card-aside-header">Select Tab</h5>
         <div class="card-tab-item" v-on:click="toggleTab('rclients')"
           v-bind:class="{ 'card-tab-item-active': tab == 'rclients' }">
-          综合管理
+          远控管理
+        </div>
+        <div class="card-tab-item" v-on:click="toggleTab('places')"
+          v-bind:class="{ 'card-tab-item-active': tab == 'places' }">
+          场所管理
         </div>
         <div class="card-tab-item" v-on:click="toggleTab('students')"
           v-bind:class="{ 'card-tab-item-active': tab == 'students' }">
@@ -824,9 +931,50 @@ onMounted(async () => {
                   <td>
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
-                  <td v-for="key in rclientKeys" v-bind:class="'table-rc-' + key">{{
-                      getRClientDisplayValue(rclient, key)
-                  }}</td>
+                  <td v-for="key in rclientKeys" v-bind:class="'table-rc-' + key">
+                    {{ getRClientDisplayValue(rclient, key) }}
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div v-show="tab == 'places'">
+          <div class="card-body-header">
+            <a href="javascript:void(0);" class="btn" v-on:click="clearSelected"
+              v-if="selectedStatus.filter((s) => s).length > 0">取消选中</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="addPlace">添加场所</a>
+            <a href="javascript:void(0);" class="btn" v-on:click="removeSelectedPlaces"
+              v-if="selectedStatus.filter((s) => s).length > 0">删除选中场所</a>
+            <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
+          </div>
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>选择</th>
+                  <th v-for="key in ObjectKeys(displayKeymap.place)">{{ displayKeymap.place[key] }}</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(place, i) in places">
+                  <td>
+                    <input type="checkbox" v-model="selectedStatus[i]" />
+                  </td>
+                  <td class="table-place-placeId">
+                    {{ place["placeId"] }}
+                  </td>
+                  <td class="table-place-image">
+                    <n-button size="small" v-if="place['image']"
+                      v-on:click="showImage(place['image'])">户型图</n-button>
+                  </td>
+                  <td class="table-place-manage">
+                    <n-space>
+                      <n-button size="small" v-on:click="managePlace(place['placeId'])">增加设备</n-button>
+                      <n-button size="small" v-on:click="showDevices(place['placeId'])">查看设备</n-button>
+                    </n-space>
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -847,7 +995,7 @@ onMounted(async () => {
               <thead>
                 <tr>
                   <th>选择</th>
-                  <th v-for="text in ObjectKeys(displayKeymap.student)">{{ text }}</th>
+                  <th v-for="key in ObjectKeys(displayKeymap.student)">{{ displayKeymap.student[key] }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -855,9 +1003,9 @@ onMounted(async () => {
                   <td>
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
-                  <td v-for="key in ObjectKeys(displayKeymap.student)" v-bind:class="'table-stu-' + key">{{
-                      student[key]
-                  }}</td>
+                  <td v-for="key in ObjectKeys(displayKeymap.student)" v-bind:class="'table-stu-' + key">
+                    {{ student[key] }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -874,7 +1022,7 @@ onMounted(async () => {
               <thead>
                 <tr>
                   <th>选择</th>
-                  <th v-for="text in ObjectKeys(displayKeymap.log)">{{ text }}</th>
+                  <th v-for="key in ObjectKeys(displayKeymap.log)">{{ displayKeymap.log[key] }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -883,8 +1031,7 @@ onMounted(async () => {
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
                   <td v-for="key in ObjectKeys(displayKeymap.log)" v-bind:class="'table-log-' + key">{{
-                      log[key]
-                  }}</td>
+                  log[key] }}</td>
                 </tr>
               </tbody>
             </table>
@@ -901,7 +1048,7 @@ onMounted(async () => {
               <thead>
                 <tr>
                   <th>选择</th>
-                  <th v-for="text in ObjectKeys(displayKeymap.camera)">{{ text }}</th>
+                  <th v-for="key in ObjectKeys(displayKeymap.camera)">{{ displayKeymap.camera[key] }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -909,9 +1056,9 @@ onMounted(async () => {
                   <td>
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
-                  <td v-for="key in ObjectKeys(displayKeymap.camera)" v-bind:class="'table-cam-' + key">{{
-                      camera[key]
-                  }}</td>
+                  <td v-for="key in ObjectKeys(displayKeymap.camera)" v-bind:class="'table-cam-' + key">
+                    {{ camera[key] }}
+                  </td>
                 </tr>
               </tbody>
             </table>
@@ -919,6 +1066,12 @@ onMounted(async () => {
         </div>
       </div>
     </div>
+    <n-modal v-model:show="imageModalVisible">
+      <n-card style="width: 600px" title="户型图" :bordered="false" size="huge" role="dialog"
+        aria-modal="true">
+        <img v-bind:src="imageModalSrc" style="width: 100%" />
+      </n-card>
+    </n-modal>
   </div>
 </template>
 
@@ -941,6 +1094,6 @@ input[type="time"] {
 
 .table-log-source,
 .table-log-level {
-  font-family: Courier, Consolas, 'Courier New', monospace;
+  font-family: Courier, Consolas, "Courier New", monospace;
 }
 </style>

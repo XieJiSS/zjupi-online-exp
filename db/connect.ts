@@ -24,7 +24,7 @@ export async function gracefullyCloseDatabaseConnection() {
 }
 
 export const _promise: Promise<Sequelize> = new Promise(async (resolve, reject) => {
-  const sequelize = new Sequelize("db", "root", process.env["DB_MYSQL_PSWD"], {
+  const sequelize = new Sequelize("bs", "root", process.env["DB_MYSQL_PSWD"], {
     host: "localhost",
     dialect: "mysql",
     port: 3306,
@@ -35,7 +35,7 @@ export const _promise: Promise<Sequelize> = new Promise(async (resolve, reject) 
       idle: 10000,
     },
     benchmark: true,
-    logging: (sql, timing) => seqLogger.debug.bind(seqLogger)(sql, "executed in", timing, "ms"),
+    logging: (sql, timing) => seqLogger.debug.bind(seqLogger)(sql.slice(0, 100), "executed in", timing, "ms"),
   });
   try {
     await sequelize.authenticate();

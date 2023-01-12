@@ -34,7 +34,7 @@
     // 给错误和消息设置样式，使用颜色和上下文。
     "pretty": true,
     // 设置引入的定义文件
-    "types": ["vite/client"],
+    "types": ["vite/client", "naive-ui/volar"],
     // 指定特殊模块的路径
     "paths": {
       "@/*": ["src/*"]

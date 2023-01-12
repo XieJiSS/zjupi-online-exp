@@ -26,7 +26,7 @@ export default {
         console.error(err);
         const errData = { ...err.response?.data };
         delete errData.success;
-        return { data: { success: false, message: String(errData.message || err) } } as AxiosResp<void>;
+        return { data: { success: false, message: String(errData.message || err) } as AxiosResp<void> };
       });
       if (!data.success) {
         alert(data.message);

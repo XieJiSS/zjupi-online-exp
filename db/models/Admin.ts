@@ -22,6 +22,10 @@ const Admin: AdminModelCtor = sequelize.define(
       type: Sequelize.STRING,
       allowNull: false,
     },
+    phone: {
+      type: Sequelize.STRING,
+      allowNull: false,
+    },
     hash: {
       type: Sequelize.STRING,
       allowNull: false,
@@ -42,6 +46,7 @@ const Admin: AdminModelCtor = sequelize.define(
 
 export interface AdminCreationAttributes {
   username: string;
+  phone: string;
   hash: string;
   salt: string;
   lastLoginIP?: string | null;

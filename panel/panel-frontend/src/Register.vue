@@ -4,11 +4,14 @@ import axios from "axios";
 import pbkdf2 from "crypto-js/pbkdf2";
 import { algo } from "crypto-js";
 
+import { PanelAdminRegisterReqBody } from "../../../dts/panel/panel-server";
+
 export default {
   data() {
     return {
       username: "",
       password: "",
+      phone: "",
     };
   },
   computed: {
@@ -17,18 +20,32 @@ export default {
     }
   },
   methods: {
+    isPhoneValid() {
+      return /^1[3456789]\d{9}$/.test(this.phone);
+    },
     async submitRegister() {
+      if (!this.isPhoneValid()) {
+        await this.$alert("手机号码格式不正确", "错误", "error", {
+          confirmButtonText: "确定",
+        });
+        return;
+      }
+
       const { data } = await axios.post("/api/panel/admin/register", {
         username: this.username,
+        phone: this.phone,
         password: this.passwordHash,
       }).catch(err => {
         console.error(err);
         return { data: { success: false, message: err.toString() } };
       });
       if (!data.success) {
-        alert(data.message);
+        await this.$alert(data.message, "错误", "error", {
+          confirmButtonText: "确定",
+        });
         return;
       }
+      await this.$alert("注册成功", "提示", "success");
       await this.$router.push("/login");
     },
     calculatePasswordHash(password: string) {
@@ -47,11 +64,15 @@ export default {
 
 <template>
   <div class="login-app">
-    <h2>Admin Register</h2>
+    <h2>User Register</h2>
     <form>
       <div>
         <i class="fa fa-user icon" id="icon"></i><input type="text" v-model="username" id="username"
           placeholder="username">
+      </div>
+      <div>
+        <i class="fa fa-phone icon" id="icon"></i><input type="text" v-model="phone" id="phone"
+          placeholder="phone">
       </div>
       <div>
         <i class="fa fa-lock icon"></i><input type="password" v-model="password" placeholder="password"

@@ -8,9 +8,19 @@ import type {
   CameraModel,
   AccessLinkModel,
   DBLogModel,
+  PlaceModel,
 } from "../db/models/all-models";
-import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModelPrimitive } from "../types/type-helper";
+import {
+  DeviceEnum,
+  DeviceModelWrapperResp,
+  DevicePosition,
+  UnifiedDevice,
+  VirtualDeviceModel,
+  VirtualDeviceType,
+} from "../db/api/devices-api";
 import type { AccessLinkValidTimeOptions } from "../db/api/panel/access-link-api";
+
+import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModelPrimitive } from "../types/type-helper";
 
 import path from "path";
 import assert from "assert";
@@ -19,6 +29,22 @@ import { promisify } from "util";
 import { hasAuthed } from "../db/connect";
 assert(hasAuthed);
 assert(typeof process.env["SESSION_SECRET"] === "string" && process.env["SESSION_SECRET"].length > 0);
+
+// for front-end type checks
+export type RemoteClientAttrs = TExtractAttrsFromModel<RemoteClientModel>;
+export type RemoteClientInterface = TExtractInterfaceFromModel<RemoteClientModel>;
+export type StudentAttrs = TExtractAttrsFromModel<StudentModel>;
+export type StudentInterface = TExtractInterfaceFromModel<StudentModel>;
+export type CameraAttrs = TExtractAttrsFromModel<CameraModel>;
+export type CameraInterface = TExtractInterfaceFromModel<CameraModel>;
+export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
+export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
+export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
+export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
+export type DeviceAttrs = keyof UnifiedDevice;
+export type DeviceInterface = TExtractInterfaceFromModel<VirtualDeviceModel>;
+export type PlaceAttrs = TExtractAttrsFromModel<PlaceModel>;
+export type PlaceInterface = TExtractInterfaceFromModel<PlaceModel>;
 
 import { name as serverName } from "./config";
 import express from "express";
@@ -43,7 +69,7 @@ const CLASS_DURATION = (Number(process.env["CLASS_DURATION_MINUTES"]) || 240) * 
 import logRequest from "../util/logRequest";
 app.use(logRequest(serverName, logger));
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(
   session({
     secret: process.env["SESSION_SECRET"],
@@ -202,33 +228,410 @@ app.get("/api/panel/admin/isAdmin", async (req, res) => {
   res.json({ success: true, message: "", data: { isAdmin: true } });
 });
 
-if (process.env["NODE_ENV"] === "development") {
-  interface _PanelAdminRegisterReqBody {
-    username: string;
-    password: string;
-  }
-  app.post("/api/panel/admin/register", async (req, res) => {
-    if ((await sql.getAdminCount()) > 0) {
-      res.json({ success: false, message: "Admin already registered" });
-      return;
-    }
-
-    const { username, password }: _PanelAdminRegisterReqBody = req.body;
-    if (typeof username !== "string" || typeof password !== "string") {
-      res.json({ success: false, message: "Missing necessary fields" });
-      return;
-    }
-
-    logger.warn("admin register request received from client for user", username);
-
-    const success = await sql.createAdmin(username, password);
-    if (!success) {
-      res.json({ success: false, message: "Username already exists" });
-      return;
-    }
-    res.json({ success: true, message: "" });
-  });
+export interface PanelAdminRegisterReqBody {
+  username: string;
+  phone: string;
+  password: string;
 }
+app.post("/api/panel/admin/register", async (req, res) => {
+  if ((await sql.getAdminCount()) > 0) {
+    res.json({ success: false, message: "Admin already registered" });
+    return;
+  }
+
+  const { username, phone, password }: PanelAdminRegisterReqBody = req.body;
+  if (typeof username !== "string" || typeof password !== "string" || typeof phone !== "string") {
+    res.json({ success: false, message: "Missing necessary fields" });
+    return;
+  }
+
+  if (!/^1[3456789]\d{9}$/.test(phone)) {
+    res.json({ success: false, message: "Invalid phone number" });
+    return;
+  }
+
+  const existingAccount = await sql.getAdminByPhone(phone);
+  if (existingAccount) {
+    res.json({ success: false, message: "Phone number already registered" });
+    return;
+  }
+
+  logger.warn("admin register request received from client for user", username);
+
+  const success = await sql.createAdmin(username, phone, password);
+  if (!success) {
+    res.json({ success: false, message: "Username already exists" });
+    return;
+  }
+  res.json({ success: true, message: "" });
+});
+
+export interface PanelAdminPlaceGetRespData {
+  placeId: string;
+  image: string;
+}
+app.get("/api/panel/admin/place/:placeId/get", async (req, res) => {
+  const id = req.params.placeId;
+  if (!id || id === "") {
+    res.json({ success: false, message: "Missing id field" });
+    return;
+  }
+
+  const place = await sql.getPlaceByIdAttrsOnly(id, ["placeId", "image"]);
+  if (!place) {
+    res.json({ success: false, message: "Place does not exist" });
+    return;
+  }
+
+  res.json({ success: true, message: "", data: place satisfies PanelAdminPlaceGetRespData });
+});
+
+app.get("/api/panel/admin/place/list", async (_, res) => {
+  const places = await sql.getAllPlacesAttrsOnly(["placeId", "image"]);
+  if (!places.length) {
+    res.json({ success: false, message: "Place does not exist" });
+    return;
+  }
+
+  res.json({ success: true, message: "", data: places satisfies PanelAdminPlaceGetRespData[] });
+});
+
+export interface PanelAdminPlaceCreateReqBody {
+  image: string;
+}
+app.post("/api/panel/admin/place/:placeId/create", async (req, res) => {
+  const id = req.params.placeId;
+  if (!id || id === "") {
+    res.json({ success: false, message: "Missing id field" });
+    return;
+  }
+  const { image }: PanelAdminPlaceCreateReqBody = req.body;
+  if (typeof image !== "string" || !image.startsWith("data:")) {
+    res.json({ success: false, message: "Missing image field" });
+    return;
+  }
+
+  const existingPlace = await sql.getPlaceById(id);
+  if (existingPlace) {
+    res.json({ success: false, message: "Place already exists" });
+    return;
+  }
+
+  const place = await sql.createPlace(id, image);
+  if (!place) {
+    res.json({ success: false, message: "Failed to create place" });
+    return;
+  }
+
+  res.json({ success: true, message: "" });
+});
+
+export interface PanelAdminPlaceDeleteOneReqBody {}
+app.post("/api/panel/admin/place/:placeId/deleteOne", async (req, res) => {
+  const id = req.params.placeId;
+  if (!id || id === "") {
+    res.json({ success: false, message: "Missing id field" });
+    return;
+  }
+
+  const existingPlace = await sql.getPlaceById(id);
+  if (!existingPlace) {
+    res.json({ success: false, message: "Place does not exist" });
+    return;
+  }
+
+  await sql.deletePlaceById(id);
+
+  res.json({ success: true, message: "" });
+});
+
+export type PanelAdminPlacesDeleteMultiReqBody = {
+  placeId: string;
+}[];
+app.post("/api/panel/admin/places/deleteMulti", async (req, res) => {
+  const places: PanelAdminPlacesDeleteMultiReqBody = req.body;
+  if (typeof places !== "object" || !places.length) {
+    res.json({ success: false, message: "Missing placeIds field" });
+    return;
+  }
+
+  for (const place of places) {
+    await sql.deletePlaceById(place.placeId);
+  }
+
+  res.json({ success: true, message: "" });
+});
+
+export interface PanelAdminPlaceDeviceCreateReqBody {}
+app.post("/api/panel/admin/place/:placeId/device/:type/:deviceId/create", async (req, res) => {
+  const placeId = req.params.placeId;
+  const deviceId = req.params.deviceId;
+  const _type = req.params.type;
+  if (!placeId || placeId === "" || !deviceId || deviceId === "" || !_type) {
+    res.json({ success: false, message: "Missing fields" });
+    return;
+  }
+  if (!(_type.toUpperCase() in DeviceEnum) || _type === DeviceEnum.CAMERA || _type === DeviceEnum.RCLIENT) {
+    res.json({ success: false, message: "Invalid type " + _type });
+    return;
+  }
+  const type = _type as VirtualDeviceType;
+
+  const place = await sql.getPlaceById(placeId);
+  if (!place) {
+    res.json({ success: false, message: "Place does not exist" });
+    return;
+  }
+
+  await sql.createVirtualDevice(deviceId, type, { x: 0, y: 0 });
+
+  place.devices.push({ deviceId, type });
+  await place.save();
+
+  res.json({ success: true, message: "" });
+});
+
+export type PanelAdminPlaceDeviceListRespData = DeviceModelWrapperResp[];
+app.get("/api/panel/admin/place/:placeId/device/list", async (req, res) => {
+  const id = req.params.placeId;
+  if (!id || id === "") {
+    res.json({ success: false, message: "Missing id field" });
+    return;
+  }
+  const place = await sql.getPlaceById(id);
+  if (!place) {
+    res.json({ success: false, message: "Place not found" });
+    return;
+  }
+
+  const devices = await sql.getDevicePrimitivesByPlaceId(id);
+  const cameras = (await sql.getAllCameras()).map((c) => ({ type: DeviceEnum.CAMERA, device: c }));
+  const rclients = (await sql.getAllRemoteClients()).map((r) => ({ type: DeviceEnum.RCLIENT, device: r }));
+
+  cameras.forEach((c) => {
+    const existing = devices.find((d) => d.deviceId === c.device.cameraId && d.type === DeviceEnum.CAMERA);
+    if (!existing) {
+      devices.push({ deviceId: c.device.cameraId, type: DeviceEnum.CAMERA });
+    }
+  });
+  rclients.forEach((r) => {
+    const existing = devices.find((d) => d.deviceId === r.device.clientId && d.type === DeviceEnum.RCLIENT);
+    if (!existing) {
+      devices.push({ deviceId: r.device.clientId, type: DeviceEnum.RCLIENT });
+    }
+  });
+
+  const deviceModels = await sql.getDeviceModelsFromDevicePrimitives(devices);
+  res.json({
+    success: true,
+    message: "",
+    data: deviceModels satisfies PanelAdminPlaceDeviceListRespData,
+  });
+});
+
+export interface PanelAdminPlaceDeviceGetRespData {
+  device: DeviceModelWrapperResp;
+  position: DevicePosition;
+}
+app.get("/api/panel/admin/place/:placeId/device/:type/:deviceId/get", async (req, res) => {
+  const placeId = req.params.placeId;
+  const deviceId = req.params.deviceId;
+  const type = req.params.type as DeviceEnum;
+
+  if (!placeId || placeId === "" || !deviceId || deviceId === "") {
+    res.json({ success: false, message: "Missing id fields" });
+    return;
+  }
+  if (!(type.toUpperCase() in DeviceEnum)) {
+    res.json({ success: false, message: "Invalid type" });
+    return;
+  }
+
+  const place = await sql.getPlaceById(placeId);
+  if (!place) {
+    res.json({ success: false, message: "Place not found" });
+    return;
+  }
+
+  const devices = place.devices;
+
+  const cameras = (await sql.getAllCameras()).map((c) => ({ type: DeviceEnum.CAMERA, device: c }));
+  const rclients = (await sql.getAllRemoteClients()).map((r) => ({ type: DeviceEnum.RCLIENT, device: r }));
+  cameras.forEach((c) => {
+    const existing = devices.find((d) => d.deviceId === c.device.cameraId && d.type === DeviceEnum.CAMERA);
+    if (!existing) {
+      devices.push({ deviceId: c.device.cameraId, type: DeviceEnum.CAMERA });
+    }
+  });
+  rclients.forEach((r) => {
+    const existing = devices.find((d) => d.deviceId === r.device.clientId && d.type === DeviceEnum.RCLIENT);
+    if (!existing) {
+      devices.push({ deviceId: r.device.clientId, type: DeviceEnum.RCLIENT });
+    }
+  });
+
+  const devicePrimitive = sql.findDeviceInDevices(devices, deviceId, type);
+  if (devicePrimitive && !sql.findDeviceInDevices(place.devices, deviceId, type)) {
+    place.devices.push(devicePrimitive);
+    await place.save();
+  }
+  const deviceModel = devicePrimitive ? await sql.getDeviceModelFromDevicePrimitive(devicePrimitive) : null;
+  if (!deviceModel) {
+    res.json({ success: false, message: "Device not found" });
+    return;
+  }
+
+  const positionModel = await sql.getPositionByDevice(devicePrimitive!);
+
+  res.json({
+    success: true,
+    message: "",
+    data: {
+      device: deviceModel,
+      position: positionModel ? positionModel.position : { x: 0, y: 0 },
+    } satisfies PanelAdminPlaceDeviceGetRespData,
+  });
+  return;
+});
+
+app.post("/api/panel/admin/place/:placeId/device/:type/:deviceId/delete", async (req, res) => {
+  const placeId = req.params.placeId;
+  const deviceId = req.params.deviceId;
+  const type = req.params.type as DeviceEnum;
+  if (!placeId || placeId === "" || !deviceId || deviceId === "" || !type) {
+    res.json({ success: false, message: "Missing id fields" });
+    return;
+  }
+  if (!(type.toUpperCase() in DeviceEnum)) {
+    res.json({ success: false, message: "Invalid type" });
+    return;
+  }
+
+  const place = await sql.getPlaceById(placeId);
+  if (!place) {
+    res.json({ success: false, message: "Place not found" });
+    return;
+  }
+
+  const devices = place.devices;
+
+  const cameras = (await sql.getAllCameras()).map((c) => ({ type: DeviceEnum.CAMERA, device: c }));
+  const rclients = (await sql.getAllRemoteClients()).map((r) => ({ type: DeviceEnum.RCLIENT, device: r }));
+  cameras.forEach((c) => {
+    const existing = devices.find((d) => d.deviceId === c.device.cameraId && d.type === DeviceEnum.CAMERA);
+    if (!existing) {
+      devices.push({ deviceId: c.device.cameraId, type: DeviceEnum.CAMERA });
+    }
+  });
+  rclients.forEach((r) => {
+    const existing = devices.find((d) => d.deviceId === r.device.clientId && d.type === DeviceEnum.RCLIENT);
+    if (!existing) {
+      devices.push({ deviceId: r.device.clientId, type: DeviceEnum.RCLIENT });
+    }
+  });
+
+  const devicePrimitive = sql.findDeviceInDevices(devices, deviceId, type);
+  const deviceModel = devicePrimitive ? await sql.getDeviceModelFromDevicePrimitive(devicePrimitive) : null;
+  if (!deviceModel) {
+    res.json({ success: false, message: "Device not found" });
+    return;
+  }
+  await sql.deleteDevice(placeId, deviceId, type);
+  res.json({
+    success: true,
+    message: "",
+  });
+  return;
+});
+
+export interface PanelAdminPlaceDeviceUpdateReqBody {
+  position?: DevicePosition;
+  state?: boolean;
+  value?: number;
+}
+app.post("/api/panel/admin/place/:placeId/device/:type/:deviceId/update", async (req, res) => {
+  const placeId = req.params.placeId;
+  const deviceId = req.params.deviceId;
+  const type = req.params.type as DeviceEnum;
+
+  const { position, state, value } = req.body as PanelAdminPlaceDeviceUpdateReqBody;
+
+  if (!placeId || placeId === "" || !deviceId || deviceId === "" || !type) {
+    res.json({ success: false, message: "Missing fields" });
+    return;
+  }
+  if (!(type.toUpperCase() in DeviceEnum)) {
+    res.json({ success: false, message: "Invalid type" });
+    return;
+  }
+  if (typeof position !== "object" && typeof state !== "boolean" && typeof value !== "number") {
+    res.json({ success: false, message: "Missing necessary fields" });
+    return;
+  }
+  if (position && (position.x < 0 || position.y < 0 || position.x > 1 || position.y > 1)) {
+    res.json({ success: false, message: "Invalid position" });
+    return;
+  }
+
+  const place = await sql.getPlaceById(placeId);
+  if (!place) {
+    res.json({ success: false, message: "Place not found" });
+    return;
+  }
+
+  const devices = place.devices;
+
+  const cameras = (await sql.getAllCameras()).map((c) => ({ type: DeviceEnum.CAMERA, device: c }));
+  const rclients = (await sql.getAllRemoteClients()).map((r) => ({ type: DeviceEnum.RCLIENT, device: r }));
+  cameras.forEach((c) => {
+    const existing = devices.find((d) => d.deviceId === c.device.cameraId && d.type === DeviceEnum.CAMERA);
+    if (!existing) {
+      devices.push({ deviceId: c.device.cameraId, type: DeviceEnum.CAMERA });
+    }
+  });
+  rclients.forEach((r) => {
+    const existing = devices.find((d) => d.deviceId === r.device.clientId && d.type === DeviceEnum.RCLIENT);
+    if (!existing) {
+      devices.push({ deviceId: r.device.clientId, type: DeviceEnum.RCLIENT });
+    }
+  });
+
+  const devicePrimitive = sql.findDeviceInDevices(devices, deviceId, type);
+  if (devicePrimitive && !sql.findDeviceInDevices(place.devices, deviceId, type)) {
+    place.devices.push(devicePrimitive);
+    await place.save();
+  }
+  if (!devicePrimitive) {
+    place.devices = place.devices.concat({
+      deviceId,
+      type,
+    });
+    await place.save();
+  }
+
+  if (typeof position === "object") {
+    await sql.updateDevicePosition(placeId, deviceId, type, position);
+  }
+  if (typeof state === "boolean") {
+    if (type === DeviceEnum.CAMERA || type === DeviceEnum.RCLIENT) {
+      res.json({ success: false, message: "Cannot update state of non-virtual device" });
+      return;
+    }
+    await sql.updateDeviceState(placeId, deviceId, type, state);
+  }
+  if (typeof value === "number") {
+    if (type === DeviceEnum.CAMERA || type === DeviceEnum.RCLIENT) {
+      res.json({ success: false, message: "Cannot update value of non-virtual device" });
+      return;
+    }
+    await sql.updateDeviceValue(placeId, deviceId, type, value);
+  }
+
+  res.json({
+    success: true,
+    message: "",
+  });
+});
 
 /** /api/panel/admin/student{s,/:id} */
 export type PanelAdminStudentRespData = TPartialModelPrimitive<StudentModel, "name" | "studentId" | "phone" | "linkId">;
@@ -979,17 +1382,5 @@ async function removeOutdatedLinksFromRClients() {
 }
 
 setInterval(removeOutdatedLinksFromRClients, 1000 * 60 * 5);
-
-// for front-end type checks
-export type RemoteClientAttrs = TExtractAttrsFromModel<RemoteClientModel>;
-export type RemoteClientInterface = TExtractInterfaceFromModel<RemoteClientModel>;
-export type StudentAttrs = TExtractAttrsFromModel<StudentModel>;
-export type StudentInterface = TExtractInterfaceFromModel<StudentModel>;
-export type CameraAttrs = TExtractAttrsFromModel<CameraModel>;
-export type CameraInterface = TExtractInterfaceFromModel<CameraModel>;
-export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
-export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
-export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
-export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
 
 export { port, name, subdomain } from "./config";

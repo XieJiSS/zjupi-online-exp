@@ -14,7 +14,11 @@ export default function initLogRequest(serverName: string, logger: Logger): Requ
     const json = res.json;
 
     const resDotJSON: typeof json = function (body) {
-      logger.info(`HOOK ${hash}: preparing json response`, JSON.stringify(body));
+      let jsonBody = JSON.stringify(body);
+      if (jsonBody.length > 400) {
+        jsonBody = jsonBody.substring(0, 300) + "...";
+      }
+      logger.info(`HOOK ${hash}: preparing json response`, jsonBody);
       // restore res.json so that it can be called again, with the correct `this`
       res.json = json;
       return res.json(body);
@@ -23,12 +27,16 @@ export default function initLogRequest(serverName: string, logger: Logger): Requ
 
     res.once("finish", () => {
       const duration = Date.now() - startTime;
-      logger.info(
-        `OUT  ${hash}:`,
-        `status=${res.statusCode} in ${duration}ms`,
-        `mime=${res.getHeader("content-type")}`,
-        `len=${res.getHeader("content-length")}`
-      );
+      if (res.statusCode >= 300 && res.statusCode < 400) {
+        logger.info(`OUT  ${hash}:`, `status=${res.statusCode} in ${duration}ms`);
+      } else {
+        logger.info(
+          `OUT  ${hash}:`,
+          `status=${res.statusCode} in ${duration}ms`,
+          `mime=${res.getHeader("content-type")}`,
+          `len=${res.getHeader("content-length")}`
+        );
+      }
     });
 
     // pass the control to the next middleware

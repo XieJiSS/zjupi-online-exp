@@ -45,7 +45,11 @@ async function getAdminById(adminId: number) {
   return await Admin.findByPk(adminId);
 }
 
-async function createAdmin(username: string, password: string) {
+async function getAdminByPhone(phone: string) {
+  return await Admin.findOne({ where: { phone } });
+}
+
+async function createAdmin(username: string, phone: string, password: string) {
   logger.info("createAdmin: username", username);
   if ((await getAdminByUsername(username)) !== null) {
     logger.warn("admin username already exists:", username);
@@ -54,6 +58,7 @@ async function createAdmin(username: string, password: string) {
   const { hash, salt } = await _generateSaltHashPair(password);
   return await Admin.create({
     username,
+    phone,
     hash,
     salt,
   });
@@ -83,6 +88,7 @@ async function changeAdminPassword(adminId: number, password: string) {
 export default {
   getAdminCount,
   getAdminById,
+  getAdminByPhone,
   getAdminByUsername,
   createAdmin,
   isValidAdminCredentials,

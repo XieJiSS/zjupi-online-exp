@@ -3,6 +3,7 @@ import Sequelize from "sequelize";
 declare const Admin: AdminModelCtor;
 export interface AdminCreationAttributes {
     username: string;
+    phone: string;
     hash: string;
     salt: string;
     lastLoginIP?: string | null;

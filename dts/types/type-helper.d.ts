@@ -5,10 +5,12 @@ export interface AxiosRespBase {
     success: boolean;
     message: string;
 }
+import { JSONTransform } from "../panel/panel-frontend/types/type-helper";
 export type AxiosResp<T> = AxiosRespBase & AxiosResponse<JSONTransform<T>>;
 export type TPromisify<F> = F extends (...args: infer A) => infer R ? (...args: A) => Promise<R> : never;
-export type TParialPick<O, KeyUnion> = KeyUnion extends keyof O ? Partial<Pick<O, KeyUnion>> : never;
-export type TMarkPartialAttrs<T, A> = TParialPick<T, A> & TOmit<T, A>;
+export type TParialPick<O, KeyUnion extends keyof O> = Partial<Pick<O, KeyUnion>>;
+export type TPartialOptional<O, KeyUnion extends keyof O> = Partial<Pick<O, KeyUnion>> & Omit<O, KeyUnion>;
+export type TMarkPartialAttrs<T, A extends keyof T> = TParialPick<T, A> & TOmit<T, A>;
 export type TPick<O, KeyUnion> = KeyUnion extends keyof O ? Pick<O, KeyUnion> : never;
 export type TOmit<O, KeyUnion> = KeyUnion extends keyof O ? Omit<O, KeyUnion> : never;
 export type TPickAttrs<O, KeyUnion extends string | number | symbol> = {
@@ -30,8 +32,3 @@ export type TPartialModelPrimitive<T extends Model<any>, U extends TExtractAttrs
 export type TPartialModelPrimitiveArr<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = TPartialModelPrimitive<T, U>[];
 export type AsyncPartialModelPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (attributes: U[]) => Promise<TPartialModel<T, U>>;
 export type AsyncPartialModelArrPicker<T extends Model<any>, U extends TExtractAttrsFromModel<T>> = (attributes: U[]) => Promise<TPartialModel<T, U>[]>;
-export type JSONFields = string | number | boolean | null | undefined | void;
-export type ToSafeJSONField<T> = Exclude<T, Date> extends JSONFields ? Date extends T ? T extends Date ? string : Exclude<T, Date> | string : Exclude<T, Date> : never;
-export type JSONTransform<T> = T extends Record<string | number | symbol, any> | JSONFields | Date ? T extends JSONFields | Date ? ToSafeJSONField<T> : [keyof Exclude<T, JSONFields | Date>] extends [never] ? {} | Exclude<T, Exclude<T, JSONFields | Date>> : {
-    [P in keyof T]: JSONTransform<T[P]>;
-} | Exclude<T, Exclude<T, JSONFields | Date>> : never;

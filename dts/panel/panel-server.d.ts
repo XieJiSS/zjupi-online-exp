@@ -1,6 +1,21 @@
 /** @format */
-import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBLogModel } from "../db/models/all-models";
+import type { RemoteClientModel, StudentModel, CameraModel, AccessLinkModel, DBLogModel, PlaceModel } from "../db/models/all-models";
+import { DeviceModelWrapperResp, DevicePosition, UnifiedDevice, VirtualDeviceModel } from "../db/api/devices-api";
 import type { TExtractAttrsFromModel, TExtractInterfaceFromModel, TPartialModelPrimitive } from "../types/type-helper";
+export type RemoteClientAttrs = TExtractAttrsFromModel<RemoteClientModel>;
+export type RemoteClientInterface = TExtractInterfaceFromModel<RemoteClientModel>;
+export type StudentAttrs = TExtractAttrsFromModel<StudentModel>;
+export type StudentInterface = TExtractInterfaceFromModel<StudentModel>;
+export type CameraAttrs = TExtractAttrsFromModel<CameraModel>;
+export type CameraInterface = TExtractInterfaceFromModel<CameraModel>;
+export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
+export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
+export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
+export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
+export type DeviceAttrs = keyof UnifiedDevice;
+export type DeviceInterface = TExtractInterfaceFromModel<VirtualDeviceModel>;
+export type PlaceAttrs = TExtractAttrsFromModel<PlaceModel>;
+export type PlaceInterface = TExtractInterfaceFromModel<PlaceModel>;
 export declare const app: import("express-serve-static-core").Express;
 import type { CameraDirection } from "./camera-req-proxy";
 export type { CameraDirection, CameraOperation } from "./camera-req-proxy";
@@ -24,6 +39,35 @@ export type PanelAccessLinkCameraControlReqBody = {
 export interface PanelAdminLoginReqBody {
     username: string;
     password: string;
+}
+export interface PanelAdminRegisterReqBody {
+    username: string;
+    phone: string;
+    password: string;
+}
+export interface PanelAdminPlaceGetRespData {
+    placeId: string;
+    image: string;
+}
+export interface PanelAdminPlaceCreateReqBody {
+    image: string;
+}
+export interface PanelAdminPlaceDeleteOneReqBody {
+}
+export type PanelAdminPlacesDeleteMultiReqBody = {
+    placeId: string;
+}[];
+export interface PanelAdminPlaceDeviceCreateReqBody {
+}
+export type PanelAdminPlaceDeviceListRespData = DeviceModelWrapperResp[];
+export interface PanelAdminPlaceDeviceGetRespData {
+    device: DeviceModelWrapperResp;
+    position: DevicePosition;
+}
+export interface PanelAdminPlaceDeviceUpdateReqBody {
+    position?: DevicePosition;
+    state?: boolean;
+    value?: number;
 }
 /** /api/panel/admin/student{s,/:id} */
 export type PanelAdminStudentRespData = TPartialModelPrimitive<StudentModel, "name" | "studentId" | "phone" | "linkId">;
@@ -85,14 +129,4 @@ export interface PanelAdminCameraRemoveFromLinkReqBody {
 }
 /** /api/panel/admin/log{s,/:id} */
 export type PanelAdminLogRespData = DBLogModel;
-export type RemoteClientAttrs = TExtractAttrsFromModel<RemoteClientModel>;
-export type RemoteClientInterface = TExtractInterfaceFromModel<RemoteClientModel>;
-export type StudentAttrs = TExtractAttrsFromModel<StudentModel>;
-export type StudentInterface = TExtractInterfaceFromModel<StudentModel>;
-export type CameraAttrs = TExtractAttrsFromModel<CameraModel>;
-export type CameraInterface = TExtractInterfaceFromModel<CameraModel>;
-export type AccessLinkAttrs = TExtractAttrsFromModel<AccessLinkModel>;
-export type AccessLinkInterface = TExtractInterfaceFromModel<AccessLinkModel>;
-export type DBLogAttrs = TExtractAttrsFromModel<DBLogModel>;
-export type DBLogInterface = TExtractInterfaceFromModel<DBLogModel>;
 export { port, name, subdomain } from "./config";

@@ -43,7 +43,7 @@ const CLASS_DURATION = (Number(process.env["CLASS_DURATION_MINUTES"]) || 240) * 
 import logRequest from "../util/logRequest";
 app.use(logRequest(serverName, logger));
 
-app.use(express.json());
+app.use(express.json({ limit: "10mb" }));
 app.use(
   session({
     secret: process.env["SESSION_SECRET"],
@@ -190,7 +190,7 @@ app.post("/api/panel/admin/logout", async (req, res) => {
     return;
   }
   req.session.username = null;
-  await promisify(req.session.save.bind(session))();
+  req.session.save();
   res.json({ success: true, message: "" });
 });
 

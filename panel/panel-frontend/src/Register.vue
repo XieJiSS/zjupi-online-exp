@@ -29,6 +29,7 @@ export default {
         alert(data.message);
         return;
       }
+      await this.$alert("注册成功", " 提示 ", "success");
       await this.$router.push("/login");
     },
     calculatePasswordHash(password: string) {

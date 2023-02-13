@@ -2,5 +2,6 @@
   "prettier.insertPragma": true,
   "prettier.jsxSingleQuote": true,
   "volar.codeLens.scriptSetupTools": true,
-  "volar.autoCompleteRefs": true
+  "volar.autoCompleteRefs": true,
+  "typescript.tsdk": "node_modules/typescript/lib"
 }

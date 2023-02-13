@@ -35,7 +35,7 @@ export const _promise: Promise<Sequelize> = new Promise(async (resolve, reject) 
       idle: 10000,
     },
     benchmark: true,
-    logging: (sql, timing) => seqLogger.debug.bind(seqLogger)(sql, "executed in", timing, "ms"),
+    logging: (sql, timing) => seqLogger.debug.bind(seqLogger)(sql.slice(0, 100), "executed in", timing, "ms"),
   });
   try {
     await sequelize.authenticate();

@@ -825,7 +825,7 @@ onMounted(async () => {
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
                   <td v-for="key in rclientKeys" v-bind:class="'table-rc-' + key">{{
-                      getRClientDisplayValue(rclient, key)
+                    getRClientDisplayValue(rclient, key)
                   }}</td>
                 </tr>
               </tbody>
@@ -847,7 +847,7 @@ onMounted(async () => {
               <thead>
                 <tr>
                   <th>选择</th>
-                  <th v-for="text in ObjectKeys(displayKeymap.student)">{{ text }}</th>
+                  <th v-for="key in ObjectKeys(displayKeymap.student)">{{ displayKeymap.student[key] }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -856,7 +856,7 @@ onMounted(async () => {
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
                   <td v-for="key in ObjectKeys(displayKeymap.student)" v-bind:class="'table-stu-' + key">{{
-                      student[key]
+                    student[key]
                   }}</td>
                 </tr>
               </tbody>
@@ -874,7 +874,7 @@ onMounted(async () => {
               <thead>
                 <tr>
                   <th>选择</th>
-                  <th v-for="text in ObjectKeys(displayKeymap.log)">{{ text }}</th>
+                  <th v-for="key in ObjectKeys(displayKeymap.log)">{{ displayKeymap.log[key] }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -883,7 +883,7 @@ onMounted(async () => {
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
                   <td v-for="key in ObjectKeys(displayKeymap.log)" v-bind:class="'table-log-' + key">{{
-                      log[key]
+                    log[key]
                   }}</td>
                 </tr>
               </tbody>
@@ -901,7 +901,7 @@ onMounted(async () => {
               <thead>
                 <tr>
                   <th>选择</th>
-                  <th v-for="text in ObjectKeys(displayKeymap.camera)">{{ text }}</th>
+                  <th v-for="key in ObjectKeys(displayKeymap.camera)">{{ displayKeymap.camera[key] }}</th>
                 </tr>
               </thead>
               <tbody>
@@ -910,7 +910,7 @@ onMounted(async () => {
                     <input type="checkbox" v-model="selectedStatus[i]" />
                   </td>
                   <td v-for="key in ObjectKeys(displayKeymap.camera)" v-bind:class="'table-cam-' + key">{{
-                      camera[key]
+                    camera[key]
                   }}</td>
                 </tr>
               </tbody>

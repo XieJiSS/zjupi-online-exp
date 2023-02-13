@@ -216,7 +216,7 @@ app.post("/api/panel/admin/logout", async (req, res) => {
     return;
   }
   req.session.username = null;
-  req.session.save.bind(session);
+  req.session.save();
   res.json({ success: true, message: "" });
 });
 

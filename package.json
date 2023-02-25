@@ -33,7 +33,7 @@
     "express-session": "^1.17.3",
     "log4js": "^6.6.1",
     "mysql2": "2",
-    "sequelize": "^6.26.0"
+    "sequelize": "^6.29.0"
   },
   "devDependencies": {
     "@types/async-exit-hook": "^2.0.0",

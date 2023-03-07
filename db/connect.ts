@@ -1,6 +1,7 @@
 /** @format */
 
 import os from "os";
+import mysql from "mysql2/promise";
 import { Sequelize } from "sequelize";
 import getLogger from "../util/logger";
 const dbConnectLogger = getLogger("db-connect");
@@ -24,7 +25,24 @@ export async function gracefullyCloseDatabaseConnection() {
 }
 
 export const _promise: Promise<Sequelize> = new Promise(async (resolve, reject) => {
-  const sequelize = new Sequelize("db", "root", process.env["DB_MYSQL_PSWD"], {
+  dbConnectLogger.info("Connecting to database using mysql2...");
+  const connection = await mysql.createConnection({
+    host: "localhost",
+    user: "root",
+    password: process.env["DB_MYSQL_PSWD"],
+  });
+  dbConnectLogger.info("CREATE DATABASE IF NOT EXISTS zjupi...");
+  try {
+    await connection.execute(`CREATE DATABASE IF NOT EXISTS zjupi`);
+  } catch (err) {
+    reject(err);
+    return;
+  }
+  dbConnectLogger.info("Closing mysql2 connection...");
+  await connection.end();
+
+  dbConnectLogger.info("Connecting to database using sequelize...");
+  const sequelize = new Sequelize("zjupi", "root", process.env["DB_MYSQL_PSWD"], {
     host: "localhost",
     dialect: "mysql",
     port: 3306,
@@ -35,21 +53,25 @@ export const _promise: Promise<Sequelize> = new Promise(async (resolve, reject) 
       idle: 10000,
     },
     benchmark: true,
-    logging: (sql, timing) => seqLogger.debug.bind(seqLogger)(sql.slice(0, 100), "executed in", timing, "ms"),
+    logging: (sql, timing) => seqLogger.debug.bind(seqLogger)(sql.slice(0, 160), "executed in", timing, "ms"),
   });
+
   try {
     await sequelize.authenticate();
   } catch (err) {
     reject(err);
+    return;
   }
 
   dbConnectLogger.info("Successfully authenticated.");
   _sequelize = sequelize;
   resolve(sequelize);
 });
+
 export function hasAuthed() {
   return _sequelize !== null;
 }
+
 export function getGlobalSequelizeInstance() {
   return _sequelize;
 }

@@ -53,7 +53,7 @@ async function checkHbbServer(): Promise<boolean> {
     return false;
   }
   const hasHbbsPromise = new Promise<boolean>((resolve) => {
-    cp.exec("tasklist -f -im | findstr hbbs.exe", (err, stdout) => {
+    cp.exec("tasklist | findstr hbbs.exe", (err, stdout) => {
       if (err) {
         logger.warn("Error checking hbbs.exe status: ", err);
         resolve(false);
@@ -62,7 +62,7 @@ async function checkHbbServer(): Promise<boolean> {
     });
   });
   const hasHbbrPromise = new Promise<boolean>((resolve) => {
-    cp.exec("tasklist -f -im | findstr hbbr.exe", (err, stdout) => {
+    cp.exec("tasklist | findstr hbbr.exe", (err, stdout) => {
       if (err) {
         logger.warn("Error checking hbbr.exe status: ", err);
         resolve(false);

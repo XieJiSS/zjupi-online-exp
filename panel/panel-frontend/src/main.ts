@@ -28,7 +28,7 @@ const routes: RouteRecordRaw[] = [
   { path: "/admin", component: Admin },
   { path: "/login", component: Login },
   { path: "/pizju_register", component: Register },
-  { path: "/", component: Login },
+  { path: "/", component: AccessRedirect },
 ];
 
 const router = createRouter({

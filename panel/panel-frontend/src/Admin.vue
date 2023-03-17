@@ -487,6 +487,10 @@ async function assignStudentsToSelectedRClients() {
     await $alert("当前 tab 不支持该操作");
     return;
   }
+  if (!students.value.length) {
+    await $alert("学生列表为空，请先添加学生");
+    return;
+  }
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
       const student = rclients.value[i]!.student;
@@ -608,6 +612,10 @@ async function assignCamerasToSelectedLinks() {
   // links must be grabbed from rclients
   if (tab.value !== "rclients") {
     await $alert("当前 tab 不支持该操作");
+    return;
+  }
+  if (!cameras.value.length) {
+    await $alert("当前没有在线的摄像头");
     return;
   }
   for (let i = 0; i < selectedStatus.value.length; i++) {

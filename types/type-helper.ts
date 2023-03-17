@@ -78,11 +78,13 @@ export namespace JSON {
         : Exclude<T, Buffer> // probably T itself is Fields
       : ToSafeField<Exclude<T, Buffer>> | ToSafeField<Exclude<T, Date>> // X | Buffer | Date --> X | object | string
     : never;
-  export type From<T> = T extends Record<string | number | symbol, any> | Fields | Date | Buffer
+  export type From<T> = T extends Model<infer A, infer B>
+    ? From<A & B>
+    : T extends Record<string | number | symbol, any> | Fields | Date | Buffer
     ? T extends Fields | Date | Buffer
       ? ToSafeField<T>
       : [keyof Exclude<T, Fields | Date | Buffer>] extends [never] // T contains Record<..., any>
       ? {} | Exclude<T, Exclude<T, Fields | Date | Buffer>>
-      : { [P in keyof T]: From<T[P]> } | Exclude<T, Exclude<T, Fields | Date | Buffer>>
+      : { -readonly [P in keyof T]: From<T[P]> } | Exclude<T, Exclude<T, Fields | Date | Buffer>>
     : never; // T is not a valid argument for From
 }

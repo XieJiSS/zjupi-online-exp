@@ -40,8 +40,8 @@ export declare namespace JSON {
         type: "Buffer";
         data: Uint8Array;
     } : Exclude<T, Buffer> : ToSafeField<Exclude<T, Buffer>> | ToSafeField<Exclude<T, Date>> : never;
-    type From<T> = T extends Record<string | number | symbol, any> | Fields | Date | Buffer ? T extends Fields | Date | Buffer ? ToSafeField<T> : [keyof Exclude<T, Fields | Date | Buffer>] extends [never] ? {} | Exclude<T, Exclude<T, Fields | Date | Buffer>> : {
-        [P in keyof T]: From<T[P]>;
+    type From<T> = T extends Model<infer A, infer B> ? From<A & B> : T extends Record<string | number | symbol, any> | Fields | Date | Buffer ? T extends Fields | Date | Buffer ? ToSafeField<T> : [keyof Exclude<T, Fields | Date | Buffer>] extends [never] ? {} | Exclude<T, Exclude<T, Fields | Date | Buffer>> : {
+        -readonly [P in keyof T]: From<T[P]>;
     } | Exclude<T, Exclude<T, Fields | Date | Buffer>> : never;
 }
 export {};

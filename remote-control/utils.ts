@@ -8,7 +8,11 @@ import { setTimeout as sleep } from "timers/promises";
 import getLogger from "../util/logger";
 const logger = getLogger("rustdesk-wrapper");
 
-const HOST_IP = "127.0.0.1";
+const HOST_IP = process.env["HOST_IP"] ?? "127.0.0.1";
+
+if(HOST_IP === "127.0.0.1") {
+  console.log("[WARN] HOST_IP is not set, using 127.0.0.1 as default. This may cause issues when accessing from remote devices.");
+}
 
 let dbLoggerInited = false;
 

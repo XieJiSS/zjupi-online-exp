@@ -8,8 +8,8 @@
     "prod": "yarn run build && cd build && pm2 stop online-exp && pm2 start app.js online-exp",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dts": "yarn -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
-    "build": "yarn -p typescript tsc && cp .env build/.env && cp -r thirdparty build/ && yarn run deploy-frontend",
-    "build-dev": "yarn -p typescript tsc --sourceMap && cp .env build/.env && cp -r thirdparty build/ && yarn run deploy-frontend",
+    "build": "yarn -p typescript tsc && cp .env build/.env && yarn run deploy-frontend && cp -r thirdparty build/ || echo failed to copy thirdparty assets.",
+    "build-dev": "yarn -p typescript tsc --sourceMap && cp .env build/.env && yarn run deploy-frontend && cp -r thirdparty build/ || echo failed to copy thirdparty assets.",
     "deploy-frontend": "cp -r panel/panel-frontend/dist build/panel/panel-frontend/"
   },
   "repository": {

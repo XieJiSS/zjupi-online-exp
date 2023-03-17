@@ -5,15 +5,15 @@ import axios from "axios";
 import CameraController from "./components/CameraController.vue";
 
 import type { PanelAccessRespData } from "../../../dts/panel/panel-server";
-import type { AxiosResp, JSONTransform } from "types/type-helper";
+import type { AxiosResp, JSON } from "types/type-helper";
 
 interface VueAppData {
   ready: boolean;
   error: boolean;
   accessCode: string | null;
-  remoteClient: JSONTransform<PanelAccessRespData>["remoteClient"] | null;
-  camera: JSONTransform<PanelAccessRespData>["camera"] | null;
-  student: JSONTransform<PanelAccessRespData>["student"] | null;
+  remoteClient: JSON.From<PanelAccessRespData>["remoteClient"] | null;
+  camera: JSON.From<PanelAccessRespData>["camera"] | null;
+  student: JSON.From<PanelAccessRespData>["student"] | null;
   refreshTimer: ReturnType<typeof setInterval> | null;
 }
 
@@ -236,6 +236,11 @@ export default defineComponent({
   font-size: 16px;
   line-height: 18px;
   padding: 6px 0 6px 4px;
+  /* to workaround flutter copy-paste bug */
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
 }
 
 .remote-client-area .header-info {

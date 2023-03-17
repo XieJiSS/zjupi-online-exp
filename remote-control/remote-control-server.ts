@@ -280,7 +280,7 @@ async function autoUpdatePassword() {
 
 if (process.env["AUTO_PRUNE_DEAD_RCLIENT"] === "yes") {
   autoPruneDeadRemoteClient();
-  setInterval(autoPruneDeadRemoteClient, 1000 * 60 * 3);
+  setInterval(autoPruneDeadRemoteClient, 1000 * 30);
 }
 
 setInterval(autoUpdatePassword, 1000 * 60 * 10);

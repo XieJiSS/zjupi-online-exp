@@ -1,11 +1,11 @@
 {
   "name": "zjupi-online-exp",
-  "version": "1.1.3",
+  "version": "1.1.4",
   "description": "",
   "main": "build/app.js",
   "scripts": {
     "dev": "yarn run build-dev && cd build && node app.js",
-    "prod": "yarn run build && cd build && pm2 stop online-exp && pm2 start app.js online-exp",
+    "prod": "yarn run build && cd build && pm2 start app.js",
     "test": "echo \"Error: no test specified\" && exit 1",
     "dts": "yarn -p typescript tsc --declaration --emitDeclarationOnly --outDir dts",
     "build": "yarn -p typescript tsc && cp .env build/.env && yarn run deploy-frontend && cp -r thirdparty build/ || echo failed to copy thirdparty assets.",

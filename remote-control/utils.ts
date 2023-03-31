@@ -10,8 +10,10 @@ const logger = getLogger("rustdesk-wrapper");
 
 const HOST_IP = process.env["HOST_IP"] ?? "127.0.0.1";
 
-if(HOST_IP === "127.0.0.1") {
-  console.log("[WARN] HOST_IP is not set, using 127.0.0.1 as default. This may cause issues when accessing from remote devices.");
+if (HOST_IP === "127.0.0.1") {
+  console.log(
+    "[WARN] HOST_IP is not set, using 127.0.0.1 as default. This may cause issues when accessing from remote devices."
+  );
 }
 
 let dbLoggerInited = false;
@@ -57,22 +59,34 @@ async function checkHbbServer(): Promise<boolean> {
     return false;
   }
   const hasHbbsPromise = new Promise<boolean>((resolve) => {
-    cp.exec("tasklist | findstr hbbs.exe", (err, stdout) => {
-      if (err) {
-        logger.warn("Error checking hbbs.exe status: ", err);
-        resolve(false);
+    cp.exec(
+      "tasklist | findstr hbbs.exe",
+      {
+        windowsHide: true,
+      },
+      (err, stdout) => {
+        if (err) {
+          logger.warn("Error checking hbbs.exe status: ", err);
+          resolve(false);
+        }
+        resolve(stdout.includes("hbbs.exe"));
       }
-      resolve(stdout.includes("hbbs.exe"));
-    });
+    );
   });
   const hasHbbrPromise = new Promise<boolean>((resolve) => {
-    cp.exec("tasklist | findstr hbbr.exe", (err, stdout) => {
-      if (err) {
-        logger.warn("Error checking hbbr.exe status: ", err);
-        resolve(false);
+    cp.exec(
+      "tasklist | findstr hbbr.exe",
+      {
+        windowsHide: true,
+      },
+      (err, stdout) => {
+        if (err) {
+          logger.warn("Error checking hbbr.exe status: ", err);
+          resolve(false);
+        }
+        resolve(stdout.includes("hbbr.exe"));
       }
-      resolve(stdout.includes("hbbr.exe"));
-    });
+    );
   });
   const [hasHbbs, hasHbbr] = await Promise.all([hasHbbsPromise, hasHbbrPromise]);
   if (!hasHbbs) {

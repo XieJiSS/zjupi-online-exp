@@ -35,7 +35,7 @@ export type CameraClientOperationReqBody =
 
 export async function pingCameraIP(cameraIP: string) {
   try {
-    await axios.get<AxiosResp<void>>(`http://${cameraIP}/api/camera-client/ping`);
+    await axios.get<AxiosResp<void>>(`http://${cameraIP}:5004/api/camera-client/ping`);
   } catch {
     return false;
   }

@@ -148,12 +148,12 @@ async function loadAll(alert: boolean = false) {
     await $alert("刷新成功", "提示", "info");
   }
 }
+
+function selectAll() {
+  selectedStatus.value = selectedStatus.value.map(() => true);
+}
 function clearSelected() {
-  selectedStatus.value = [];
-  const storedSelectedStatus = JSON.parse(localStorage.getItem(tab.value + "_selectedStatus") ?? "[]");
-  if (storedSelectedStatus.length > 0) {
-    localStorage.setItem(tab.value + "_selectedStatus", JSON.stringify([]));
-  }
+  selectedStatus.value = selectedStatus.value.map(() => false);
 }
 function toggleTab(newTab: AdminTab) {
   switch (newTab) {
@@ -795,6 +795,8 @@ onMounted(async () => {
         </div>
         <div v-show="tab === 'rclients'">
           <div class="card-body-header">
+            <a href="javascript:void(0);" class="btn" v-on:click="selectAll"
+              v-if="rclients.length > 0">全部选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="clearSelected"
               v-if="selectedStatus.filter((s) => s).length > 0">取消选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="searchClients"
@@ -842,6 +844,8 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'students'">
           <div class="card-body-header">
+            <a href="javascript:void(0);" class="btn" v-on:click="selectAll"
+              v-if="students.length > 0">全部选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="clearSelected"
               v-if="selectedStatus.filter((s) => s).length > 0">取消选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="addStudent">添加学生</a>
@@ -873,6 +877,7 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'logs'">
           <div class="card-body-header">
+            <a href="javascript:void(0);" class="btn" v-on:click="selectAll" v-if="logs.length > 0">全部选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="clearSelected"
               v-if="selectedStatus.filter((s) => s).length > 0">取消选中</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>
@@ -900,6 +905,8 @@ onMounted(async () => {
         </div>
         <div v-show="tab == 'cameras'">
           <div class="card-body-header">
+            <a href="javascript:void(0);" class="btn" v-on:click="selectAll"
+              v-if="cameras.length > 0">全部选中</a>
             <a href="javascript:void(0);" class="btn" v-on:click="clearSelected"
               v-if="selectedStatus.filter((s) => s).length > 0">取消选中</a>
             <a href="javascript:void(0);" class="btn align-right" v-on:click="logout">登出</a>

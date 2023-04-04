@@ -364,19 +364,11 @@ async function generateLinksForSelectedRClients() {
     await $alert("当前 tab 不支持该操作");
     return;
   }
-  for (let i = 0; i < selectedStatus.value.length; i++) {
-    if (selectedStatus.value[i]) {
-      const link = rclients.value[i]!.link;
-      if (!link) continue;
-      const isValidAfter = link.validAfter ? Date.parse(link.validAfter) <= Date.now() : true;
-      const isValidUntil = link.validUntil ? Date.parse(link.validUntil) >= Date.now() : true;
-      const isValid = isValidAfter && isValidUntil;
-      if (isValid) {
-        await $alert("链接重复生成：请先删除ID为" + rclients.value[i]!.rclient.clientId + "的客户端的访问链接");
-        return;
-      }
-    }
+  if (selectedStatus.value.length === 0) {
+    await $alert("请先选中要生成链接的工控机");
+    return;
   }
+
   const [startDate, startTime] = (await $fire({
     title: "请选择链接生效时间点",
     html: `
@@ -407,6 +399,7 @@ async function generateLinksForSelectedRClients() {
       return null;
     },
   })).value as string[];
+
   const [endDate, endTime] = (await $fire({
     title: "请选择链接失效时间点",
     html: `
@@ -437,13 +430,29 @@ async function generateLinksForSelectedRClients() {
       return null;
     },
   })).value as string[];
-  const links: PanelAdminLinkAddReqBody[] = [];
+
   const validAfter = new Date(startDate + " " + startTime);
   const validUntil = new Date(endDate + " " + endTime);
   if (validAfter >= validUntil) {
     await $alert("失效时间必须晚于生效时间");
     return;
   }
+
+  for (let i = 0; i < selectedStatus.value.length; i++) {
+    if (selectedStatus.value[i]) {
+      const link = rclients.value[i]!.link;
+      if (!link) continue;
+      const isValidAfter = link.validAfter ? Date.parse(link.validAfter) <= Date.now() : true;
+      const isValidUntil = link.validUntil ? Date.parse(link.validUntil) >= Date.now() : true;
+      const isValid = isValidAfter && isValidUntil;
+      if (isValid) {
+        await $alert("链接重复生成：请先删除ID为" + rclients.value[i]!.rclient.clientId + "的客户端的访问链接");
+        return;
+      }
+    }
+  }
+
+  const links: PanelAdminLinkAddReqBody[] = [];
   for (let i = 0; i < selectedStatus.value.length; i++) {
     if (selectedStatus.value[i]) {
       links.push({
@@ -453,6 +462,7 @@ async function generateLinksForSelectedRClients() {
       });
     }
   }
+
   const resp: AxiosResp<void> = await axiosPost("/api/panel/admin/link/addMulti", links);
   if (!resp.success) {
     await $alert("Failed: " + resp.message);
@@ -598,7 +608,7 @@ function getRClientDisplayValue(rclientObj: JSON.From<PanelAdminRClientRespData>
   // is Date
   if (typeof ret === "string" && /^\d{4,}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{3}Z$/.test(ret)) {
     const d = new Date(ret);
-    const date = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+    const date = `${d.getFullYear()}-${(d.getMonth() + 1).toString().padStart(2, "0")}-${d.getDate().toString().padStart(2, "0")}`;
     const time = `${d.getHours().toString().padStart(2, "0")}:${d.getMinutes().toString().padStart(2, "0")}`;
     ret = `${date} ${time}`;
   } else if (ret === true) {

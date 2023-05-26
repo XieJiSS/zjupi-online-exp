@@ -83,8 +83,8 @@ export namespace JSON {
     : T extends Record<string | number | symbol, any> | Fields | Date | Buffer
     ? T extends Fields | Date | Buffer
       ? ToSafeField<T>
-      : [keyof Exclude<T, Fields | Date | Buffer>] extends [never] // T contains Record<..., any>
-      ? {} | Exclude<T, Exclude<T, Fields | Date | Buffer>>
+      : [keyof Exclude<T, Fields | Date | Buffer>] extends [never] // check if T does not contain Record<..., any>
+      ? Record<string, never> | Exclude<T, Exclude<T, Fields | Date | Buffer>>
       : { -readonly [P in keyof T]: From<T[P]> } | Exclude<T, Exclude<T, Fields | Date | Buffer>>
     : never; // T is not a valid argument for From
 }

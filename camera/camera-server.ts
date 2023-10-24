@@ -4,7 +4,7 @@
 
 import assert from "assert";
 import { hasAuthed } from "../db/connect";
-assert(hasAuthed);
+assert(hasAuthed());
 
 import { name as serverName } from "./config";
 import express from "express";

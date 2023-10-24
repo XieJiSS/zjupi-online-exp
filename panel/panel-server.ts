@@ -17,7 +17,7 @@ import assert from "assert";
 import { promisify } from "util";
 
 import { hasAuthed } from "../db/connect";
-assert(hasAuthed);
+assert(hasAuthed());
 assert(typeof process.env["SESSION_SECRET"] === "string" && process.env["SESSION_SECRET"].length > 0);
 
 import { name as serverName } from "./config";

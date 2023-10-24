@@ -4,7 +4,7 @@
 
 import assert from "assert";
 import { hasAuthed } from "../db/connect";
-assert(hasAuthed);
+assert(hasAuthed());
 
 import getLogger from "../util/logger";
 import dbLogApi from "../db/api/db-log-api";

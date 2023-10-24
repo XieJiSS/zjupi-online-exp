@@ -5,7 +5,7 @@
 
 import assert from "assert";
 import { getGlobalSequelizeInstance, hasAuthed } from "../connect";
-assert(hasAuthed);
+assert(hasAuthed());
 
 import Sequelize from "sequelize";
 const sequelize = getGlobalSequelizeInstance();

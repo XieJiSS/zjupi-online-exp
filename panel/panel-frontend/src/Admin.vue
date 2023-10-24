@@ -5,6 +5,8 @@ import { computed, onMounted, ref, watch } from "vue";
 import type { Ref } from "vue";
 
 import axios from "axios";
+import { parseCSV, generateCSV } from "./utils/csv";
+
 import type { AxiosResp, JSON } from "types/type-helper";
 
 import type {
@@ -218,29 +220,20 @@ function showAllClients() {
 }
 function getCSVOfDisplayRClients() {
   const entry = location.origin + location.pathname + location.search + "#/access";
-  let header = "入口网址为," + entry + "\r\n";
+  let lineTokens = [["入口网址为", entry], []];
   for (const key of rclientKeys.value) {
     const text = getRClientDisplayKey(key);
-    header += text + ",";
+    lineTokens[1]!.push(text);
   }
-  header = header.slice(0, -1);
-  let body = "";
-  /*
-  <tr v-for="(rclient, i) in displayRClients">
-    <td v-for="key in rclientKeys">{{
-        getRClientDisplayValue(rclient, key)
-    }}</td>
-  </tr>
-  */
   for (const rclient of displayRClients.value) {
+    const tokens = [];
     for (const key of rclientKeys.value) {
       const text = getRClientDisplayValue(rclient, key);
-      body += text + ",";
+      tokens.push(text);
     }
-    body = body.slice(0, -1);
-    body += "\r\n";
+    lineTokens.push(tokens);
   }
-  return header + "\r\n" + body;
+  return generateCSV(lineTokens);
 }
 function downloadCSV(csv: string, filename: string) {
   const blob = new Blob(["\uFEFF" + csv], { type: "text/csv" });
@@ -289,17 +282,16 @@ async function importStudentsFromCSV() {
       await $alert("文件内容为空");
       return;
     }
-    const lines = text.trim().split("\n");
+    let linesTokens;
+    try {
+      linesTokens = parseCSV(text.replace(/^[\r\n]+|[\r\n]+$/g, ""));
+    } catch (e) {
+      await $alert("格式错误：请检查 CSV 文件并确认其单元格间采用英文逗号分隔");
+      return;
+    }
     const students: PanelAdminStudentAddReqBody[] = [];
-    for (let i = 0; i < lines.length; i++) {
-      const line = lines[i]!;
-      if (!line.trim()) continue;
-      if (!/^[\s\S]*[,\t]\s*[\s\S]*$/.test(line.trim())) {
-        console.error("Invalid line: " + line);
-        await $alert("格式错误：请检查 CSV 文件并确认其单元格间采用英文逗号或 tab 分隔");
-        return;
-      }
-      const cells = line.split(/[,\t]\s*/);
+    for (let i = 0; i < linesTokens.length; i++) {
+      const cells = linesTokens[i]!;
       if (cells.length !== 2) {
         await $alert("格式错误：请检查第" + (i + 1) + "行是否完整");
         return;

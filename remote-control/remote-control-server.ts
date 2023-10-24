@@ -6,7 +6,7 @@ import { name as serverName } from "./config";
 
 import assert from "assert";
 import { hasAuthed } from "../db/connect";
-assert(hasAuthed);
+assert(hasAuthed());
 
 import express from "express";
 
